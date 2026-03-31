@@ -1,0 +1,49 @@
+/* Estilos del PDF de menus | Aqui se define como se ve el documento exportado */
+
+body {
+    font-family: "DejaVu Sans", sans-serif;
+    font-size: 13px;
+    padding: 20px;
+    color: #222;
+}
+
+
+/* ---------- Titulos ---------- */
+h2 {
+    color: #D90416;
+    margin-bottom: 15px;
+}
+
+
+/* ---------- Tabla principal ---------- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+/* Encabezados */
+th {
+    background: #D90416;
+    color: white;
+    padding: 6px;
+    border: 1px solid #000;
+    text-align: left;
+}
+
+/* Celdas */
+td {
+    padding: 6px;
+    border: 1px solid #000;
+}
+
+/* Filas alternas */
+tr:nth-child(even) {
+    background: #f8f8f8;
+}
+
+
+/* ---------- Configuracion de impresion ---------- */
+@page {
+    margin: 20mm;
+}

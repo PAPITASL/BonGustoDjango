@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion de Menu{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">
+  <strong>Gestion de Menu</strong>
+</h2>
+
+{% if error %}
+<div class="alert alert-danger">
+  <i class="fa fa-exclamation-triangle"></i> {{ error }}
+</div>
+{% endif %}
+
+{% if mensaje %}
+<div class="alert alert-success">
+  <i class="fa fa-check-circle"></i> {{ mensaje }}
+</div>
+{% endif %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div></div>
+  <div class="d-flex gap-2">
+    <button type="button" class="btn btn-outline-dark" onclick="openImportModal('importMenuModal')">
+      <i class="fa fa-file-excel"></i> Importar Excel
+    </button>
+    <a href="/menus/create" class="btn btn-secondary">+ Nuevo Item</a>
+  </div>
+</div>
+
+<form method="get" action="/menus" class="mb-4">
+  <div class="row g-2">
+    <div class="col-md-4">
+      <input type="text" name="nombre" class="form-control" placeholder="Item" value="{{ filtros.nombre }}">
+    </div>
+    <div class="col-md-6">
+      <input type="text" name="descripcion" class="form-control" placeholder="Descripcion" value="{{ filtros.descripcion }}">
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+    </div>
+  </div>
+</form>
+
+<a href="/menus/pdf?nombre={{ filtros.nombre }}&descripcion={{ filtros.descripcion }}" class="btn btn-danger mb-3">
+  <i class="fa fa-file-pdf"></i> Descargar Reporte PDF
+</a>
+
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th><input type="checkbox"></th>
+        <th>Item</th>
+        <th>Descripcion</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in menus %}
+      <tr>
+        <td><input type="checkbox"></td>
+        <td>{{ m.nombre_menu }}</td>
+        <td>{{ m.descripcion_menu }}</td>
+        <td>
+          <div class="action-stack">
+            <a href="/menus/{{ m.id_menu }}" class="btn btn-view btn-sm">Ver</a>
+            <a href="/menus/{{ m.id_menu }}/edit" class="btn btn-success btn-sm">Editar</a>
+            <form
+              action="/menus/{{ m.id_menu }}/delete"
+              method="post"
+              class="action-form"
+              data-confirm-title="Confirmar eliminacion"
+              data-confirm-text="Seguro que deseas eliminar este item del menu?"
+              data-confirm-button="Si, eliminar"
+            >
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4" class="text-center">No hay menus registrados</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div id="importMenuModal" class="import-modal-overlay" style="display:none;">
+  <div class="import-modal-card">
+    <h4>Importar menus desde Excel</h4>
+    <p>Selecciona un archivo <strong>.xlsx</strong> con columnas como <code>nombre_menu</code> y <code>descripcion_menu</code>.</p>
+
+    <form action="/menus/importar" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="file" name="archivo_excel" accept=".xlsx" class="form-control mb-3" required>
+
+      <div class="d-flex gap-2 justify-content-end">
+        <button type="button" class="btn btn-outline-secondary" onclick="closeImportModal('importMenuModal')">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-danger">Subir archivo</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function openImportModal(id) {
+    document.getElementById(id).style.display = 'flex';
+  }
+
+  function closeImportModal(id) {
+    document.getElementById(id).style.display = 'none';
+  }
+</script>
+
+<style>
+  .import-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(16, 18, 22, 0.42);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    z-index: 9999;
+    padding: 96px 20px 24px;
+    overflow-y: auto;
+  }
+
+  .import-modal-card {
+    width: min(520px, 100%);
+    background: #fff;
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+    margin: 0 auto;
+  }
+</style>
+{% endblock %}

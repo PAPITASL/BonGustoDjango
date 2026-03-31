@@ -1,0 +1,1 @@
+"""Admin del modulo chat."""

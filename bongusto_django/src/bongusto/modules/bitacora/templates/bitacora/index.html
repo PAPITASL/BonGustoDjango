@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Bitacora{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">
+  <strong>Bitacora</strong>
+</h2>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <a href="/bitacora/reporte?usuario={{ filtros.usuario }}&accion={{ filtros.accion }}" class="btn btn-danger">
+    <i class="fa fa-file-pdf"></i> Descargar Reporte PDF
+  </a>
+</div>
+
+<form method="get" action="/bitacora" class="mb-4">
+  <div class="row g-2">
+    <div class="col-md-4">
+      <input type="text" name="usuario" class="form-control" placeholder="Usuario" value="{{ filtros.usuario }}">
+    </div>
+    <div class="col-md-6">
+      <input type="text" name="accion" class="form-control" placeholder="Accion" value="{{ filtros.accion }}">
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+    </div>
+  </div>
+</form>
+
+<div class="card p-3 mb-4">
+  <span class="text-muted d-block mb-2">Historial automatico</span>
+  <h3 class="mb-2">Los ultimos cambios se muestran primero</h3>
+  <p class="text-muted mb-0">
+    Esta vista funciona como registro de auditoria. Aqui solo puedes consultar movimientos ya registrados por el sistema.
+  </p>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th class="id-cell">ID</th>
+        <th>Usuario</th>
+        <th>Accion</th>
+        <th>Fecha</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+      <tr>
+        <td class="id-cell"><span class="id-value">{{ log.id_log }}</span></td>
+        <td>{% if log.id_usuario %}{{ log.id_usuario.nombre }} {{ log.id_usuario.apellido }}{% else %}Sistema{% endif %}</td>
+        <td>{{ log.accion|default:"Sin descripcion" }}</td>
+        <td>{% if log.fecha_accion %}{{ log.fecha_accion|date:"d/m/Y H:i" }}{% else %}-{% endif %}</td>
+        <td>
+          <a href="/bitacora/{{ log.id_log }}" class="btn btn-view btn-sm">Ver</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" class="text-center">No hay movimientos registrados con los filtros actuales.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

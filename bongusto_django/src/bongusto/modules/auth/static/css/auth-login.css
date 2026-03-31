@@ -1,0 +1,314 @@
+/* Hoja de estilos auth-login.css - módulo auth */
+/* Controla la parte visual de autenticación */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Base */
+body {
+    font-family: "Manrope", system-ui, sans-serif;
+    background: #f2f1f4;
+    color: #181818;
+}
+
+/* Layout principal */
+.auth-row {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    padding: 18px;
+    gap: 18px;
+}
+
+/* Contenedores principales */
+.auth-image-section,
+.auth-form-section {
+    border-radius: 34px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.92);
+    box-shadow: 0 24px 40px rgba(24, 24, 24, 0.08);
+}
+
+/* Imagen lado izquierdo */
+.auth-image-section {
+    position: relative;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(0,0,0,0.24) 100%),
+        url("https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80");
+    background-size: cover;
+    background-position: center;
+}
+
+/* Overlay */
+.auth-image-overlay {
+    position: absolute;
+    inset: 0;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    color: white;
+}
+
+/* Logo */
+.auth-image-logo {
+    width: 124px;
+    height: 124px;
+    display: block;
+    object-fit: contain;
+    object-position: center;
+    border-radius: 28px;
+    mix-blend-mode: screen;
+}
+
+/* Marca */
+.auth-brand-mark {
+    width: 56px;
+    height: 56px;
+    border-radius: 20px;
+    display: grid;
+    place-items: center;
+    background: rgba(255,255,255,0.82);
+    color: #181818;
+    font-weight: 800;
+    margin-bottom: 18px;
+}
+
+/* Texto branding */
+.auth-kicker {
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 800;
+    margin-bottom: 12px;
+    color: rgba(255,255,255,0.86);
+}
+
+.auth-brand-copy h1 {
+    font-size: clamp(2.6rem, 4vw, 4rem);
+    line-height: 0.98;
+    font-weight: 800;
+    margin-bottom: 14px;
+    letter-spacing: -0.04em;
+}
+
+.auth-brand-copy p {
+    max-width: 520px;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.84);
+}
+
+/* Formulario */
+.auth-form-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 10px;
+}
+
+/* Badge */
+.mini-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: white;
+    border: 1px solid #e8e6eb;
+    color: #181818;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+/* Títulos */
+.auth-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    margin-bottom: 16px;
+}
+
+.auth-subcopy {
+    color: #66656d;
+    font-size: 0.96rem;
+    line-height: 1.6;
+    margin-bottom: 1.4rem;
+}
+
+/* Error */
+.auth-error {
+    color: #9f1730;
+    background: #ffecee;
+    border: 1px solid #ffd9dd;
+    padding: 12px 14px;
+    border-radius: 16px;
+    margin-bottom: 16px;
+}
+
+/* Inputs */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #404048;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.95rem 1rem;
+    border-radius: 16px;
+    border: 1px solid #e8e6eb;
+    background: rgba(255,255,255,0.96);
+    font-size: 0.96rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus {
+    border-color: #d90416;
+    box-shadow: 0 0 0 4px rgba(217, 4, 22, 0.08);
+}
+
+/* Password */
+.password-field {
+    position: relative;
+}
+
+.password-field input {
+    padding-right: 3.2rem;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.85rem;
+    transform: translateY(-50%);
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    background: transparent;
+    color: #7a7881;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+}
+
+.password-toggle:hover {
+    color: #d90416;
+    background: rgba(217, 4, 22, 0.06);
+}
+
+.password-toggle:focus-visible {
+    outline: 2px solid rgba(217, 4, 22, 0.22);
+    outline-offset: 2px;
+}
+
+/* Ayuda */
+.field-help {
+    display: block;
+    margin-top: 6px;
+    color: #73727a;
+    font-size: 0.78rem;
+    line-height: 1.35;
+}
+
+/* Footer */
+.form-footer {
+    text-align: right;
+    margin: 0.4rem 0 1rem;
+}
+
+.link-small {
+    color: #d90416;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.link-small:hover {
+    text-decoration: underline;
+}
+
+/* Botón */
+.btn-primary {
+    width: 100%;
+    border: none;
+    border-radius: 999px;
+    padding: 1rem 1.15rem;
+    background: #d90416;
+    color: white;
+    font-size: 0.98rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 12px 18px rgba(217, 4, 22, 0.16);
+    transition: background 0.2s ease, transform 0.18s ease;
+}
+
+.btn-primary:hover {
+    background: #b00312;
+    transform: translateY(-1px);
+}
+
+.auth-back-link {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+    .auth-row {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-image-section {
+        min-height: 280px;
+    }
+}
+
+@media (max-width: 640px) {
+    .auth-row {
+        padding: 12px;
+    }
+
+    .auth-image-overlay,
+    .auth-form-section {
+        padding: 20px;
+    }
+
+    .auth-title {
+        font-size: 2rem;
+    }
+
+    .auth-brand-copy h1 {
+        font-size: 2.2rem;
+    }
+
+    .auth-image-logo {
+        width: 92px;
+        height: 92px;
+    }
+}

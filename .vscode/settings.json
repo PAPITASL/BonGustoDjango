@@ -1,0 +1,39 @@
+{
+  "python.defaultInterpreterPath": "C:\\Users\\sebas\\Downloads\\bongusto_django\\bongusto_django\\.venv\\Scripts\\python.exe",
+  "python.analysis.extraPaths": [
+    "C:\\Users\\sebas\\Downloads\\bongusto_django\\bongusto_django\\src"
+  ],
+  "dart.flutterSdkPath": "C:\\flutter",
+  "dart.sdkPath": "C:\\flutter\\bin\\cache\\dart-sdk",
+  "dart.projectSearchDepth": 5,
+  "dart.showTodos": true,
+  "dart.analysisExcludedFolders": [
+    "C:\\Users\\sebas\\Downloads\\bongusto_django\\bongusto_django\\.venv",
+    "C:\\Users\\sebas\\Downloads\\bongusto_django\\bongusto_django\\.tmp",
+    "C:\\Users\\sebas\\Downloads\\bongusto_django\\clientes\\.dart_tool",
+    "C:\\Users\\sebas\\Downloads\\bongusto_django\\clientes\\build",
+    "C:\\Users\\sebas\\Downloads\\bongusto_django\\clientes\\android\\.gradle",
+    "C:\\Users\\sebas\\Downloads\\bongusto_django\\mesero\\.dart_tool",
+    "C:\\Users\\sebas\\Downloads\\bongusto_django\\mesero\\build",
+    "C:\\Users\\sebas\\Downloads\\bongusto_django\\mesero\\android\\.gradle"
+  ],
+  "files.watcherExclude": {
+    "**/.dart_tool/**": true,
+    "**/build/**": true,
+    "**/.gradle/**": true,
+    "**/.venv/**": true,
+    "**/.tmp/**": true
+  },
+  "search.exclude": {
+    "**/.dart_tool": true,
+    "**/build": true,
+    "**/.gradle": true,
+    "**/.venv": true,
+    "**/.tmp": true
+  },
+  "java.import.exclusions": [
+    "clientes/android",
+    "mesero/android"
+  ],
+  "java.configuration.updateBuildConfiguration": "interactive"
+}

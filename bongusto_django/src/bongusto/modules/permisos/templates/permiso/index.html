@@ -1,0 +1,47 @@
+<!-- Template `index.html` del modulo `permisos`. Listado principal de permisos registrados en el sistema. -->
+
+{% extends "base.html" %}
+
+<!-- Bloque de titulo de la pagina | Modulo `permisos` | Define el texto visible en la pestaña del navegador. -->
+{% block title %}Gestion de Permisos{% endblock %}
+
+<!-- Bloque de contenido principal | Modulo `permisos` | Desde aqui inicia la interfaz de esta vista. -->
+{% block content %}
+
+<!-- Titulo principal de la vista -->
+<h2 class="text-center mb-4"><strong>Gestion de Permisos</strong></h2>
+
+<div class="table-responsive">
+
+  <!-- Tabla principal | Modulo `permisos` | Muestra el listado de permisos disponibles -->
+  <table class="table table-hover">
+
+    <!-- Encabezado de la tabla -->
+    <thead>
+      <tr>
+        <th class="id-cell">ID</th>
+        <th>Nombre</th>
+        <th>Descripcion</th>
+      </tr>
+    </thead>
+
+    <!-- Cuerpo de la tabla | Renderizado dinamico -->
+    <tbody>
+      {% for p in permisos %}
+      <tr>
+        <td class="id-cell"><span class="id-value">{{ p.id_permiso }}</span></td>
+        <td><code>{{ p.nombre_permiso }}</code></td>
+        <td>{{ p.descripcion|default:"—" }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3" class="text-center">Sin permisos registrados</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+
+  </table>
+
+</div>
+
+{% endblock %}

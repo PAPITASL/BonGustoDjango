@@ -1,0 +1,86 @@
+<!-- Template `form.html` del modulo categorias -->
+<!-- Sirve para crear, editar o ver una categoria -->
+
+{% extends "base.html" %}
+
+<!-- Titulo dinamico -->
+{% block title %}
+{{ accion }} Categoria
+{% endblock %}
+
+{% block content %}
+
+<!-- Contenedor centrado -->
+<div class="row justify-content-center">
+  <div class="col-md-5">
+
+    <!-- Card principal -->
+    <div class="card-dark">
+
+      <!-- Encabezado -->
+      <div class="card-header">
+        {{ accion }} Categoria
+      </div>
+
+      <div class="p-4">
+
+        <!-- Formulario principal -->
+        <!-- Si existe id_cate -> update, si no -> store -->
+        <!-- Confirmaciones solo si no es modo lectura -->
+        <form
+          method="post"
+          action="{% if categoria.id_cate %}/categorias/{{ categoria.id_cate }}/update{% else %}/categorias/store{% endif %}"
+          {% if not readonly %}
+          data-confirm-title="{% if categoria.id_cate %}Confirmar actualizacion{% else %}Confirmar creacion{% endif %}"
+          data-confirm-text="{% if categoria.id_cate %}Seguro que deseas guardar los cambios de esta categoria?{% else %}Seguro que deseas crear esta categoria?{% endif %}"
+          data-confirm-button="{% if categoria.id_cate %}Si, actualizar{% else %}Si, crear{% endif %}"
+          {% endif %}
+        >
+
+          <!-- Seguridad Django -->
+          {% csrf_token %}
+
+          <!-- Campo nombre -->
+          <div class="mb-4">
+            <label>Nombre de la Categoria</label>
+            <input
+              type="text"
+              name="nombre_cate"
+              maxlength="100"
+              class="form-control form-control-dark"
+              value="{{ categoria.nombre_cate|default:'' }}"
+              {% if readonly %}disabled{% else %}required{% endif %}
+            >
+          </div>
+
+          <!-- Botones -->
+          <div class="d-flex gap-2">
+            {% if not readonly %}
+              <button type="submit" class="btn btn-brand">
+                Guardar
+              </button>
+            {% endif %}
+
+            <a href="/categorias" class="btn btn-outline-secondary">
+              {% if readonly %}
+                Volver
+              {% else %}
+                Cancelar
+              {% endif %}
+            </a>
+
+            {% if readonly %}
+              <a href="/categorias/{{ categoria.id_cate }}/edit" class="btn btn-success">
+                Editar
+              </a>
+            {% endif %}
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

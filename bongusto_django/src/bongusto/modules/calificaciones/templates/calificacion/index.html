@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Calificaciones{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">
+  <strong>Calificaciones de clientes</strong>
+</h2>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <a href="/calificaciones/reporte?usuario={{ filtros.usuario }}&puntaje={{ filtros.puntaje }}" class="btn btn-danger">
+    <i class="fa fa-file-pdf"></i> Descargar Reporte PDF
+  </a>
+</div>
+
+<form method="get" action="/calificaciones" class="row g-3 mb-3">
+  <div class="col-md-6">
+    <input type="text" name="usuario" class="form-control" placeholder="Cliente" value="{{ filtros.usuario }}">
+  </div>
+
+  <div class="col-md-4">
+    <select name="puntaje" class="form-control">
+      <option value="">Puntaje minimo</option>
+      <option value="5" {% if filtros.puntaje == '5' %}selected{% endif %}>5 estrellas</option>
+      <option value="4" {% if filtros.puntaje == '4' %}selected{% endif %}>4 estrellas o mas</option>
+      <option value="3" {% if filtros.puntaje == '3' %}selected{% endif %}>3 estrellas o mas</option>
+      <option value="2" {% if filtros.puntaje == '2' %}selected{% endif %}>2 estrellas o mas</option>
+      <option value="1" {% if filtros.puntaje == '1' %}selected{% endif %}>1 estrella o mas</option>
+    </select>
+  </div>
+
+  <div class="col-md-2">
+    <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+  </div>
+</form>
+
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th class="id-cell">ID</th>
+        <th>Cliente</th>
+        <th>Pedido</th>
+        <th>Comida</th>
+        <th>Servicio</th>
+        <th>Ambiente</th>
+        <th>Promedio</th>
+        <th>Fecha</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in calificaciones %}
+      <tr>
+        <td class="id-cell"><span class="id-value">{{ c.id_calificacion }}</span></td>
+        <td>{% if c.id_usuario %}{{ c.id_usuario.nombre }} {{ c.id_usuario.apellido }}{% else %}Cliente sin usuario{% endif %}</td>
+        <td class="nowrap-cell"><span>{{ c.id_pedido_id|default:"-" }}</span></td>
+        <td>{{ c.calificacion_comida }}/5</td>
+        <td>{{ c.calificacion_servicio }}/5</td>
+        <td>{{ c.calificacion_ambiente }}/5</td>
+        <td>{{ c.promedio }}/5</td>
+        <td>{% if c.fecha_calificacion %}{{ c.fecha_calificacion|date:"d/m/Y H:i" }}{% else %}-{% endif %}</td>
+        <td>
+          <a href="/calificaciones/{{ c.id_calificacion }}" class="btn btn-view btn-sm">Ver</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="9" class="text-center">No hay calificaciones registradas</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

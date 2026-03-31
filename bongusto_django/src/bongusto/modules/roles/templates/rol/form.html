@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}{{ accion }} Rol{% endblock %}
+
+{% block content %}
+<h4 class="titulo-seccion text-center mb-4">{{ accion }} Rol</h4>
+
+<div class="card p-3">
+  {% if error %}
+  <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+
+  <form
+    action="{% if rol.id_rol %}/roles/{{ rol.id_rol }}/update{% else %}/roles/store{% endif %}"
+    method="post"
+    {% if not readonly %}
+    data-confirm-title="{% if rol.id_rol %}Confirmar actualizacion{% else %}Confirmar creacion{% endif %}"
+    data-confirm-text="{% if rol.id_rol %}Seguro que deseas guardar los cambios de este rol?{% else %}Seguro que deseas crear este rol?{% endif %}"
+    data-confirm-button="{% if rol.id_rol %}Si, actualizar{% else %}Si, crear{% endif %}"
+    {% endif %}
+  >
+    {% csrf_token %}
+
+    <div class="form-group">
+      <label>Nombre del Rol</label>
+      <input
+        type="text"
+        name="nombre_rol"
+        maxlength="50"
+        class="form-control"
+        value="{{ rol.nombre_rol|default:'' }}"
+        {% if readonly %}disabled{% else %}required{% endif %}
+      >
+    </div>
+
+    <div class="d-flex justify-content-between mt-3">
+      <a href="/roles" class="btn btn-secondary">
+        {% if readonly %}Volver{% else %}Cancelar{% endif %}
+      </a>
+
+      {% if readonly %}
+      <a href="/roles/{{ rol.id_rol }}/edit" class="btn btn-success">Editar</a>
+      {% else %}
+      <button type="submit" class="btn btn-primary">Guardar</button>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

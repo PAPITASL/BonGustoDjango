@@ -1,0 +1,161 @@
+/* ---------- Estilos modulo musica | Layout general y componentes ---------- */
+
+/* Base del body */
+body {
+    background: #fafbfc;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+
+/* ---------- Layout principal ---------- */
+.main-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+    background: #d90416;
+    color: #fff;
+    width: 240px;
+    padding: 32px 20px 20px;
+    border-radius: 28px;
+    margin: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    height: calc(100vh - 32px);
+    align-self: flex-start;
+}
+
+.sidebar h3 {
+    font-weight: bold;
+    margin-bottom: 32px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar ul li {
+    margin-bottom: 18px;
+}
+
+.sidebar ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.08em;
+}
+
+.sidebar ul li a i {
+    margin-right: 10px;
+}
+
+/* Boton logout */
+.logout {
+    color: #fff;
+    background: none;
+    border: none;
+    font-size: 1.08em;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+}
+
+
+/* ---------- Contenido ---------- */
+.content {
+    flex: 1;
+    padding: 40px 60px;
+}
+
+
+/* ---------- Header usuario ---------- */
+.user-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 18px;
+    margin-bottom: 30px;
+}
+
+.avatar {
+    border-radius: 50%;
+    border: 2px solid #eee;
+}
+
+.bell-container {
+    cursor: pointer;
+}
+
+.bell {
+    font-size: 1.7em;
+    color: #888;
+}
+
+
+/* ---------- Seccion principal musica ---------- */
+.music-hero {
+    background: #d90416;
+    border-radius: 24px;
+    padding: 32px;
+    margin-bottom: 32px;
+}
+
+
+/* ---------- Artistas populares ---------- */
+.popular-artists-box {
+    background: #f8d7da;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+
+/* ---------- Tarjetas de canciones ---------- */
+.music-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    transition: all 0.3s ease;
+}
+
+.music-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.music-cover {
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+
+/* Limpiar pseudo-elementos raros */
+.music-card *::before,
+.music-card *::after {
+    border: none !important;
+    clip-path: none !important;
+}
+
+
+/* ---------- Responsive ---------- */
+@media (max-width: 991px) {
+
+    .content {
+        padding: 24px 16px;
+    }
+
+    .main-container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: auto;
+        margin: 8px;
+    }
+}

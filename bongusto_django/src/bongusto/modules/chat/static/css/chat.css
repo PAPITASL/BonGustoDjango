@@ -1,0 +1,89 @@
+/* Hoja de estilos `chat.css` del módulo `chat` */
+/* Controla la apariencia del chat (mensajes, input, etc) */
+
+/* Contenedor donde aparecen los mensajes */
+.chat-messages-modal-area {
+    height: 400px; /* altura fija del chat */
+    overflow-y: auto; /* permite hacer scroll vertical */
+    background: #f8f9fa;
+    padding: 20px;
+}
+
+/* Mensaje de carga (cuando aún no hay datos) */
+.loading-area {
+    text-align: center;
+    color: #6c757d;
+    padding: 50px 0;
+}
+
+/* Estilo base de cada mensaje */
+.message {
+    max-width: 70%; /* evita que ocupe todo el ancho */
+    padding: 12px 16px;
+    border-radius: 15px;
+    margin-bottom: 12px;
+    display: inline-block;
+}
+
+/* Mensaje enviado (usuario actual) */
+.message-sent {
+    background: #dc3545; /* rojo */
+    color: #fff;
+    float: right; /* lo manda a la derecha */
+    border-bottom-right-radius: 5px; /* estilo tipo chat */
+}
+
+
+/* Mensaje recibido (otro usuario) */
+.message-received {
+    background: #fff;
+    border: 1px solid #ddd;
+    float: left; /* lo manda a la izquierda */
+    color: #333;
+    border-bottom-left-radius: 5px;
+}
+
+
+/* Contenedor de cada mensaje */
+.message-wrapper {
+    width: 100%;
+    margin-bottom: 20px;
+    overflow: hidden; /* limpia los float */
+}
+
+
+/* Cabecera del mensaje (usuario / hora) */
+.message-header {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin-bottom: 4px;
+}
+
+
+/* Contenido del mensaje */
+.message-content {
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+
+/* Área donde se escribe el mensaje */
+.chat-input-area {
+    padding: 15px;
+    background: #fff;
+    border-top: 1px solid #ddd;
+}
+
+
+/* Input del chat */
+.chat-input-area .form-control {
+    border-radius: 25px; /* lo hace redondeado tipo WhatsApp */
+    padding: 10px 18px;
+}
+
+
+/* Botón de enviar */
+.chat-input-area .btn {
+    border-radius: 25px;
+    padding: 10px 25px;
+}

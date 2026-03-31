@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Configuracion Musica{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">
+  <strong>Configuracion Musica</strong>
+</h2>
+
+{% if error %}
+<div class="alert alert-danger">
+  <i class="fa fa-exclamation-triangle"></i> {{ error }}
+</div>
+{% endif %}
+
+{% if mensaje %}
+<div class="alert alert-success">
+  <i class="fa fa-check-circle"></i> {{ mensaje }}
+</div>
+{% endif %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <a href="/musicas/reporte" class="btn btn-secondary">
+    <i class="fa fa-file-pdf me-1"></i> Descargar Reporte PDF
+  </a>
+
+  <div class="d-flex gap-2">
+    <button type="button" class="btn btn-outline-dark" onclick="openImportModal('importMusicaModal')">
+      <i class="fa fa-file-excel"></i> Importar Excel
+    </button>
+    <a href="/musicas/nueva" class="btn btn-secondary">+ Agregar Cancion</a>
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th class="id-cell">#</th>
+        <th>Cancion</th>
+        <th>Artista</th>
+        <th>Duracion (min)</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in musicas %}
+      <tr>
+        <td class="id-cell"><span class="id-value">{{ m.id_musica }}</span></td>
+        <td><i class="fa fa-music me-1" style="color:#d90416"></i> {{ m.nombre_musica }}</td>
+        <td>{{ m.artista_musica }}</td>
+        <td class="nowrap-cell"><span>{{ m.duracion_musica|default:"-" }}</span></td>
+        <td>
+          <div class="action-stack">
+            <a href="/musicas/{{ m.id_musica }}" class="btn btn-view btn-sm">Ver</a>
+            <form
+              action="/musicas/{{ m.id_musica }}/eliminar"
+              method="post"
+              class="action-form"
+              data-confirm-title="Confirmar eliminacion"
+              data-confirm-text="Seguro que deseas eliminar esta cancion?"
+              data-confirm-button="Si, eliminar"
+            >
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" class="text-center">No hay canciones en la lista</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div id="importMusicaModal" class="import-modal-overlay" style="display:none;">
+  <div class="import-modal-card">
+    <h4>Importar canciones desde Excel</h4>
+    <p>Usa columnas como <code>nombre_musica</code>, <code>artista_musica</code> y <code>duracion_musica</code>.</p>
+
+    <form action="/musicas/importar" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="file" name="archivo_excel" accept=".xlsx" class="form-control mb-3" required>
+
+      <div class="d-flex gap-2 justify-content-end">
+        <button type="button" class="btn btn-outline-secondary" onclick="closeImportModal('importMusicaModal')">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-danger">Subir archivo</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function openImportModal(id) {
+    document.getElementById(id).style.display = 'flex';
+  }
+
+  function closeImportModal(id) {
+    document.getElementById(id).style.display = 'none';
+  }
+</script>
+
+<style>
+  .import-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(16, 18, 22, 0.42);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    z-index: 9999;
+    padding: 96px 20px 24px;
+    overflow-y: auto;
+  }
+
+  .import-modal-card {
+    width: min(520px, 100%);
+    background: #fff;
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+    margin: 0 auto;
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion de Roles{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4"><strong>Gestion de Roles</strong></h2>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div></div>
+  <a href="/roles/create" class="btn btn-secondary">+ Nuevo Rol</a>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th class="id-cell">ID</th>
+        <th>Nombre</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in roles %}
+      <tr>
+        <td class="id-cell"><span class="id-value">{{ r.id_rol }}</span></td>
+        <td>{{ r.nombre_rol }}</td>
+        <td>
+          <div class="action-stack">
+            <a href="/roles/{{ r.id_rol }}" class="btn btn-view btn-sm">Ver</a>
+            <a href="/roles/{{ r.id_rol }}/edit" class="btn btn-success btn-sm">Editar</a>
+            <form
+              action="/roles/{{ r.id_rol }}/delete"
+              method="post"
+              class="action-form"
+              data-confirm-title="Confirmar eliminacion"
+              data-confirm-text="Seguro que deseas eliminar este rol?"
+              data-confirm-button="Si, eliminar"
+            >
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3" class="text-center">Sin roles</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

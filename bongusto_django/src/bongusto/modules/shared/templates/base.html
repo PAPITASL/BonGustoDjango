@@ -1,0 +1,504 @@
+<!-- Template base del modulo shared | Aqui se define la estructura general que comparten las demas vistas del sistema -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Titulo dinamico de la pagina -->
+  <title>{% block title %}BonGusto{% endblock %} - BonGusto</title>
+
+  <!-- Fuentes y estilos globales -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/common-table.css?v=20260331b">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <!-- Libreria para confirmaciones y alertas -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body class="app-shell">
+
+<!-- Fondo oscuro para cerrar sidebar en responsive -->
+<div class="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+<div class="main-container">
+
+  <!-- ===== Sidebar principal | Navegacion general del sistema ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <img src="/static/img/logobongusto.png?v=20260322a" alt="BonGusto" class="brand-logo-image" width="54" height="54">
+
+      <div class="brand-copy">
+        <h3>BonGusto</h3>
+        <p>Sabor, control y servicio</p>
+      </div>
+    </div>
+
+    <!-- Menu lateral -->
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="/dashboard" class="{% if request.path == '/dashboard' %}active{% endif %}"><i class="fa fa-home"></i><span>Dashboard</span></a></li>
+        <li><a href="/usuarios" class="{% if '/usuarios' in request.path %}active{% endif %}"><i class="fa fa-user"></i><span>Usuarios</span></a></li>
+        <li><a href="/menus" class="{% if '/menus' in request.path %}active{% endif %}"><i class="fa fa-utensils"></i><span>Menús</span></a></li>
+        <li><a href="/productos" class="{% if '/productos' in request.path %}active{% endif %}"><i class="fa fa-burger"></i><span>Productos</span></a></li>
+        <li><a href="/musicas" class="{% if '/musicas' in request.path %}active{% endif %}"><i class="fa fa-music"></i><span>Música</span></a></li>
+        <li><a href="/eventos" class="{% if '/eventos' in request.path %}active{% endif %}"><i class="fa fa-calendar"></i><span>Eventos</span></a></li>
+        <li><a href="/calificaciones" class="{% if '/calificaciones' in request.path %}active{% endif %}"><i class="fa fa-star"></i><span>Calificaciones</span></a></li>
+        <li><a href="/bitacora" class="{% if '/bitacora' in request.path %}active{% endif %}"><i class="fa fa-file-alt"></i><span>Bitácora</span></a></li>
+      </ul>
+    </nav>
+
+    <!-- Formulario de cierre de sesion -->
+    <form action="/logout" method="post" class="logout-form" data-skip-confirm="true">
+      {% csrf_token %}
+      <button type="submit" class="logout">
+        <i class="fa fa-sign-out-alt"></i> Cerrar Sesión
+      </button>
+    </form>
+  </aside>
+
+
+  <!-- ===== Contenido principal ===== -->
+  <section class="content">
+
+    <!-- Barra superior -->
+    <div class="topbar-card">
+
+      <!-- Boton para abrir sidebar en responsive -->
+      <button type="button" class="sidebar-toggle" aria-label="Abrir menu" aria-controls="sidebar" aria-expanded="false" onclick="toggleSidebar()">
+        <i class="fa fa-bars"></i>
+      </button>
+
+      <div class="topbar-copy">
+        <div class="topbar-kicker">Experiencia gastronómica</div>
+        <div class="topbar-title">{% block page_heading %}Gestión BonGusto{% endblock %}</div>
+      </div>
+
+      <!-- Perfil y notificaciones -->
+      <div class="user-header">
+        <a href="/perfil" class="profile-chip">
+          <div class="profile-avatar">{{ request.session.usuario_nombre|default:"U"|slice:":1"|upper }}</div>
+          <div>
+            <strong>{{ request.session.usuario_nombre }}</strong><br>
+            <small>BonGusto</small>
+          </div>
+        </a>
+
+        <div class="bell-container" onclick="toggleChat()">
+          <i class="fa fa-comments bell"></i>
+          <span class="notification-badge">3</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Superficie principal donde se renderiza cada modulo -->
+    <div class="page-surface">
+      {% block content %}{% endblock %}
+    </div>
+
+  </section>
+</div>
+
+
+<!-- ===== Panel lateral de chat ===== -->
+<div id="chatPanel">
+  <div class="chat-header">
+    <h3><i class="fa fa-comments"></i> Chat Administrador</h3>
+    <button class="chat-close" onclick="toggleChat()">
+      <i class="fa fa-times"></i>
+    </button>
+  </div>
+
+  <div id="chatMessages"></div>
+
+  <div class="chat-input-container">
+    <input type="text" id="chatInput" placeholder="Escribe un mensaje..." autocomplete="off">
+    <button type="button" id="chatSendButton" onclick="sendChatMsg()">
+      <i class="fa fa-paper-plane"></i>
+    </button>
+  </div>
+</div>
+
+
+<style>
+  /* ===== Estilos de confirmacion global con SweetAlert ===== */
+  .swal2-popup.bongusto-confirm {
+    width: min(520px, calc(100vw - 32px));
+    border-radius: 28px;
+    padding: 34px 34px 28px;
+    box-shadow: 0 28px 70px rgba(24, 24, 24, 0.18);
+  }
+
+  .swal2-title.bongusto-confirm-title {
+    margin: 0;
+    color: #181818;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.15;
+  }
+
+  .swal2-html-container.bongusto-confirm-text {
+    margin: 12px 0 0;
+    color: #73727a;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  .swal2-actions.bongusto-confirm-actions {
+    width: 100%;
+    gap: 12px;
+    margin-top: 26px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .swal2-confirm.bongusto-confirm-button,
+  .swal2-cancel.bongusto-cancel-button {
+    min-width: 180px;
+    border-radius: 16px;
+    padding: 14px 18px;
+    font-size: 15px;
+    font-weight: 800;
+    box-shadow: none !important;
+  }
+
+  .swal2-confirm.bongusto-confirm-button {
+    background: #d90416 !important;
+    color: #ffffff !important;
+  }
+
+  .swal2-cancel.bongusto-cancel-button {
+    background: #f3f4f7 !important;
+    color: #181818 !important;
+    border: 1px solid #e8e6eb !important;
+  }
+
+  .swal2-backdrop-show {
+    background: rgba(17, 18, 21, 0.42) !important;
+    backdrop-filter: blur(6px);
+  }
+
+  /* ===== Estilos del panel lateral de chat ===== */
+  #chatPanel {
+    position: fixed;
+    right: -400px;
+    top: 0;
+    width: min(400px, 100vw);
+    height: 100vh;
+    max-width: 100vw;
+    background: white;
+    box-shadow: -8px 0 30px rgba(0,0,0,0.14);
+    z-index: 9999;
+    transition: right 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid rgba(217, 4, 22, 0.08);
+  }
+
+  #chatPanel.active {
+    right: 0;
+  }
+
+  .chat-header {
+    background: linear-gradient(135deg, #d90416 0%, #b31217 100%);
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .chat-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .chat-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+  }
+
+  .chat-close:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+  #chatMessages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: linear-gradient(180deg, #fff9f6 0%, #fff 100%);
+  }
+
+  .message {
+    margin-bottom: 15px;
+    display: flex;
+    gap: 10px;
+  }
+
+  .message.sent {
+    justify-content: flex-end;
+  }
+
+  .message.sent .message-content {
+    background: linear-gradient(135deg, #d90416 0%, #e5383b 100%);
+    color: white;
+    border-radius: 18px 18px 4px 18px;
+  }
+
+  .message.received .message-content {
+    background: white;
+    color: #333;
+    border-radius: 18px 18px 18px 4px;
+    border: 1px solid rgba(217, 4, 22, 0.08);
+  }
+
+  .message-content {
+    max-width: 70%;
+    padding: 10px 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+  }
+
+  .message-text {
+    word-wrap: break-word;
+  }
+
+  .message-time {
+    font-size: 11px;
+    opacity: 0.75;
+  }
+
+  .chat-input-container {
+    padding: 15px;
+    background: white;
+    border-top: 1px solid rgba(217, 4, 22, 0.08);
+    display: flex;
+    gap: 10px;
+  }
+
+  .chat-input-container input {
+    flex: 1;
+    border: 1px solid #ead9d2;
+    border-radius: 999px;
+    padding: 12px 18px;
+    font-size: 14px;
+    outline: none;
+  }
+
+  .chat-input-container input:focus {
+    border-color: #d90416;
+    box-shadow: 0 0 0 4px rgba(217, 4, 22, 0.08);
+  }
+
+  .chat-input-container button {
+    background: linear-gradient(135deg, #d90416 0%, #b31217 100%);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 10px 18px rgba(217, 4, 22, 0.18);
+  }
+
+  .chat-input-container button:hover {
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 640px) {
+    /* Ajustes del chat para pantallas pequenas */
+    #chatPanel {
+      right: -100vw;
+      width: 100vw;
+      border-left: none;
+      box-shadow: 0 -8px 30px rgba(0,0,0,0.14);
+    }
+
+    .chat-header,
+    #chatMessages,
+    .chat-input-container {
+      padding-left: 14px;
+      padding-right: 14px;
+    }
+
+    .message-content {
+      max-width: 88%;
+    }
+  }
+</style>
+
+
+<script>
+  // Busca formularios POST y les agrega confirmacion visual antes de enviar.
+  function bindCrudConfirmations() {
+    const forms = document.querySelectorAll('form[method="post"]:not([data-skip-confirm="true"])');
+
+    forms.forEach((form) => {
+      if (form.dataset.confirmBound === 'true') return;
+      form.dataset.confirmBound = 'true';
+
+      form.addEventListener('submit', function (event) {
+        if (form.dataset.confirmed === 'true') {
+          form.dataset.confirmed = 'false';
+          return;
+        }
+
+        event.preventDefault();
+
+        const title = form.dataset.confirmTitle || 'Confirmar accion';
+        const text = form.dataset.confirmText || 'Seguro que deseas continuar con este cambio?';
+        const confirmButtonText = form.dataset.confirmButton || 'Si, continuar';
+
+        Swal.fire({
+          title,
+          text,
+          showCancelButton: true,
+          confirmButtonText,
+          cancelButtonText: 'Cancelar',
+          reverseButtons: true,
+          focusCancel: true,
+          background: '#ffffff',
+          color: '#1f1f1f',
+          buttonsStyling: false,
+          customClass: {
+            popup: 'bongusto-confirm',
+            title: 'bongusto-confirm-title',
+            htmlContainer: 'bongusto-confirm-text',
+            actions: 'bongusto-confirm-actions',
+            confirmButton: 'bongusto-confirm-button',
+            cancelButton: 'bongusto-cancel-button',
+          },
+        }).then((result) => {
+          if (result.isConfirmed) {
+            form.dataset.confirmed = 'true';
+            form.requestSubmit();
+          }
+        });
+      });
+    });
+  }
+
+  // Controla la apertura y cierre del panel de chat lateral.
+  function toggleChat() {
+    document.getElementById('chatPanel').classList.toggle('active');
+  }
+
+  // Abre o cierra el menu lateral cuando la pantalla es pequena.
+  function toggleSidebar() {
+    const body = document.body;
+    const nextState = !body.classList.contains('sidebar-open');
+    body.classList.toggle('sidebar-open', nextState);
+
+    const toggle = document.querySelector('.sidebar-toggle');
+    if (toggle) {
+      toggle.setAttribute('aria-expanded', nextState ? 'true' : 'false');
+    }
+  }
+
+  // Cierra el menu lateral y actualiza el estado del boton.
+  function closeSidebar() {
+    document.body.classList.remove('sidebar-open');
+
+    const toggle = document.querySelector('.sidebar-toggle');
+    if (toggle) {
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  // Si la pantalla vuelve a escritorio, el sidebar responsive se limpia.
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 1320) {
+      closeSidebar();
+    }
+  });
+
+  // Variables base para abrir el WebSocket del chat administrativo.
+  const usuarioNombre = "administrador";
+  const wsProto = location.protocol === "https:" ? "wss" : "ws";
+  let socket;
+
+  try {
+    // Conexion en tiempo real para recibir mensajes en la interfaz web.
+    socket = new WebSocket(`${wsProto}://${location.host}/ws/chat/${usuarioNombre}/`);
+
+    socket.onmessage = function(e) {
+      const data = JSON.parse(e.data);
+      const isMine = data.remitente === usuarioNombre;
+
+      const div = document.createElement('div');
+      div.className = 'message ' + (isMine ? 'sent' : 'received');
+      div.innerHTML = `<div class="message-content"><div class="message-text">${data.mensaje}</div><div class="message-time">${data.remitente}</div></div>`;
+
+      document.getElementById('chatMessages').appendChild(div);
+      document.getElementById('chatMessages').scrollTop = 999999;
+    };
+  } catch(e) {
+    console.log('WebSocket no disponible');
+  }
+
+  // Envia el mensaje escrito si la conexion esta abierta.
+  function sendChatMsg() {
+    const input = document.getElementById('chatInput');
+    const txt = input.value.trim();
+
+    if (!txt || !socket || socket.readyState !== WebSocket.OPEN) return;
+
+    socket.send(JSON.stringify({
+      tipo: 'mensaje',
+      remitente: usuarioNombre,
+      destinatario: 'mesero',
+      mensaje: txt
+    }));
+
+    input.value = '';
+  }
+
+  // Permite enviar el mensaje al presionar la tecla Enter.
+  document.getElementById('chatInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') sendChatMsg();
+  });
+
+  // Evita que el navegador vuelva a una sesion anterior usando atras.
+  (function() {
+    if (window.history && window.history.pushState) {
+      window.history.pushState(null, null, window.location.href);
+      window.onpopstate = function() {
+        window.history.pushState(null, null, window.location.href);
+      };
+    }
+
+    window.onpageshow = function(e) {
+      if (e.persisted) window.location.href = '/login';
+    };
+  })();
+
+  bindCrudConfirmations();
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

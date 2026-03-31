@@ -1,0 +1,150 @@
+/* Reset básico */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Estilos generales */
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background-color: #f7f7f7;
+    color: #222;
+}
+
+/* Layout principal */
+.auth-row {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sección izquierda con imagen */
+.auth-image-section {
+    flex: 1;
+    background-image: url("https://i.pinimg.com/1200x/ac/4c/be/ac4cbe1faf6947c0d781d894aa7f7379.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Sección derecha con formulario */
+.auth-form-section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    background-color: #ffffff;
+}
+
+/* Tarjeta del formulario */
+.auth-card {
+    width: 100%;
+    max-width: 360px;
+    background-color: #ffffff;
+}
+
+/* Títulos y texto */
+.auth-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    color: #222;
+}
+
+.auth-subtitle {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+}
+
+/* Formulario */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: #333;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #d4d4d4;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus {
+    border-color: #b71c1c;
+    box-shadow: 0 0 0 2px rgba(183, 28, 28, 0.12);
+}
+
+/* Botón principal */
+.btn-primary {
+    width: 100%;
+    margin-top: 0.3rem;
+    padding: 0.65rem 1rem;
+    border: none;
+    border-radius: 4px;
+    background-color: #b71c1c;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover {
+    background-color: #a51212;
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+/* Enlace para volver */
+.back-login {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.link-small {
+    font-size: 0.85rem;
+    color: #b71c1c;
+    text-decoration: none;
+}
+
+.link-small:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .auth-row {
+        flex-direction: column;
+    }
+
+    .auth-image-section {
+        display: none;
+    }
+
+    .auth-form-section {
+        flex: none;
+        min-height: 100vh;
+        padding: 32px 18px;
+    }
+
+    .auth-card {
+        max-width: 100%;
+    }
+}

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion de Eventos{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">
+  <strong>Gestion de Reservas y Eventos</strong>
+</h2>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div></div>
+  <a href="/eventos/nuevo" class="btn btn-secondary">+ Nuevo Evento</a>
+</div>
+
+<form method="get" action="/eventos" class="row g-3 mb-3">
+  <div class="col-md-4">
+    <select name="estado" class="form-control">
+      <option value="">Estado</option>
+      <option value="activa" {% if filtros.estado == 'activa' %}selected{% endif %}>Activa</option>
+      <option value="cancelada" {% if filtros.estado == 'cancelada' %}selected{% endif %}>Cancelada</option>
+      <option value="finalizada" {% if filtros.estado == 'finalizada' %}selected{% endif %}>Finalizada</option>
+    </select>
+  </div>
+
+  <div class="col-md-4">
+    <input type="date" name="fecha" class="form-control" value="{{ filtros.fecha }}">
+  </div>
+
+  <div class="col-12">
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    <a href="/eventos/pdf?estado={{ filtros.estado }}&fecha={{ filtros.fecha }}" class="btn btn-danger">
+      <i class="fa fa-file-pdf"></i> Descargar PDF
+    </a>
+  </div>
+</form>
+
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th class="id-cell">ID</th>
+        <th>Usuario</th>
+        <th>Fecha</th>
+        <th>Estado</th>
+        <th>Hora</th>
+        <th>Nombre Evento</th>
+        <th>Detalle</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in eventos %}
+      <tr>
+        <td class="id-cell"><span class="id-value">{{ r.id_reser }}</span></td>
+        <td>{% if r.id_usuario %}{{ r.id_usuario.nombre }} {{ r.id_usuario.apellido }}{% else %}-{% endif %}</td>
+        <td>{{ r.fecha_reser|date:"d/m/Y"|default:"-" }}</td>
+        <td>
+          <span class="badge {% if r.estado_reser == 'activa' %}badge-success{% elif r.estado_reser == 'cancelada' %}badge-danger{% else %}badge-secondary{% endif %}">
+            {{ r.estado_reser }}
+          </span>
+        </td>
+        <td>{{ r.hora_reser|default:"-" }}</td>
+        <td>{{ r.nombre_evento|default:"-" }}</td>
+        <td>{{ r.detalle_evento|default:"-" }}</td>
+        <td>
+          <div class="action-stack">
+            <a href="/eventos/{{ r.id_reser }}" class="btn btn-view btn-sm">Ver</a>
+            <a href="/eventos/editar/{{ r.id_reser }}" class="btn btn-success btn-sm">Editar</a>
+            <form
+              action="/eventos/{{ r.id_reser }}/eliminar"
+              method="post"
+              class="action-form"
+              data-confirm-title="Confirmar cancelacion"
+              data-confirm-text="Seguro que deseas cancelar este evento?"
+              data-confirm-button="Si, cancelar"
+            >
+              {% csrf_token %}
+              <button class="btn btn-danger btn-sm" type="submit">Cancelar</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="8" class="text-center">No hay eventos registrados</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

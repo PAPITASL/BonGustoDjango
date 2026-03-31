@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}{{ accion }} Registro{% endblock %}
+
+{% block content %}
+<h4 class="titulo-seccion text-center mb-4">{{ accion }} Registro</h4>
+
+<div class="card p-3" style="max-width:760px;margin:0 auto;">
+  <form
+    method="post"
+    action="{% if bitacora.id_log %}/bitacora/{{ bitacora.id_log }}/update{% else %}/bitacora/store{% endif %}"
+    {% if not readonly %}
+    data-confirm-title="{% if bitacora.id_log %}Confirmar actualizacion{% else %}Confirmar creacion{% endif %}"
+    data-confirm-text="{% if bitacora.id_log %}Seguro que deseas guardar los cambios?{% else %}Seguro que deseas crear este registro?{% endif %}"
+    data-confirm-button="{% if bitacora.id_log %}Si, actualizar{% else %}Si, crear{% endif %}"
+    {% endif %}
+  >
+    {% csrf_token %}
+
+    <div class="mb-3">
+      <label class="form-label">Usuario</label>
+      <select name="usuario_id" class="form-control" {% if readonly %}disabled{% endif %}>
+        <option value="">Seleccionar</option>
+        {% for u in usuarios %}
+        <option value="{{ u.id_usuario }}" {% if bitacora.id_usuario_id == u.id_usuario %}selected{% endif %}>
+          {{ u.nombre }} {{ u.apellido }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label">Accion</label>
+      <textarea name="accion" class="form-control" rows="3" {% if readonly %}disabled{% endif %}>{{ bitacora.accion|default:'' }}</textarea>
+    </div>
+
+    <div class="d-flex gap-2">
+      {% if not readonly %}
+      <button type="submit" class="btn btn-primary">Guardar</button>
+      {% endif %}
+
+      <a href="/bitacora" class="btn btn-secondary">
+        {% if readonly %}Volver{% else %}Cancelar{% endif %}
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock %}

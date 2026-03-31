@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>BonGusto | Iniciar sesion</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/auth-login.css?v=20260322b">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <div class="auth-row">
+    <div class="auth-image-section">
+      <div class="auth-image-overlay">
+        <img src="/static/img/logobongusto.png?v=20260322a" alt="BonGusto" class="auth-image-logo" width="124" height="124">
+      </div>
+    </div>
+
+    <div class="auth-form-section">
+      <form action="/login" method="post" class="auth-card">
+        {% csrf_token %}
+
+        <h2 class="auth-title">Iniciar sesion</h2>
+
+        {% if error %}
+        <div class="auth-error">
+          <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+          <label for="email">Correo electronico</label>
+          <input id="email" type="email" name="username" maxlength="100" placeholder="ejemplo@gmail.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Contrasena</label>
+          <div class="password-field">
+            <input id="password" type="password" name="password" maxlength="255" placeholder="Ingresar contrasena" required>
+            <button type="button" class="password-toggle" data-password-target="password" aria-label="Mostrar u ocultar contrasena">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-footer">
+          <a href="/password/email" class="link-small">Olvidaste tu contrasena?</a>
+        </div>
+
+        <button type="submit" class="btn-primary">Iniciar sesion</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.querySelectorAll('[data-password-target]').forEach(function(toggle) {
+      toggle.addEventListener('click', function() {
+        const input = document.getElementById(toggle.dataset.passwordTarget);
+        const icon = toggle.querySelector('i');
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        icon.className = isPassword ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+      });
+    });
+
+    (function() {
+      if (window.history && window.history.pushState) {
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function() {
+          window.history.pushState(null, null, window.location.href);
+        };
+      }
+    })();
+  </script>
+</body>
+</html>

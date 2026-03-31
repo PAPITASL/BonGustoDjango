@@ -1,0 +1,1 @@
+"""Recursos compartidos del proyecto."""

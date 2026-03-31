@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>BonGusto | Recuperar contrasena</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/auth-login.css?v=20260322a">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <div class="auth-row">
+    <div class="auth-image-section">
+      <div class="auth-image-overlay">
+        <img src="/static/img/logobongusto.png?v=20260322a" alt="BonGusto" class="auth-image-logo" width="124" height="124">
+      </div>
+    </div>
+
+    <div class="auth-form-section">
+      <form action="/password/email" method="post" class="auth-card">
+        {% csrf_token %}
+
+        <h2 class="auth-title">Recuperar contrasena</h2>
+        <p class="auth-subcopy">Ingresa tu correo para enviarte un codigo de recuperacion.</p>
+
+        {% if error %}
+        <div style="margin-bottom:16px;padding:12px 14px;border-radius:14px;background:#fff0f1;color:#b42318;font-size:14px;font-weight:600;">
+          {{ error }}
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+          <label>Correo electronico</label>
+          <input type="email" name="email" maxlength="100" placeholder="correo@bongusto.com" value="{{ email|default:'' }}" required>
+        </div>
+
+        <button type="submit" class="btn-primary">Enviar codigo</button>
+
+        <div class="auth-back-link">
+          <a href="/login" class="link-small">Volver al inicio de sesion</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

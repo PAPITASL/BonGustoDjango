@@ -1,0 +1,619 @@
+<!-- Template principal del dashboard | Aqui se muestra toda la vista visual del panel principal -->
+
+{% extends "base.html" %}
+
+<!-- Titulo que se vera en la pestana del navegador -->
+{% block title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* =========================================================
+     CONTENEDOR PRINCIPAL DEL DASHBOARD
+  ========================================================= */
+  .dashboard-shell {
+    background: linear-gradient(180deg, #fffdfd 0%, #f8f4f6 100%);
+    border-radius: 28px;
+    padding: 28px;
+    color: #2c2c2c;
+    box-shadow: 0 22px 50px rgba(168, 138, 150, 0.10);
+  }
+
+  /* Texto pequeño superior tipo seccion */
+  .dashboard-kicker {
+    color: #b85c74;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+
+  /* =========================================================
+     GRID GENERAL DEL DASHBOARD
+  ========================================================= */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  /* Tarjeta base que comparten todos los paneles */
+  .panel-card {
+    background: #ffffff;
+    border: 1px solid rgba(184, 92, 116, 0.10);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 10px 30px rgba(92, 77, 84, 0.05);
+  }
+
+  /* Clases para manejar el ancho de cada panel */
+  .span-2 { grid-column: span 2; }
+  .span-4 { grid-column: span 4; }
+  .span-5 { grid-column: span 5; }
+  .span-6 { grid-column: span 6; }
+  .span-7 { grid-column: span 7; }
+  .span-8 { grid-column: span 8; }
+
+  /* =========================================================
+     TARJETAS DE METRICAS
+  ========================================================= */
+  .metric-card {
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+  }
+
+  /* Circulo de progreso de cada metrica */
+  .metric-ring {
+    --ring-color-start: #d90416;
+    --size: 110px;
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    position: relative;
+    background:
+      radial-gradient(circle at center, #ffffff 56%, transparent 57%),
+      conic-gradient(var(--ring-color-end) calc(var(--ring-progress) * 1%), rgba(25,25,25,0.06) 0);
+    box-shadow: inset 0 0 0 10px color-mix(in srgb, var(--ring-color-start) 8%, white);
+  }
+
+  /* Borde interior decorativo */
+  .metric-ring::before {
+    content: "";
+    position: absolute;
+    inset: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba(217, 4, 22, 0.08);
+  }
+
+  /* Valor grande en el centro */
+  .metric-value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  /* Nombre de la metrica */
+  .metric-title {
+    margin-top: 14px;
+    color: #9d6172;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* Texto pequeño debajo */
+  .metric-copy {
+    color: #707070;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* =========================================================
+     TEXTOS GENERALES DE LOS PANELES
+  ========================================================= */
+  .panel-title {
+    color: #9d6172;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  .highlight-number {
+    font-size: 42px;
+    font-weight: 800;
+    color: #a76a7d;
+    line-height: 1;
+    margin: 10px 0 14px;
+  }
+
+  .mini-copy {
+    color: #707070;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  /* =========================================================
+     BARRAS DE PROGRESO POR MODULO
+  ========================================================= */
+  .progress-stack {
+    display: grid;
+    gap: 14px;
+  }
+
+  .progress-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .progress-track {
+    grid-column: 1 / -1;
+    height: 9px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #f2e8eb;
+  }
+
+  .progress-fill {
+    width: var(--fill-width, 0%);
+    height: 100%;
+    border-radius: inherit;
+    background: var(--fill-color, #d90416);
+  }
+
+  /* =========================================================
+     GRAFICA DE TENDENCIA
+  ========================================================= */
+  .line-chart {
+    position: relative;
+    min-height: 255px;
+    overflow: hidden;
+  }
+
+  .line-chart svg {
+    width: 100%;
+    height: 190px;
+    display: block;
+  }
+
+  .chart-grid line {
+    stroke: rgba(167, 184, 196, 0.30);
+    stroke-width: 1;
+  }
+
+  .chart-area {
+    fill: rgba(184, 220, 234, 0.35);
+  }
+
+  .chart-line {
+    fill: none;
+    stroke: #8fb7ca;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .chart-point {
+    fill: #ffffff;
+    stroke: #b7a8d6;
+    stroke-width: 2;
+  }
+
+  .chart-labels {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+    color: #7a7a7a;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  /* =========================================================
+     DISTRIBUCION DE USUARIOS
+  ========================================================= */
+  .activity-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(180px, 0.95fr);
+    gap: 18px;
+    align-items: center;
+  }
+
+  .activity-bars {
+    display: grid;
+    gap: 10px;
+  }
+
+  .activity-strip {
+    display: grid;
+    gap: 6px;
+  }
+
+  .activity-track {
+    height: 12px;
+    border-radius: 999px;
+    background: #f1eaee;
+    overflow: hidden;
+  }
+
+  .activity-fill {
+    width: var(--fill-width, 0%);
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--fill-color, #d90416), rgba(255,255,255,0.2));
+  }
+
+  .activity-side p {
+    color: #707070;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .activity-side strong {
+    color: #9d6172;
+    font-size: 26px;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  /* =========================================================
+     CALENDARIO
+  ========================================================= */
+  .calendar-box {
+    min-height: 220px;
+  }
+
+  .calendar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    color: #a76a7d;
+  }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    text-align: center;
+    font-size: 12px;
+  }
+
+  .weekday {
+    color: #8a8a8a;
+    text-transform: uppercase;
+  }
+
+  .calendar-day {
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    color: #4a4a4a;
+  }
+
+  .calendar-day.muted {
+    opacity: 0.18;
+  }
+
+  .calendar-day.today {
+    background: linear-gradient(135deg, #d9a8b7, #e7c4cf);
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  /* =========================================================
+     PULSO DEL SISTEMA
+  ========================================================= */
+  .status-row {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .status-item {
+    text-align: center;
+  }
+
+  .status-circle {
+    --status-progress: 50;
+    width: 78px;
+    height: 78px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(circle at center, #ffffff 59%, transparent 60%),
+      conic-gradient(var(--status-color) calc(var(--status-progress) * 1%), rgba(188, 177, 183, 0.22) 0);
+    color: #2c2c2c;
+    font-weight: 700;
+  }
+
+  .status-item small {
+    display: block;
+    color: #8a8a8a;
+    margin-top: 4px;
+  }
+
+  /* =========================================================
+     ULTIMOS REGISTROS
+  ========================================================= */
+  .latest-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .latest-item {
+    background: #fcf9fa;
+    border: 1px solid rgba(184, 92, 116, 0.08);
+    border-radius: 14px;
+    padding: 12px;
+    min-height: 110px;
+  }
+
+  .latest-item h6 {
+    margin: 0 0 8px;
+    color: #9d6172;
+    font-size: 13px;
+  }
+
+  .latest-item p,
+  .latest-item small {
+    color: #707070;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* =========================================================
+     RESPONSIVE
+  ========================================================= */
+  @media (max-width: 1200px) {
+    .span-2,
+    .span-4,
+    .span-5,
+    .span-6,
+    .span-7,
+    .span-8 {
+      grid-column: span 12;
+    }
+
+    .latest-grid,
+    .status-row,
+    .activity-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+<!-- Contenido principal del dashboard -->
+{% block content %}
+<div class="dashboard-shell">
+
+  <!-- =========================================================
+       ENCABEZADO SUPERIOR
+  ========================================================= -->
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px;">
+    <div class="dashboard-kicker" style="margin-bottom:0;">Dashboard / Home</div>
+
+    <!-- Boton para descargar el PDF del dashboard -->
+    <a href="/dashboard/reporte" class="btn btn-secondary">
+      <i class="fa fa-file-pdf me-1"></i> Descargar Reporte PDF
+    </a>
+  </div>
+
+  <!-- =========================================================
+       GRID PRINCIPAL DEL DASHBOARD
+  ========================================================= -->
+  <div class="dashboard-grid">
+
+    <!-- =========================================================
+         TARJETAS DE METRICAS
+    ========================================================= -->
+    {% for metrica in metricas_resumen %}
+    <div class="panel-card metric-card span-2">
+      <div class="metric-ring" style="--ring-progress: {{ metrica.porcentaje }}; --ring-color-start: {{ metrica.color_inicio }}; --ring-color-end: {{ metrica.color_fin }};">
+        <div>
+          <div class="metric-value">{{ metrica.valor }}</div>
+          <small><i class="fa {{ metrica.icono }}"></i></small>
+        </div>
+      </div>
+
+      <div class="metric-title">{{ metrica.titulo }}</div>
+      <div class="metric-copy">
+        Vista general de {{ metrica.titulo|lower }} dentro del sistema.
+      </div>
+    </div>
+    {% endfor %}
+
+    <!-- =========================================================
+         RESUMEN GENERAL
+    ========================================================= -->
+    <div class="panel-card span-4">
+      <div class="panel-title">Resumen general</div>
+      <div class="mini-copy">Estado consolidado del ecosistema administrativo.</div>
+      <div class="highlight-number">{{ resumen_general_porcentaje }}%</div>
+
+      <div class="mini-copy">
+        Relacion entre usuarios y reservas activas del panel.
+        Total visible: {{ resumen_general_total }} registros principales.
+      </div>
+    </div>
+
+    <!-- =========================================================
+         CARGA POR MODULO
+    ========================================================= -->
+    <div class="panel-card span-6">
+      <div class="panel-title">Carga por modulo</div>
+
+      <div class="progress-stack">
+        {% for item in actividad_modulos %}
+        <div class="progress-row">
+          <span>{{ item.nombre }}</span>
+          <strong>{{ item.valor }}</strong>
+
+          <div class="progress-track">
+            <div
+              class="progress-fill"
+              style="--fill-width: {{ item.porcentaje|default:0 }}%; --fill-color: {{ item.color|default:'#d90416' }};">
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- =========================================================
+         GRAFICA DE RESERVAS
+    ========================================================= -->
+    <div class="panel-card span-6 line-chart">
+      <div class="panel-title">Tendencia de reservas</div>
+
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <g class="chart-grid">
+          <line x1="0" y1="20" x2="100" y2="20"></line>
+          <line x1="0" y1="40" x2="100" y2="40"></line>
+          <line x1="0" y1="60" x2="100" y2="60"></line>
+          <line x1="0" y1="80" x2="100" y2="80"></line>
+        </g>
+
+        <!-- Area inferior de relleno -->
+        <polygon class="chart-area" points="{{ lineas_reserva.area }}"></polygon>
+
+        <!-- Linea principal -->
+        <polyline class="chart-line" points="{{ lineas_reserva.polyline }}"></polyline>
+
+        <!-- Puntos visibles de cada dato -->
+        {% for point in lineas_reserva.points %}
+        <circle class="chart-point" cx="{{ point.x }}" cy="{{ point.y }}" r="2.3"></circle>
+        {% endfor %}
+      </svg>
+
+      <!-- Etiquetas de abajo -->
+      <div class="chart-labels">
+        {% for point in lineas_reserva.points %}
+        <div>{{ point.label }}<br><strong>{{ point.value }}</strong></div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- =========================================================
+         DISTRIBUCION DE USUARIOS
+    ========================================================= -->
+    <div class="panel-card span-6">
+      <div class="panel-title">Distribucion de usuarios</div>
+
+      <div class="activity-grid">
+        <div class="activity-bars">
+          {% for item in usuarios_por_tipo %}
+          <div class="activity-strip">
+            <div style="display:flex;justify-content:space-between;gap:8px;">
+              <span>{{ item.label }}</span>
+              <span>{{ item.total }} / {{ item.porcentaje }}%</span>
+            </div>
+
+            <div class="activity-track">
+              <div
+                class="activity-fill"
+                style="--fill-width: {{ item.porcentaje|default:0 }}%; --fill-color: {{ item.color|default:'#d90416' }};">
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="mini-copy">
+            Aun no hay tipos de usuario suficientes para mostrar distribucion.
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="activity-side">
+          <strong>{{ total_usuarios }}</strong>
+          <p>Total de usuarios monitoreados en este momento.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         PULSO DEL SISTEMA
+    ========================================================= -->
+    <div class="panel-card span-6">
+      <div class="panel-title">Pulso del sistema</div>
+
+      <div class="status-row">
+        {% for item in resumen_operativo %}
+        <div class="status-item">
+          <div
+            class="status-circle"
+            style="--status-progress: {{ item.porcentaje|default:0 }}; --status-color: {{ item.accent|default:'#d90416' }};">
+            {{ item.value }}
+          </div>
+
+          <div>{{ item.label }}</div>
+          <small>Dato actual</small>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- =========================================================
+         CALENDARIO
+    ========================================================= -->
+    <div class="panel-card span-4 calendar-box">
+      <div class="panel-title">Calendario</div>
+
+      <div class="calendar-head">
+        <span><i class="fa fa-caret-left"></i></span>
+        <strong>{{ calendario_dashboard.month_name }} {{ calendario_dashboard.year }}</strong>
+        <span><i class="fa fa-caret-right"></i></span>
+      </div>
+
+      <div class="calendar-grid">
+        {% for day in calendario_dashboard.weekdays %}
+        <div class="weekday">{{ day }}</div>
+        {% endfor %}
+
+        {% for week in calendario_dashboard.weeks %}
+          {% for day in week %}
+          <div class="calendar-day {% if not day %}muted{% elif day == calendario_dashboard.today %}today{% endif %}">
+            {% if day %}{{ day }}{% endif %}
+          </div>
+          {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- =========================================================
+         ULTIMOS REGISTROS
+    ========================================================= -->
+    <div class="panel-card span-8">
+      <div class="panel-title">Ultimos registros</div>
+
+      <div class="latest-grid">
+
+        {% for bloque in ultimos_registros %}
+        <div class="latest-item">
+          <h6>{{ bloque.titulo }}</h6>
+          {% for item in bloque.items %}
+          <p>{{ item }}</p>
+          {% empty %}
+          <p>Sin registros.</p>
+          {% endfor %}
+        </div>
+        {% endfor %}
+
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,143 @@
+<!-- Formulario de solo lectura para ver el detalle de una calificacion. -->
+
+{% extends "base.html" %}
+
+<!-- Titulo de la pagina -->
+{% block title %}
+Ver Calificacion
+{% endblock %}
+
+{% block content %}
+
+<!-- Contenedor centrado -->
+<div class="row justify-content-center">
+  <div class="col-md-7">
+
+    <!-- Tarjeta principal -->
+    <div class="card p-4">
+
+      <!-- Titulo -->
+      <h4 class="mb-4">
+        <strong>Detalle de la calificacion</strong>
+      </h4>
+
+      <!-- Cliente -->
+      <div class="mb-3">
+        <label>Cliente</label>
+
+        <!-- Muestra el nombre del usuario si existe; de lo contrario un texto por defecto. -->
+        <input
+          type="text"
+          class="form-control"
+          value="{% if calificacion.id_usuario %}
+                    {{ calificacion.id_usuario.nombre }} {{ calificacion.id_usuario.apellido }}
+                 {% else %}
+                    Cliente sin usuario
+                 {% endif %}"
+          disabled
+        >
+      </div>
+
+      <!-- Pedido asociado -->
+      <div class="mb-3">
+        <label>Pedido asociado</label>
+
+        <!-- Muestra el ID del pedido o '-' si no existe. -->
+        <input
+          type="text"
+          class="form-control"
+          value="{{ calificacion.id_pedido_id|default:'-' }}"
+          disabled
+        >
+      </div>
+
+      <!-- Calificaciones -->
+      <div class="row g-3">
+
+        <!-- Comida -->
+        <div class="col-md-4">
+          <label>Comida</label>
+          <input
+            type="text"
+            class="form-control"
+            value="{{ calificacion.calificacion_comida }}/5"
+            disabled
+          >
+        </div>
+
+        <!-- Servicio -->
+        <div class="col-md-4">
+          <label>Servicio</label>
+          <input
+            type="text"
+            class="form-control"
+            value="{{ calificacion.calificacion_servicio }}/5"
+            disabled
+          >
+        </div>
+
+        <!-- Ambiente -->
+        <div class="col-md-4">
+          <label>Ambiente</label>
+          <input
+            type="text"
+            class="form-control"
+            value="{{ calificacion.calificacion_ambiente }}/5"
+            disabled
+          >
+        </div>
+
+      </div>
+
+      <!-- Promedio -->
+      <div class="mb-3 mt-3">
+        <label>Promedio</label>
+
+        <!-- Usa la propiedad promedio del modelo. -->
+        <input
+          type="text"
+          class="form-control"
+          value="{{ calificacion.promedio }}/5"
+          disabled
+        >
+      </div>
+
+      <!-- Fecha -->
+      <div class="mb-3">
+        <label>Fecha</label>
+
+        <!-- Formatea la fecha si esta disponible. -->
+        <input
+          type="text"
+          class="form-control"
+          value="{% if calificacion.fecha_calificacion %}
+                    {{ calificacion.fecha_calificacion|date:'d/m/Y H:i' }}
+                 {% else %}
+                    -
+                 {% endif %}"
+          disabled
+        >
+      </div>
+
+      <!-- Observaciones -->
+      <div class="mb-4">
+        <label>Observaciones</label>
+
+        <!-- Muestra el comentario o un valor vacio. -->
+        <textarea
+          class="form-control"
+          rows="4"
+          disabled
+        >{{ calificacion.observaciones|default:'' }}</textarea>
+      </div>
+
+      <!-- Boton para regresar al listado. -->
+      <a href="/calificaciones" class="btn btn-outline-secondary">
+        Volver
+      </a>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

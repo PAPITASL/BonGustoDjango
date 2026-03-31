@@ -1,0 +1,106 @@
+/* ---------- Vista listado de menus | Estilos principales ---------- */
+
+/* Base del body */
+body {
+    background: #fafbfc;
+    font-family: system-ui, sans-serif;
+}
+
+
+/* ---------- Layout general ---------- */
+.main-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+
+/* ---------- Titulo ---------- */
+.titulo-seccion {
+    text-align: center;
+    margin-bottom: 24px;
+    font-weight: bold;
+    font-size: 1.4rem;
+}
+
+
+/* ---------- Filtros ---------- */
+.filtros-form {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.filtros-form input,
+.filtros-form button {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+
+/* Boton de filtro */
+.filtros-form button {
+    background: #d90416;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+
+/* ---------- Tabla ---------- */
+.menu-table {
+    width: 100%;
+    background: #fff;
+    border-radius: 12px;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.menu-table th,
+.menu-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+/* Hover de filas */
+.menu-table tr:hover {
+    background: #f7f7f7;
+}
+
+
+/* ---------- Botones ---------- */
+.btn {
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.btn-success {
+    background: #2ecc40;
+    color: #fff;
+}
+
+.btn-danger {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.btn-light {
+    background: #f8f9fa;
+    color: #333;
+    border: 1px solid #eee;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: #0058ff;
+    color: #fff;
+}
+
+
+/* ---------- Utilidades ---------- */
+.text-end {
+    text-align: right;
+}

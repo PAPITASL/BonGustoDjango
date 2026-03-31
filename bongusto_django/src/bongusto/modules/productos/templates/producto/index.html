@@ -1,0 +1,248 @@
+<!-- Template principal del modulo productos | Aqui se muestra el listado general de productos con sus filtros, acciones y opcion de importacion -->
+
+{% extends "base.html" %}
+
+<!-- Titulo de la pagina -->
+{% block title %}Gestion de Productos{% endblock %}
+
+{% block content %}
+
+<!-- ===== Titulo principal del modulo | Encabezado visual del listado de productos. ===== -->
+<h2 class="text-center mb-4"><strong>Gestion de Productos</strong></h2>
+
+<!-- ===== Mensaje de error | Se muestra cuando ocurre algun problema en el proceso. ===== -->
+{% if error %}
+<div class="alert alert-danger">
+  <i class="fa fa-exclamation-triangle"></i> {{ error }}
+</div>
+{% endif %}
+
+<!-- ===== Mensaje de exito | Se muestra cuando una accion termina correctamente. ===== -->
+{% if mensaje %}
+<div class="alert alert-success">
+  <i class="fa fa-check-circle"></i> {{ mensaje }}
+</div>
+{% endif %}
+
+<!-- ===== Barra superior de acciones | Aqui se agrupan el PDF, la importacion y la creacion de productos. ===== -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+
+  <!-- Boton para descargar reporte PDF -->
+  <a href="/productos/reporte?nombre={{ filtros.nombre }}&categoria={{ filtros.categoria }}&menu={{ filtros.menu }}&precio_min={{ filtros.precio_min }}&precio_max={{ filtros.precio_max }}" class="btn btn-danger">
+    <i class="fa fa-file-pdf"></i> Descargar Reporte PDF
+  </a>
+
+  <!-- Acciones de importacion y creacion -->
+  <div class="d-flex gap-2">
+    <button type="button" class="btn btn-outline-dark" onclick="openImportModal('importProductoModal')">
+      <i class="fa fa-file-excel"></i> Importar Excel
+    </button>
+
+    <a href="/productos/create" class="btn btn-secondary">+ Nuevo Producto</a>
+  </div>
+</div>
+
+<!-- ===== Formulario de filtros | Permite buscar productos por nombre, categoria, menu y rango de precios. ===== -->
+<form method="get" action="/productos" class="mb-4">
+  <div class="row g-2">
+
+    <!-- Filtro por nombre -->
+    <div class="col-md-3">
+      <input type="text" name="nombre" class="form-control" placeholder="Nombre" value="{{ filtros.nombre }}">
+    </div>
+
+    <!-- Filtro por categoria -->
+    <div class="col-md-3">
+      <input type="text" name="categoria" class="form-control" placeholder="Categoria" value="{{ filtros.categoria }}">
+    </div>
+
+    <!-- Filtro por menu -->
+    <div class="col-md-3">
+      <select name="menu" class="form-control">
+        <option value="">Menu</option>
+        {% for m in menus %}
+        <option value="{{ m.nombre_menu }}" {% if filtros.menu == m.nombre_menu %}selected{% endif %}>
+          {{ m.nombre_menu }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Boton de filtrar -->
+    <div class="col-md-3">
+      <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+    </div>
+
+    <!-- Filtro por precio minimo -->
+    <div class="col-md-3">
+      <input type="number" step="0.01" min="0" name="precio_min" class="form-control" placeholder="Precio minimo" value="{{ filtros.precio_min }}">
+    </div>
+
+    <!-- Filtro por precio maximo -->
+    <div class="col-md-3">
+      <input type="number" step="0.01" min="0" name="precio_max" class="form-control" placeholder="Precio maximo" value="{{ filtros.precio_max }}">
+    </div>
+
+    <!-- Boton para limpiar filtros -->
+    <div class="col-md-3">
+      <a href="/productos" class="btn btn-secondary w-100">Limpiar</a>
+    </div>
+  </div>
+</form>
+
+<!-- ===== Tabla principal del modulo | Aqui se listan todos los productos registrados. ===== -->
+<div class="table-responsive">
+  <table class="table table-hover">
+
+    <!-- Encabezados de la tabla -->
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Precio</th>
+        <th>Descripcion</th>
+        <th>Menu</th>
+        <th>Categoria</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <!-- Cuerpo de la tabla -->
+    <tbody>
+      {% for p in productos %}
+      <tr>
+
+        <!-- Nombre del producto -->
+        <td>{{ p.nombre_producto }}</td>
+
+        <!-- Precio del producto -->
+        <td class="money-cell">${{ p.precio_producto|floatformat:0 }}</td>
+
+        <!-- Descripcion del producto -->
+        <td>{{ p.descripcion_producto }}</td>
+
+        <!-- Menu asociado -->
+        <td>
+          {% if p.id_menu %}
+            {{ p.id_menu.nombre_menu }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+
+        <!-- Categoria asociada -->
+        <td>
+          {% if p.id_cate %}
+            {{ p.id_cate.nombre_cate }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+
+        <!-- Acciones disponibles -->
+        <td>
+          <div class="action-stack">
+
+            <!-- Ver detalle -->
+            <a href="/productos/{{ p.id_producto }}" class="btn btn-view btn-sm">Ver</a>
+
+            <!-- Editar producto -->
+            <a href="/productos/{{ p.id_producto }}/edit" class="btn btn-success btn-sm">Editar</a>
+
+            <!-- Eliminar producto -->
+            <form
+              action="/productos/{{ p.id_producto }}/delete"
+              method="post"
+              class="action-form"
+              data-confirm-title="Confirmar eliminacion"
+              data-confirm-text="Seguro que deseas eliminar este producto?"
+              data-confirm-button="Si, eliminar"
+            >
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+            </form>
+          </div>
+        </td>
+
+      </tr>
+      {% empty %}
+
+      <!-- Mensaje cuando no existen productos registrados -->
+      <tr>
+        <td colspan="6" class="text-center">No hay productos registrados</td>
+      </tr>
+
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== Modal de importacion | Ventana para subir archivo Excel con productos. ===== -->
+<div id="importProductoModal" class="import-modal-overlay" style="display:none;">
+  <div class="import-modal-card">
+    <h4>Importar productos desde Excel</h4>
+    <p>
+      Usa columnas como <code>nombre_producto</code>, <code>precio_producto</code>,
+      <code>descripcion_producto</code>, <code>menu</code>, <code>categoria</code> y <code>estado</code>.
+    </p>
+
+    <form action="/productos/importar" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <input
+        type="file"
+        name="archivo_excel"
+        accept=".xlsx"
+        class="form-control mb-3"
+        required
+      >
+
+      <div class="d-flex gap-2 justify-content-end">
+        <button type="button" class="btn btn-outline-secondary" onclick="closeImportModal('importProductoModal')">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-danger">Subir archivo</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Abre el modal de importacion
+  function openImportModal(id) {
+    document.getElementById(id).style.display = 'flex';
+  }
+
+  // Cierra el modal de importacion
+  function closeImportModal(id) {
+    document.getElementById(id).style.display = 'none';
+  }
+</script>
+
+<style>
+  /* Fondo del modal */
+  .import-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(16, 18, 22, 0.42);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    z-index: 9999;
+    padding: 96px 20px 24px;
+    overflow-y: auto;
+  }
+
+  /* Tarjeta interna del modal */
+  .import-modal-card {
+    width: min(560px, 100%);
+    background: #fff;
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+    margin: 0 auto;
+  }
+</style>
+{% endblock %}

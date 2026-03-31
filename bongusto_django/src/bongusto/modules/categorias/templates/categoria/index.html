@@ -1,0 +1,85 @@
+<!-- Listado principal de categorias con acciones para ver, editar y eliminar. -->
+
+{% extends "base.html" %}
+
+{% block title %}
+Categorias
+{% endblock %}
+
+{% block content %}
+
+<!-- Titulo -->
+<h2 class="text-center mb-4">
+  <strong>Categorias</strong>
+</h2>
+
+<!-- Boton para crear una nueva categoria -->
+<div class="d-flex justify-content-end mb-3">
+  <a href="/categorias/create" class="btn btn-secondary">
+    + Nueva Categoria
+  </a>
+</div>
+
+<!-- Tabla principal -->
+<div class="table-responsive">
+  <table class="table table-hover">
+
+    <!-- Encabezado -->
+    <thead>
+      <tr>
+        <th class="id-cell">#</th>
+        <th>Nombre</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <!-- Recorre todas las categorias -->
+      {% for c in categorias %}
+      <tr>
+        <td class="id-cell"><span class="id-value">{{ c.id_cate }}</span></td>
+        <td>{{ c.nombre_cate }}</td>
+        <td>
+
+          <!-- Agrupa los botones -->
+          <div class="action-stack">
+            <a href="/categorias/{{ c.id_cate }}" class="btn btn-view btn-sm">
+              Ver
+            </a>
+
+            <a href="/categorias/{{ c.id_cate }}/edit" class="btn btn-success btn-sm">
+              Editar
+            </a>
+
+            <!-- Eliminar va en un formulario porque usa POST -->
+            <form
+              action="/categorias/{{ c.id_cate }}/delete"
+              method="post"
+              class="action-form"
+              data-confirm-title="Confirmar eliminacion"
+              data-confirm-text="Seguro que deseas eliminar esta categoria?"
+              data-confirm-button="Si, eliminar"
+            >
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">
+                Eliminar
+              </button>
+            </form>
+          </div>
+
+        </td>
+      </tr>
+
+      {% empty %}
+      <tr>
+        <td colspan="3" class="text-center">
+          Sin categorias
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+
+  </table>
+</div>
+
+{% endblock %}

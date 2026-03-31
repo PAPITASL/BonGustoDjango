@@ -1,0 +1,149 @@
+/* Hoja de estilos `usuarios.css` del modulo `usuarios`. Este archivo controla la apariencia de la gestion de usuarios. */
+
+
+/* ===== Estilos base del layout | Fondo general del sistema. ===== */
+body {
+    background: #fafbfc;
+}
+
+
+/* ===== Contenedor principal | Estructura general de sidebar + contenido. ===== */
+.main-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+
+/* ===== Sidebar lateral | Menu principal de navegacion. ===== */
+.sidebar {
+    background: #d90416;
+    color: #fff;
+    width: 240px;
+    padding: 32px 20px 20px 20px;
+    border-radius: 28px;
+    margin: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    height: calc(100vh - 32px);
+    align-self: flex-start;
+}
+
+/* Titulo dentro del sidebar */
+.sidebar h3 {
+    font-weight: bold;
+    margin-bottom: 32px;
+}
+
+/* Lista de navegacion */
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+/* Elementos del menu */
+.sidebar ul li {
+    margin-bottom: 18px;
+}
+
+/* Links del menu */
+.sidebar ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.08em;
+}
+
+/* Iconos dentro del menu */
+.sidebar ul li a i {
+    margin-right: 10px;
+}
+
+
+/* ===== Boton logout | Cierre de sesion dentro del sidebar. ===== */
+.logout {
+    color: #fff;
+    text-decoration: none;
+    background: none;
+    border: none;
+    font-size: 1.08em;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    text-align: left;
+}
+
+
+/* ===== Contenido principal | Area donde se muestran las vistas. ===== */
+.content {
+    flex: 1;
+    padding: 40px 60px 40px 60px;
+}
+
+
+/* ===== Header de usuario | Parte superior con avatar y notificaciones. ===== */
+.user-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 18px;
+    margin-bottom: 30px;
+}
+
+/* Avatar del usuario */
+.avatar {
+    border-radius: 50%;
+    border: 2px solid #eee;
+}
+
+/* Icono de notificaciones */
+.bell {
+    font-size: 1.7em;
+    color: #888;
+}
+
+
+/* ===== Tabla de usuarios | Estilos base de la tabla. ===== */
+.table {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Celdas de la tabla */
+.table th,
+.table td {
+    vertical-align: middle;
+    border: none;
+    padding: 15px;
+}
+
+/* Encabezado de la tabla */
+.table thead th {
+    background: #f8f9fa;
+    font-weight: 600;
+}
+
+
+/* ===== Badges | Indicadores visuales de estado. ===== */
+.badge-success {
+    background-color: #28a745;
+}
+
+
+/* ===== Botones | Acciones comunes en la tabla. ===== */
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}

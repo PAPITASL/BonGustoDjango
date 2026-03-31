@@ -1,0 +1,89 @@
+<!-- Template `index.html` del modulo `usuarios`. Listado principal con acciones de ver y activar/desactivar. -->
+{% extends "base.html" %}
+{% block title %}Gestion de Usuarios{% endblock %}
+{% block content %}
+<h2 class="text-center mb-4"><strong>Gestion de Usuarios</strong></h2>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <a
+    href="/usuarios/reporte?nombre={{ filtros.nombre }}&correo={{ filtros.correo }}&rol={{ filtros.rol }}&estado={{ filtros.estado }}"
+    class="btn btn-danger">
+    <i class="fa fa-file-pdf"></i> Descargar Reporte PDF
+  </a>
+  <a href="/usuarios/create" class="btn btn-secondary">+ Nuevo Mesero</a>
+</div>
+
+<form method="get" action="/usuarios" class="mb-4">
+  <div class="row g-2">
+    <div class="col-md-3">
+      <input type="text" name="nombre" class="form-control" placeholder="Nombre" value="{{ filtros.nombre }}">
+    </div>
+    <div class="col-md-3">
+      <input type="text" name="correo" class="form-control" placeholder="Correo" value="{{ filtros.correo }}">
+    </div>
+    <div class="col-md-2">
+      <input type="text" name="rol" class="form-control" placeholder="Rol" value="{{ filtros.rol }}">
+    </div>
+    <div class="col-md-2">
+      <select name="estado" class="form-control">
+        <option value="">Estado</option>
+        <option value="Activo" {% if filtros.estado == 'Activo' %}selected{% endif %}>Activo</option>
+        <option value="Inactivo" {% if filtros.estado == 'Inactivo' %}selected{% endif %}>Inactivo</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+    </div>
+  </div>
+</form>
+
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th width="30"></th>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Telefono</th>
+        <th>Rol</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in usuarios %}
+      <tr>
+        <td><input type="checkbox" class="form-check-input"></td>
+        <td>{{ u.nombre }} {{ u.apellido }}</td>
+        <td>{{ u.correo }}</td>
+        <td>{{ u.telefono|default:"+57 300 0000000" }}</td>
+        <td>{{ u.get_rol_nombre }}</td>
+        <td>
+          <span class="badge {% if u.estado == 'Activo' %}badge-success{% else %}badge-secondary{% endif %}">
+            {{ u.estado }}
+          </span>
+        </td>
+        <td>
+          <div class="action-stack">
+            <a href="/usuarios/{{ u.id_usuario }}" class="btn btn-sm btn-view">Ver</a>
+            <form action="/usuarios/{{ u.id_usuario }}/toggle" method="post" class="action-form"
+                  data-confirm-title="{% if u.estado == 'Activo' %}Confirmar desactivacion{% else %}Confirmar activacion{% endif %}"
+                  data-confirm-text="{% if u.estado == 'Activo' %}Seguro que deseas desactivar este usuario?{% else %}Seguro que deseas activar este usuario?{% endif %}"
+                  data-confirm-button="{% if u.estado == 'Activo' %}Si, desactivar{% else %}Si, activar{% endif %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm {% if u.estado == 'Activo' %}btn-danger{% else %}btn-primary{% endif %}">
+                {% if u.estado == 'Activo' %}Desactivar{% else %}Activar{% endif %}
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="7" class="text-center">No hay usuarios registrados</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

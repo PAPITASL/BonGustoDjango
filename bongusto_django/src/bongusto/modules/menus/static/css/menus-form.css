@@ -1,0 +1,167 @@
+/* ---------- Formularios de menu | Estilo general de creacion y edicion ---------- */
+
+/* Reset basico */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Base del body */
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #fafbfc;
+    color: #222;
+}
+
+
+/* ---------- Contenedor principal ---------- */
+.menu-form-wrapper {
+    max-width: 600px;
+    margin: 40px auto;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 28px 28px 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    border: 1px solid #f1f1f1;
+}
+
+
+/* ---------- Titulos ---------- */
+.menu-form-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 18px;
+    color: #111827;
+}
+
+.menu-form-subtitle {
+    font-size: 0.95rem;
+    color: #6b7280;
+    margin-bottom: 22px;
+}
+
+
+/* ---------- Campos del formulario ---------- */
+.menu-form-group {
+    margin-bottom: 16px;
+}
+
+.menu-form-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #374151;
+}
+
+.menu-form-group input[type="text"],
+.menu-form-group input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    background: #f9fafb;
+}
+
+/* Focus de inputs */
+.menu-form-group input[type="text"]:focus,
+.menu-form-group input[type="number"]:focus {
+    outline: none;
+    border-color: #d90416;
+    box-shadow: 0 0 0 3px rgba(217, 4, 22, 0.15);
+    background: #ffffff;
+}
+
+
+/* ---------- Mensajes de error ---------- */
+.menu-form-error {
+    font-size: 0.8rem;
+    color: #b91c1c;
+    margin-top: 4px;
+}
+
+
+/* ---------- Botones ---------- */
+.menu-form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.btn-menu-primary,
+.btn-menu-secondary {
+    border-radius: 999px;
+    padding: 9px 18px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+/* Boton principal */
+.btn-menu-primary {
+    background: #d90416;
+    color: #ffffff;
+    box-shadow: 0 5px 15px rgba(217, 4, 22, 0.35);
+}
+
+.btn-menu-primary:hover {
+    background: #bb0312;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(217, 4, 22, 0.45);
+}
+
+/* Boton secundario */
+.btn-menu-secondary {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.btn-menu-secondary:hover {
+    background: #d1d5db;
+}
+
+
+/* ---------- Chip de contexto ---------- */
+.menu-form-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #fff1f2;
+    color: #9f1239;
+    margin-bottom: 10px;
+}
+
+
+/* ---------- Responsive ---------- */
+@media (max-width: 640px) {
+
+    .menu-form-wrapper {
+        margin: 16px;
+        padding: 20px 18px 18px;
+        border-radius: 16px;
+    }
+
+    .menu-form-actions {
+        flex-direction: column;
+    }
+
+    .btn-menu-primary,
+    .btn-menu-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+}

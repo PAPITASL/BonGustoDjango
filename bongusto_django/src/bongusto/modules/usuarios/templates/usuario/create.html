@@ -1,0 +1,102 @@
+<!-- Template `create.html` del modulo `usuarios`. Permite crear usuarios tipo mesero desde el panel administrativo. -->
+{% extends "base.html" %}
+
+{% block title %}Nuevo Mesero{% endblock %}
+
+{% block content %}
+
+<!-- ===== Titulo principal | Indica la accion que se esta realizando. ===== -->
+<h4><strong>Nuevo Mesero</strong></h4>
+
+<!-- ===== Mensaje de error | Se muestra si algo falla en la validacion. ===== -->
+{% if error %}
+<div class="alert alert-danger mb-3">{{ error }}</div>
+{% endif %}
+
+<!-- ===== Formulario principal | Envia los datos para crear el mesero. ===== -->
+<form action="/usuarios/store" method="post"
+      data-confirm-title="Confirmar creacion"
+      data-confirm-text="Seguro que deseas crear este mesero?"
+      data-confirm-button="Si, crear">
+
+  {% csrf_token %}
+
+  <!-- ===== Campo nombre ===== -->
+  <div class="mb-3">
+    <label>Nombre</label>
+    <input type="text" name="nombre" maxlength="50" class="form-control" value="{{ usuario.nombre|default:'' }}" required>
+  </div>
+
+  <!-- ===== Campo apellido ===== -->
+  <div class="mb-3">
+    <label>Apellido</label>
+    <input type="text" name="apellido" maxlength="50" class="form-control" value="{{ usuario.apellido|default:'' }}">
+  </div>
+
+  <!-- ===== Campo correo ===== -->
+  <div class="mb-3">
+    <label>Correo</label>
+    <input type="email" name="correo" maxlength="100" class="form-control" value="{{ usuario.correo|default:'' }}" required>
+  </div>
+
+  <!-- ===== Campo contrasena | Usa la politica de seguridad del sistema ===== -->
+  <div class="mb-3">
+    <label>Contrasena</label>
+    <input type="password"
+           name="clave"
+           maxlength="255"
+           class="form-control"
+           required
+           pattern="^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&.\-_#]).{8,}$"
+           title="{{ password_policy_help }}">
+    <small class="field-help">{{ password_policy_help }}</small>
+  </div>
+
+  <!-- ===== Campo telefono ===== -->
+  <div class="mb-3">
+    <label>Telefono</label>
+    <input type="text" name="telefono" maxlength="20" class="form-control" value="{{ usuario.telefono|default:'' }}">
+  </div>
+
+  <!-- ===== Campo rol | Solo roles tipo mesero ===== -->
+  <div class="mb-3">
+    <label>Rol</label>
+
+    {% if roles %}
+    <select name="id_rol" class="form-control">
+      {% for r in roles %}
+      <option value="{{ r.id_rol }}"
+        {% if rol_mesero_default and r.id_rol == rol_mesero_default.id_rol %}selected{% endif %}>
+        {{ r.nombre_rol }}
+      </option>
+      {% endfor %}
+    </select>
+    <small class="field-help">Solo se muestran roles relacionados con mesero.</small>
+
+    {% else %}
+    <!-- Si no hay roles configurados -->
+    <input type="text" class="form-control" value="No hay rol mesero configurado" disabled>
+    <small class="field-help">
+      Crea primero un rol de mesero en el modulo de roles para asignarlo aqui.
+    </small>
+    {% endif %}
+  </div>
+
+  <!-- ===== Campo oculto | Tipo de usuario fijo como mesero ===== -->
+  <input type="hidden" name="tipo_usuario" value="mesero">
+
+  <!-- ===== Estado por defecto ===== -->
+  <div class="mb-3">
+    <label>Estado</label>
+    <input type="text" class="form-control" value="Activo" disabled>
+    <input type="hidden" name="estado" value="Activo">
+    <small class="field-help">Los nuevos meseros se crean activos por defecto.</small>
+  </div>
+
+  <!-- ===== Botones de accion ===== -->
+  <button type="submit" class="btn btn-success">Guardar</button>
+  <a href="/usuarios" class="btn btn-secondary">Cancelar</a>
+
+</form>
+
+{% endblock %}

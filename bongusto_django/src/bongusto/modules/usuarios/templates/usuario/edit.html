@@ -1,0 +1,95 @@
+<!-- Template `edit.html` del modulo `usuarios`. Aqui se usa para ver o actualizar la informacion de un usuario desde el panel. -->
+{% extends "base.html" %}
+
+{% block title %}{{ accion|default:"Ver" }} Usuario{% endblock %}
+
+{% block content %}
+
+<!-- ===== Titulo principal | Muestra la accion actual sobre el usuario. ===== -->
+<h4><strong>{{ accion|default:"Ver" }} Usuario</strong></h4>
+
+<!-- ===== Formulario principal | Permite visualizar o actualizar los datos del usuario. ===== -->
+<form action="/usuarios/{{ usuario.id_usuario }}/update" method="post"
+      {% if not readonly %}
+      data-confirm-title="Confirmar actualizacion"
+      data-confirm-text="Seguro que deseas guardar los cambios de este usuario?"
+      data-confirm-button="Si, actualizar"
+      {% endif %}>
+  {% csrf_token %}
+
+  <!-- ===== Campo nombre ===== -->
+  <div class="mb-3">
+    <label>Nombre</label>
+    <input type="text"
+           name="nombre"
+           maxlength="50"
+           class="form-control"
+           value="{{ usuario.nombre|default:'' }}"
+           {% if readonly %}disabled{% else %}required{% endif %}>
+  </div>
+
+  <!-- ===== Campo apellido ===== -->
+  <div class="mb-3">
+    <label>Apellido</label>
+    <input type="text"
+           name="apellido"
+           maxlength="50"
+           class="form-control"
+           value="{{ usuario.apellido|default:'' }}"
+           {% if readonly %}disabled{% endif %}>
+  </div>
+
+  <!-- ===== Campo correo ===== -->
+  <div class="mb-3">
+    <label>Correo</label>
+    <input type="email"
+           name="correo"
+           maxlength="100"
+           class="form-control"
+           value="{{ usuario.correo|default:'' }}"
+           {% if readonly %}disabled{% else %}required{% endif %}>
+  </div>
+
+  <!-- ===== Campo contrasena | Solo se muestra cuando se permite editar ===== -->
+  {% if not readonly %}
+  <div class="mb-3">
+    <label>Contrasena <small>(dejar en blanco para mantener)</small></label>
+    <input type="password"
+           name="clave"
+           maxlength="255"
+           class="form-control"
+           placeholder="Nueva contrasena">
+  </div>
+  {% endif %}
+
+  <!-- ===== Campo telefono ===== -->
+  <div class="mb-3">
+    <label>Telefono</label>
+    <input type="text"
+           name="telefono"
+           maxlength="20"
+           class="form-control"
+           value="{{ usuario.telefono|default:'' }}"
+           {% if readonly %}disabled{% endif %}>
+  </div>
+
+  <!-- ===== Campo rol visible | Solo muestra el rol o tipo actual ===== -->
+  <div class="mb-3">
+    <label>Rol de Usuario</label>
+    <input type="text" class="form-control" value="{{ rol_o_tipo }}" disabled>
+  </div>
+
+  <!-- ===== Campo estado ===== -->
+  <div class="mb-3">
+    <label>Estado</label>
+    <select name="estado" class="form-control" {% if readonly %}disabled{% endif %}>
+      <option value="Activo" {% if usuario.estado == 'Activo' %}selected{% endif %}>Activo</option>
+      <option value="Inactivo" {% if usuario.estado == 'Inactivo' %}selected{% endif %}>Inactivo</option>
+    </select>
+  </div>
+
+  <!-- ===== Boton volver ===== -->
+  <a href="/usuarios" class="btn btn-secondary">Volver</a>
+</form>
+
+{% endblock %}
