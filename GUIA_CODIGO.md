@@ -175,16 +175,3 @@ Pedidos y servicio:
 5. Los servicios operan sobre modelos en [models.py](C:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/domain/models.py).
 6. Django responde JSON para Flutter o HTML para el panel web.
 
-## Recomendacion Para Seguir Comentando
-
-Si quieres dejar el repo aun mas claro, la forma util no es comentar cada linea. Lo correcto es:
-- comentar puntos de entrada
-- comentar servicios con logica de negocio
-- comentar integraciones externas
-- comentar pantallas complejas y sus flujos
-- evitar comentarios obvios que solo repiten el codigo
-
-Si quieres, el siguiente paso puedo hacerlo por fases:
-1. comentar a fondo todo el backend Django
-2. comentar a fondo `clientes`
-3. comentar a fondo `mesero`
