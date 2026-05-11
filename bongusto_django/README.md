@@ -325,21 +325,35 @@ Panel web:
 Healthcheck:
 - `http://127.0.0.1:8080/healthz`
 
-## Scripts útiles del repo raíz
+## Scripts útiles
 
-- [run_clientes.ps1](c:/Users/sebas/Downloads/bongusto_django/run_clientes.ps1)
-- [run_mesero.ps1](c:/Users/sebas/Downloads/bongusto_django/run_mesero.ps1)
-- [run_daily_backup.ps1](c:/Users/sebas/Downloads/bongusto_django/run_daily_backup.ps1)
-- [run_resilient_server.ps1](c:/Users/sebas/Downloads/bongusto_django/run_resilient_server.ps1)
-- [setup_daily_backup_task.ps1](c:/Users/sebas/Downloads/bongusto_django/setup_daily_backup_task.ps1)
+En la raíz del repositorio:
+- [run_clientes.ps1](/c:/Users/sebas/Downloads/bongusto_django/run_clientes.ps1)
+- [run_mesero.ps1](/c:/Users/sebas/Downloads/bongusto_django/run_mesero.ps1)
+- [run_daily_backup.ps1](/c:/Users/sebas/Downloads/bongusto_django/run_daily_backup.ps1)
+- [run_resilient_server.ps1](/c:/Users/sebas/Downloads/bongusto_django/run_resilient_server.ps1)
+- [setup_daily_backup_task.ps1](/c:/Users/sebas/Downloads/bongusto_django/setup_daily_backup_task.ps1)
 
-## Estado práctico actual
+## Documentos complementarios
 
-El proyecto hoy tiene:
-- backend Django modular
-- frontend web administrativo con HTML/CSS unificados
-- app `clientes` conectada a pedidos, música, mesa y llamado a mesero
-- app `mesero` conectada a pedidos, mesas, llamados, música y chat
-- simulación de cinco mesas compartidas entre cliente y mesero
-- importación masiva por Excel en menús, productos y música
-- recuperación de contraseña por código de correo cuando SMTP está configurado
+- [GUIA_CODIGO.md](/c:/Users/sebas/Downloads/bongusto_django/GUIA_CODIGO.md)
+- [CUMPLIMIENTO_RNF.md](/c:/Users/sebas/Downloads/bongusto_django/CUMPLIMIENTO_RNF.md)
+- [CUMPLIMIENTO_SEGURIDAD.md](/c:/Users/sebas/Downloads/bongusto_django/CUMPLIMIENTO_SEGURIDAD.md)
+
+## Estado actual del proyecto
+
+Resumen práctico:
+- backend Django organizado por módulos
+- código simplificado en buena parte para nivel junior
+- HTML y CSS más uniformes desde el layout compartido
+- APIs principales disponibles para Flutter clientes y Flutter mesero
+- base de datos conectada por Django ORM con MySQL
+- frontend dividido en dos apps Flutter que consumen el backend
+
+Si necesitas ubicar algo rápido:
+- rutas: [urls.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/interfaces/urls.py)
+- configuración: [settings.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/infrastructure/settings.py)
+- modelos: [models.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/domain/models.py)
+- layout web: [base.html](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/templates/base.html)
+- CSS global: [common-table.css](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/static/css/common-table.css)
+- mapa de módulos: [main.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/main.py)
