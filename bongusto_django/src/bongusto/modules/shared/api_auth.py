@@ -1,7 +1,8 @@
-"""Utilidades de autenticacion para APIs y WebSocket.
+"""Funciones de apoyo para la autenticacion en API y WebSocket.
 
-Este archivo concentra funciones pequenas relacionadas con tokens,
-usuarios autenticados y permisos basicos para endpoints de la API.
+En este archivo se agrupan varias utilidades pequenas que ayudan
+a manejar tokens, validar usuarios autenticados y controlar permisos
+basicos dentro de los endpoints de la API.
 """
 
 from functools import wraps
@@ -17,12 +18,12 @@ API_TOKEN_SALT = "bongusto.api.token"
 
 
 def api_token_ttl_seconds():
-    """Retorna la duracion maxima del token en segundos."""
+    """Devuelve el tiempo maximo de vida que tendra el token en segundos."""
     return int(getattr(settings, "API_TOKEN_TTL_SECONDS", 60 * 60 * 8))
 
 
 def emitir_api_token(usuario):
-    """Crea un token firmado para el usuario autenticado."""
+    """Genera un token firmado con los datos principales del usuario autenticado."""
     payload = {
         "uid": usuario.id_usuario,
         "rol": (usuario.tipo_usuario or "").strip().lower(),
@@ -32,7 +33,7 @@ def emitir_api_token(usuario):
 
 
 def leer_api_token(token):
-    """Lee y valida un token firmado recibido desde el cliente."""
+    """Lee el token recibido y revisa si sigue siendo valido."""
     if not token:
         raise signing.BadSignature("Token ausente")
 
@@ -40,15 +41,19 @@ def leer_api_token(token):
 
 
 def extraer_token_request(request):
-    """Busca el token primero en Authorization y luego en query params."""
+    """Intenta sacar el token primero del Authorization y, si no esta, desde la URL."""
     header = (request.headers.get("Authorization", "") or "").strip()
     if header.lower().startswith("bearer "):
-        return header[7:].strip()
-    return (request.GET.get("token") or "").strip()
+        return _limpiar_token(header[7:].strip())
+    return _limpiar_token(request.GET.get("token") or "")
+
+
+def _limpiar_token(token):
+    return (token or "").strip().replace("#", "").replace("'", "").replace('"', "")
 
 
 def resolver_usuario_api(request):
-    """Resuelve el usuario autenticado a partir del token recibido."""
+    """Obtiene el usuario autenticado usando el token que llega en la peticion."""
     token = extraer_token_request(request)
     if not token:
         return None, None, JsonResponse({"error": "Autenticacion requerida"}, status=401)
@@ -68,7 +73,7 @@ def resolver_usuario_api(request):
 
 
 def participante_permitido(usuario, participante):
-    """Valida si un usuario puede actuar como cierto participante del chat."""
+    """Revisa si el usuario realmente puede actuar con ese participante dentro del chat."""
     participante = (participante or "").strip().lower()
     tipo_usuario = (usuario.tipo_usuario or "").strip().lower()
 
@@ -82,23 +87,23 @@ def participante_permitido(usuario, participante):
 
 
 def api_login_required(*, roles=None):
-    """Decorador para proteger vistas de API con autenticacion por token."""
+    """Decorador que protege vistas de API usando autenticacion por token."""
     roles_set = {rol.strip().lower() for rol in (roles or []) if rol}
 
     def decorator(view_func):
         @wraps(view_func)
         def wrapper(request, *args, **kwargs):
-            # Primero se intenta identificar al usuario autenticado.
+            # Primero se busca si la peticion viene con un usuario autenticado.
             usuario, payload, error_response = resolver_usuario_api(request)
             if error_response:
                 return error_response
 
-            # Si la vista exige ciertos roles, se valida antes de continuar.
+            # Si la vista solo permite ciertos roles, aqui se valida antes de seguir.
             tipo_usuario = (usuario.tipo_usuario or "").strip().lower()
             if roles_set and tipo_usuario not in roles_set:
                 return JsonResponse({"error": "No autorizado para este recurso"}, status=403)
 
-            # Se guarda el usuario en el request para reutilizarlo en la vista.
+            # Se deja el usuario guardado en el request para poder reutilizarlo dentro de la vista.
             request.api_user = usuario
             request.api_token_payload = payload
             return view_func(request, *args, **kwargs)
@@ -109,7 +114,7 @@ def api_login_required(*, roles=None):
 
 
 def api_owner_or_role(request, owner_user_id, *, roles=None):
-    """Permite acceso al dueño del recurso o a un rol autorizado."""
+    """Permite entrar al duenio del recurso o a usuarios que tengan un rol autorizado."""
     usuario = getattr(request, "api_user", None)
     if not usuario:
         return False

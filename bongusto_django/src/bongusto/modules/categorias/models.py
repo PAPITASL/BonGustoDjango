@@ -1,14 +1,11 @@
 """
 Modelos del módulo categorías.
-
-Aquí no se crean modelos, solo se traen desde domain
-para usarlos dentro de este módulo.
+Aquí no se crean modelos directamente,
+solo se usan los que ya están en la capa de dominio.
 """
-
-# Importamos el modelo real de Categoria
+# Importamos el modelo Categoria desde domain
+# Es el modelo real que ya tiene la estructura de la base de datos
 from bongusto.domain.models import Categoria
-
-
-# __all__ define qué se puede usar desde este archivo
-# O sea, qué se exporta cuando otro archivo importa este módulo
+# Esto define qué se puede usar cuando otro archivo importa este módulo
+# En este caso solo estamos exponiendo Categoria
 __all__ = ["Categoria"]

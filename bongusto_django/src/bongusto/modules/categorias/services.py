@@ -1,19 +1,19 @@
 """
 Servicios del módulo categorías.
-
-Aquí se maneja toda la lógica de clasificación de productos y menús.
+Aquí es donde se maneja toda la lógica para organizar y clasificar productos y menús.
 """
 
-# Para normalizar texto (quitar tildes, etc)
+# Se usa para trabajar texto y normalizarlo mejor (por ejemplo quitar tildes)
 import unicodedata
 
-# Modelos
+# Modelos que necesita este servicio
 from bongusto.domain.models import Categoria, Producto
 
 
 class CategoriaService:
 
-    # Lista base de categorías del sistema (orden oficial)
+    # Categorías principales del sistema
+    # Este es el orden base que se quiere mantener siempre
     CATEGORIAS_BASE = [
         "Desayunos",
         "Brunch",
@@ -30,38 +30,37 @@ class CategoriaService:
         "Vegetarianos y Veganos",
     ]
 
-
-    # Normaliza el texto (minúsculas + sin tildes)
+    # Sirve para limpiar el texto y compararlo mejor
+    # Lo deja en minúsculas, sin tildes y sin espacios raros
     def _normalizar_nombre(self, valor):
 
-        # Limpia espacios y pasa a minúscula
+        # Limpia espacios al inicio y final, y pasa todo a minúscula
         texto = (valor or "").strip().lower()
 
-        # Convierte caracteres especiales (ej: á -> a)
+        # Convierte caracteres especiales para poder tratarlos más fácil
         texto = unicodedata.normalize("NFKD", texto)
 
-        # Quita los acentos
+        # Elimina las tildes
         return "".join(
             ch for ch in texto
             if not unicodedata.combining(ch)
         )
 
-
-    # Crea un diccionario tipo:
-    # "desayunos" -> "Desayunos"
+    # Crea un diccionario para ubicar rápido las categorías base
+    # Ejemplo: "desayunos" apunta a "Desayunos"
     def _categoria_base_por_clave(self):
         return {
             self._normalizar_nombre(nombre): nombre
             for nombre in self.CATEGORIAS_BASE
         }
 
-
-    # Decide a qué categoría debe ir algo según su nombre
+    # Intenta decidir a qué categoría debería pertenecer un nombre
+    # Se basa en palabras clave encontradas en el texto
     def _inferir_categoria_destino(self, nombre):
 
         clave = self._normalizar_nombre(nombre)
 
-        # Reglas de clasificación
+        # Reglas de palabras clave para clasificar
         reglas = [
             (("desayuno", "huevos", "omelette", "parfait", "bowl"), "Desayunos"),
             (("brunch", "waffle", "pancake", "tostada", "french toast", "infantil"), "Brunch"),
@@ -86,23 +85,23 @@ class CategoriaService:
             (("vegetar", "vegano"), "Vegetarianos y Veganos"),
         ]
 
-        # Busca coincidencias
+        # Revisa si alguna palabra clave coincide
         for patrones, destino in reglas:
             if any(patron in clave for patron in patrones):
                 return destino
 
-        # Si no encuentra nada, lo manda a principales
+        # Si no encuentra algo claro, lo manda a platos principales
         return "Platos Principales"
 
-
-    # Sincroniza la base de datos con las categorías oficiales
+    # Organiza todo el catálogo de categorías
+    # Corrige nombres, crea faltantes y elimina las que sobran
     def sincronizar_catalogo_base(self):
 
         base_por_clave = self._categoria_base_por_clave()
         categorias = list(Categoria.objects.all())
         canonicas = {}
 
-        # Normaliza categorías existentes
+        # Revisa las categorías que ya existen
         for categoria in categorias:
 
             clave = self._normalizar_nombre(categoria.nombre_cate)
@@ -111,21 +110,21 @@ class CategoriaService:
 
                 nombre_canonico = base_por_clave[clave]
 
-                # Si el nombre está mal, lo corrige
+                # Si el nombre no coincide con el oficial, lo corrige
                 if categoria.nombre_cate != nombre_canonico:
                     categoria.nombre_cate = nombre_canonico
                     categoria.save(update_fields=["nombre_cate"])
 
                 canonicas[clave] = categoria
 
-        # Crea categorías que no existen
+        # Crea las categorías base que hagan falta
         for clave, nombre_canonico in base_por_clave.items():
             if clave not in canonicas:
                 canonicas[clave] = Categoria.objects.create(
                     nombre_cate=nombre_canonico
                 )
 
-        # Reorganiza categorías sobrantes
+        # Reacomoda categorías que no pertenecen a la base oficial
         for categoria in Categoria.objects.exclude(
             pk__in=[c.pk for c in canonicas.values()]
         ):
@@ -138,19 +137,17 @@ class CategoriaService:
                 self._normalizar_nombre(destino_nombre)
             ]
 
-            # Mueve productos a la nueva categoría
+            # Mueve los productos a la categoría correcta
             Producto.objects.filter(id_cate=categoria).update(id_cate=destino)
 
-            # Elimina la categoría vieja
+            # Después elimina la categoría vieja
             categoria.delete()
 
-
-    # Asegura que todo esté sincronizado
+    # Se asegura de que el catálogo base esté bien organizado
     def asegurar_catalogo_base(self):
         self.sincronizar_catalogo_base()
 
-
-    # Lista todas las categorías en orden base
+    # Lista todas las categorías respetando el orden base
     def listar_todas(self):
 
         self.asegurar_catalogo_base()
@@ -160,33 +157,30 @@ class CategoriaService:
             for categoria in Categoria.objects.all()
         }
 
-        # Devuelve en orden correcto
+        # Devuelve las categorías en el orden definido arriba
         return [
             categorias[nombre]
             for nombre in self.CATEGORIAS_BASE
             if nombre in categorias
         ]
 
-
-    # Buscar por ID
+    # Busca una categoría por su id
     def buscar_por_id(self, pk):
         return Categoria.objects.filter(pk=pk).first()
 
-
-    # Guardar categoría
+    # Guarda una categoría
     def guardar(self, categoria):
 
-        # Limpia el nombre
+        # Limpia espacios antes de guardar
         categoria.nombre_cate = (categoria.nombre_cate or "").strip()
 
         categoria.save()
         return categoria
 
-
-    # Eliminar categoría
+    # Elimina una categoría por id
     def eliminar(self, pk):
         Categoria.objects.filter(pk=pk).delete()
 
 
-# Exportaciones
+# Define lo que se puede importar desde este archivo
 __all__ = ["CategoriaService", "Categoria", "Producto"]

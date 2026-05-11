@@ -1,18 +1,17 @@
 """
-Configuracion Django del modulo `shared`.
+Configuracion del modulo `shared`.
 
-Este modulo contiene recursos compartidos que pueden ser utilizados
-por los demas modulos del sistema (utilidades, helpers, configuraciones, etc).
+Este modulo funciona como una base comun del sistema, donde se agrupan
+utilidades, helpers y configuraciones que pueden ser usadas por los
+demas modulos de BonGusto.
 """
 
-# ===== Importaciones | Dependencias necesarias para registrar el modulo dentro de Django. =====
+# ===== Importaciones | Se trae AppConfig para poder registrar el modulo. =====
 from django.apps import AppConfig
 
-
-
-# ===== Clase `SharedConfig` | Modulo `shared` | Define la configuracion base del modulo compartido. =====
+# ===== Clase `SharedConfig` | Modulo `shared` | Define como se comporta este modulo dentro del proyecto. =====
 class SharedConfig(AppConfig):
-    default_auto_field = "django.db.models.BigAutoField"  # Tipo de ID automatico por defecto
-    name = "bongusto.modules.shared"  # Ruta del modulo dentro del proyecto
-    label = "modules_shared"  # Identificador interno en Django
-    verbose_name = "Modulo Shared"  # Nombre visible en el panel administrativo
+    default_auto_field = "django.db.models.BigAutoField"  # Define el tipo de ID automatico que se usara por defecto
+    name = "bongusto.modules.shared"  # Ruta completa del modulo dentro del proyecto
+    label = "modules_shared"  # Nombre interno que usa para identificar este modulo
+    verbose_name = "Modulo Shared"  # Nombre que se muestra en el panel de administracion

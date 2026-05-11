@@ -1,9 +1,7 @@
-"""Modelos o aliases del modulo `productos`. Representa las entidades relacionadas con platos y productos del restaurante."""
+"""Modelos o aliases del modulo `productos`, aqui se maneja todo lo relacionado con productos y platos."""
 
-# ===== Importaciones | Dependencias que este archivo necesita para funcionar dentro del modulo. =====
+# Se importan los modelos desde la capa de dominio
 from bongusto.domain.models import Categoria, Menu, PedidoDetalle, Producto
 
-
-
-# ===== Exportaciones | Modulo `productos` | Define los modelos disponibles para uso en otras capas. =====
+# Aqui se definen los modelos que se usan en este modulo
 __all__ = ["Producto", "Categoria", "Menu", "PedidoDetalle"]

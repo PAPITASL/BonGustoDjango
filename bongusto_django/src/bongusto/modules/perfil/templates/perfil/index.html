@@ -1,14 +1,10 @@
-<!-- Template `index.html` | Modulo `perfil` | Vista principal para mostrar la informacion del usuario. -->
-
+<!-- Vista principal del perfil del usuario -->
 {% extends "base.html" %}
-
-<!-- ===== Bloque titulo | Modulo `perfil` | Define el nombre que aparece en la pestana ===== -->
+<!-- Titulo que se muestra en la pestaña -->
 {% block title %}Mi Perfil{% endblock %}
-
-
 {% block extra_css %}
 <style>
-  /* ===== Contenedor principal del perfil ===== */
+  /* Contenedor principal donde va todo el perfil */
   .perfil-card{
     max-width:900px;
     margin:0 auto;
@@ -18,7 +14,7 @@
     box-shadow:0 2px 8px rgba(0,0,0,0.1);
   }
 
-  /* ===== Encabezado del perfil ===== */
+  /* Parte superior del perfil (avatar + nombre) */
   .perfil-header-section{
     text-align:center;
     padding:30px 0;
@@ -26,7 +22,7 @@
     margin-bottom:30px;
   }
 
-  /* ===== Avatar del usuario ===== */
+  /* Circulo del avatar */
   .perfil-avatar{
     width:100px;
     height:100px;
@@ -40,7 +36,7 @@
     margin-bottom:15px;
   }
 
-  /* ===== Grid de informacion ===== */
+  /* Grid donde se muestra la informacion */
   .perfil-info-grid{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -48,13 +44,14 @@
     margin-bottom:30px;
   }
 
-  /* ===== Tarjeta individual de informacion ===== */
+  /* Caja de cada dato (nombre, correo, etc) */
   .info-item{
     background:#f8f9fa;
     padding:20px;
     border-radius:8px;
   }
 
+  /* Etiquetas de los campos */
   .info-item label{
     display:block;
     font-size:12px;
@@ -64,6 +61,7 @@
     font-weight:600;
   }
 
+  /* Valor del campo */
   .info-item .value{
     font-size:16px;
     color:#2c3e50;
@@ -71,12 +69,13 @@
     align-items:center;
   }
 
+  /* Iconos dentro de los valores */
   .info-item .value i{
     margin-right:10px;
     color:#667eea;
   }
 
-  /* ===== Badge del rol ===== */
+  /* Estilo del rol del usuario */
   .rol-badge{
     display:inline-block;
     background:#667eea;
@@ -86,7 +85,7 @@
     font-size:14px;
   }
 
-  /* ===== Botones ===== */
+  /* Zona de botones */
   .botones-perfil{
     text-align:center;
     padding-top:20px;
@@ -95,14 +94,15 @@
 {% endblock %}
 
 
-<!-- ===== Contenido principal | Modulo `perfil` ===== -->
+<!-- Contenido principal -->
 {% block content %}
 
+<!-- Titulo -->
 <h4 class="text-center mb-4"><strong>Mi Perfil</strong></h4>
 
 <div class="perfil-card">
 
-  <!-- ===== Header del perfil ===== -->
+  <!-- Header con avatar y nombre -->
   <div class="perfil-header-section">
     <div class="perfil-avatar">
       <i class="fas fa-user"></i>
@@ -113,7 +113,7 @@
   </div>
 
 
-  <!-- ===== Informacion del usuario ===== -->
+  <!-- Informacion del usuario -->
   <div class="perfil-info-grid">
 
     <div class="info-item">
@@ -150,13 +150,15 @@
   </div>
 
 
-  <!-- ===== Acciones ===== -->
+  <!-- Botones -->
   <div class="botones-perfil">
 
+    <!-- Ir a editar perfil -->
     <a href="/perfil/editar" class="btn btn-primary">
       <i class="fas fa-edit"></i> Editar Perfil
     </a>
 
+    <!-- Volver -->
     <a href="/usuarios" class="btn btn-secondary">
       <i class="fas fa-arrow-left"></i> Volver
     </a>

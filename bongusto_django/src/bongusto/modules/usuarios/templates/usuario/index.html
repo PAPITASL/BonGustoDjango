@@ -1,47 +1,69 @@
-<!-- Template `index.html` del modulo `usuarios`. Listado principal con acciones de ver y activar/desactivar. -->
+<!-- Template `index.html` del modulo `usuarios`.
+     Esta vista muestra el listado principal de usuarios y permite verlos
+     o activar/desactivar su estado desde el panel. -->
 {% extends "base.html" %}
 {% block title %}Gestion de Usuarios{% endblock %}
 {% block content %}
+
+<!-- ===== Titulo principal | Encabezado general de la vista. ===== -->
 <h2 class="text-center mb-4"><strong>Gestion de Usuarios</strong></h2>
 
+<!-- ===== Barra superior de acciones | Aqui se agrupan las acciones principales del modulo. ===== -->
 <div class="d-flex justify-content-between align-items-center mb-3">
+  <!-- Boton para descargar el reporte PDF respetando los filtros actuales -->
   <a
     href="/usuarios/reporte?nombre={{ filtros.nombre }}&correo={{ filtros.correo }}&rol={{ filtros.rol }}&estado={{ filtros.estado }}"
     class="btn btn-danger">
     <i class="fa fa-file-pdf"></i> Descargar Reporte PDF
   </a>
+
+  <!-- Boton para crear un nuevo usuario tipo mesero -->
   <a href="/usuarios/create" class="btn btn-secondary">+ Nuevo Mesero</a>
 </div>
 
+<!-- ===== Formulario de filtros | Permite buscar usuarios por varios criterios. ===== -->
 <form method="get" action="/usuarios" class="mb-4">
   <div class="row g-2">
     <div class="col-md-3">
+      <!-- Filtro por nombre -->
       <input type="text" name="nombre" class="form-control" placeholder="Nombre" value="{{ filtros.nombre }}">
     </div>
+
     <div class="col-md-3">
+      <!-- Filtro por correo -->
       <input type="text" name="correo" class="form-control" placeholder="Correo" value="{{ filtros.correo }}">
     </div>
+
     <div class="col-md-2">
+      <!-- Filtro por rol -->
       <input type="text" name="rol" class="form-control" placeholder="Rol" value="{{ filtros.rol }}">
     </div>
+
     <div class="col-md-2">
+      <!-- Filtro por estado -->
       <select name="estado" class="form-control">
         <option value="">Estado</option>
         <option value="Activo" {% if filtros.estado == 'Activo' %}selected{% endif %}>Activo</option>
         <option value="Inactivo" {% if filtros.estado == 'Inactivo' %}selected{% endif %}>Inactivo</option>
       </select>
     </div>
+
     <div class="col-md-2">
+      <!-- Boton para aplicar los filtros -->
       <button type="submit" class="btn btn-primary w-100">Filtrar</button>
     </div>
   </div>
 </form>
 
+<!-- ===== Tabla principal | Muestra el listado de usuarios encontrados. ===== -->
 <div class="table-responsive">
   <table class="table table-hover">
     <thead>
       <tr>
+        <!-- Columna para seleccion visual -->
         <th width="30"></th>
+
+        <!-- Columnas principales de informacion -->
         <th>Nombre</th>
         <th>Correo</th>
         <th>Telefono</th>
@@ -50,27 +72,46 @@
         <th>Acciones</th>
       </tr>
     </thead>
+
     <tbody>
       {% for u in usuarios %}
       <tr>
+        <!-- Checkbox visual por fila -->
         <td><input type="checkbox" class="form-check-input"></td>
+
+        <!-- Nombre completo del usuario -->
         <td>{{ u.nombre }} {{ u.apellido }}</td>
+
+        <!-- Correo del usuario -->
         <td>{{ u.correo }}</td>
+
+        <!-- Telefono con valor por defecto si viene vacio -->
         <td>{{ u.telefono|default:"+57 300 0000000" }}</td>
+
+        <!-- Nombre del rol asociado -->
         <td>{{ u.get_rol_nombre }}</td>
+
+        <!-- Estado actual del usuario mostrado con badge -->
         <td>
           <span class="badge {% if u.estado == 'Activo' %}badge-success{% else %}badge-secondary{% endif %}">
             {{ u.estado }}
           </span>
         </td>
+
+        <!-- Acciones disponibles para cada usuario -->
         <td>
           <div class="action-stack">
+            <!-- Boton para ver el detalle del usuario -->
             <a href="/usuarios/{{ u.id_usuario }}" class="btn btn-sm btn-view">Ver</a>
+
+            <!-- Formulario para activar o desactivar el usuario -->
             <form action="/usuarios/{{ u.id_usuario }}/toggle" method="post" class="action-form"
                   data-confirm-title="{% if u.estado == 'Activo' %}Confirmar desactivacion{% else %}Confirmar activacion{% endif %}"
                   data-confirm-text="{% if u.estado == 'Activo' %}Seguro que deseas desactivar este usuario?{% else %}Seguro que deseas activar este usuario?{% endif %}"
                   data-confirm-button="{% if u.estado == 'Activo' %}Si, desactivar{% else %}Si, activar{% endif %}">
               {% csrf_token %}
+
+              <!-- El texto y color del boton cambian segun el estado actual -->
               <button type="submit" class="btn btn-sm {% if u.estado == 'Activo' %}btn-danger{% else %}btn-primary{% endif %}">
                 {% if u.estado == 'Activo' %}Desactivar{% else %}Activar{% endif %}
               </button>
@@ -78,7 +119,9 @@
           </div>
         </td>
       </tr>
+
       {% empty %}
+      <!-- Mensaje que aparece cuando no hay usuarios registrados o no hay resultados -->
       <tr>
         <td colspan="7" class="text-center">No hay usuarios registrados</td>
       </tr>
@@ -86,4 +129,5 @@
     </tbody>
   </table>
 </div>
+
 {% endblock %}

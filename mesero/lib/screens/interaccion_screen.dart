@@ -19,7 +19,8 @@ class InteraccionScreen extends StatefulWidget {
 
 // ===== Estado `_InteraccionScreenState` | Controla historial, socket, mensajes y estado de conexion. =====
 class _InteraccionScreenState extends State<InteraccionScreen> {
-  static const _bg = Color(0xFFF2F1F4);
+  static const _bgLight = Color(0xFFF2F1F4);
+  static const _bgDark = Color(0xFF101218);
   static const _card = Color(0xFFFFFFFF);
   static const _ink = Color(0xFF181818);
   static const _muted = Color(0xFF73727A);
@@ -37,6 +38,8 @@ class _InteraccionScreenState extends State<InteraccionScreen> {
   String _estado = 'Conectando...';
   String _destinatario = 'administrador';
   bool _socketConectado = false;
+  bool get _isDark => Theme.of(context).brightness == Brightness.dark;
+  Color get _bg => _isDark ? _bgDark : _bgLight;
 
   String get _participante => 'mesero';
 
@@ -120,63 +123,80 @@ class _InteraccionScreenState extends State<InteraccionScreen> {
       return;
     }
 
-    final wsScheme = ApiConfig.baseUrl.startsWith('https') ? 'wss' : 'ws';
-    final Map<String, String> query = <String, String>{};
-    query['token'] = SessionService.apiToken;
-    final uri = Uri(
-      scheme: wsScheme,
-      host: ApiConfig.host,
-      port: int.parse(ApiConfig.port),
-      path: '/ws/chat/$_participante/',
-      queryParameters: query.isEmpty ? null : query,
-    );
-    final IOWebSocketChannel channel = IOWebSocketChannel.connect(uri);
-    _channel = channel;
-    if (mounted) {
-      setState(() {
-        _socketConectado = true;
-        _estado = 'Conectado';
-      });
-    }
-    channel.stream.listen(
-      (dynamic event) {
-        final Map<String, dynamic> data =
-            jsonDecode(event.toString()) as Map<String, dynamic>;
-        final String remitente = (data['remitente'] ?? '').toString();
-        final String destinatario = (data['destinatario'] ?? '').toString();
-        final String mensaje = (data['mensaje'] ?? '').toString();
-        final bool conversaConSeleccion =
-            remitente == _destinatario || destinatario == _destinatario;
-        if (!conversaConSeleccion) return;
-        if (remitente != _participante) {
-          _destinatario = remitente;
-          _destinatarioCtrl.text = remitente;
-        }
+    try {
+      final wsScheme = ApiConfig.baseUrl.startsWith('https') ? 'wss' : 'ws';
+      final Map<String, String> query = <String, String>{};
+      query['token'] = SessionService.apiToken;
+      final wsPort = int.tryParse(ApiConfig.port);
+      if (wsPort == null) {
+        throw Exception('Puerto WS invalido: ${ApiConfig.port}');
+      }
+      final uri = Uri(
+        scheme: wsScheme,
+        host: ApiConfig.host,
+        port: wsPort,
+        path: '/ws/chat/$_participante/',
+        queryParameters: query.isEmpty ? null : query,
+      );
+      final IOWebSocketChannel channel = IOWebSocketChannel.connect(uri);
+      _channel = channel;
+      if (mounted) {
         setState(() {
-          _mensajes.add(<String, String>{
-            'remitente': remitente,
-            'mensaje': mensaje,
-          });
+          _socketConectado = true;
+          _estado = 'Conectado';
         });
-        _scrollToBottom();
-      },
-      onError: (_) {
-        if (mounted) {
-          setState(() {
-            _socketConectado = false;
-            _estado = 'Sincronizando';
-          });
-        }
-      },
-      onDone: () {
-        if (mounted) {
-          setState(() {
-            _socketConectado = false;
-            _estado = 'Sincronizando';
-          });
-        }
-      },
-    );
+      }
+      channel.stream.listen(
+        (dynamic event) {
+          try {
+            final parsed = jsonDecode(event.toString());
+            if (parsed is! Map) return;
+            final data = Map<String, dynamic>.from(parsed);
+            final String remitente = (data['remitente'] ?? '').toString();
+            final String destinatario = (data['destinatario'] ?? '').toString();
+            final String mensaje = (data['mensaje'] ?? '').toString();
+            final bool conversaConSeleccion =
+                remitente == _destinatario || destinatario == _destinatario;
+            if (!conversaConSeleccion) return;
+            if (remitente != _participante) {
+              _destinatario = remitente;
+              _destinatarioCtrl.text = remitente;
+            }
+            if (!mounted) return;
+            setState(() {
+              _mensajes.add(<String, String>{
+                'remitente': remitente,
+                'mensaje': mensaje,
+              });
+            });
+            _scrollToBottom();
+          } catch (_) {}
+        },
+        onError: (_) {
+          if (mounted) {
+            setState(() {
+              _socketConectado = false;
+              _estado = 'Sincronizando';
+            });
+          }
+        },
+        onDone: () {
+          if (mounted) {
+            setState(() {
+              _socketConectado = false;
+              _estado = 'Sincronizando';
+            });
+          }
+        },
+      );
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _socketConectado = false;
+          _estado = 'Sincronizando';
+        });
+      }
+    }
   }
 
   void _scrollToBottom() {
@@ -289,7 +309,7 @@ class _InteraccionScreenState extends State<InteraccionScreen> {
       backgroundColor: _bg,
       appBar: AppBar(
         backgroundColor: _bg,
-        foregroundColor: _ink,
+        foregroundColor: _isDark ? Colors.white : _ink,
         title: Text('Chat ($_estado)', style: const TextStyle(fontWeight: FontWeight.w800)),
       ),
       body: Column(

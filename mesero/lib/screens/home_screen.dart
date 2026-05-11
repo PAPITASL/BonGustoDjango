@@ -1,6 +1,7 @@
 // ===== Pantalla `home_screen.dart` | Funciona como panel principal del turno y agrupa los accesos rapidos del mesero. =====
 import 'package:flutter/material.dart';
 
+import '../language_controller.dart';
 import '../services/session_service.dart';
 
 // ===== Clase `HomeScreen` | Expone la vista inicial despues de autenticarse. =====
@@ -30,7 +31,8 @@ class _HomeCard {
 
 // ===== Estado `_HomeScreenState` | Organiza el dashboard de accesos y su estilo local. =====
 class _HomeScreenState extends State<HomeScreen> {
-  static const _bg = Color(0xFFF2F1F4);
+  static const _bgLight = Color(0xFFF2F1F4);
+  static const _bgDark = Color(0xFF101218);
   static const _card = Color(0xFFFFFFFF);
   static const _ink = Color(0xFF181818);
   static const _muted = Color(0xFF73727A);
@@ -38,6 +40,8 @@ class _HomeScreenState extends State<HomeScreen> {
   static const _line = Color(0xFFE8E6EB);
 
   int _currentIndex = 0;
+  bool get _isDark => Theme.of(context).brightness == Brightness.dark;
+  Color get _bg => _isDark ? _bgDark : _bgLight;
 
   late final List<_HomeCard> _cards = [
     const _HomeCard(
@@ -116,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const Spacer(),
             Text(
-              card.title,
+              LanguageController.tr(card.title),
               style: const TextStyle(
                 color: _ink,
                 fontSize: 22,
@@ -126,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 10),
             Text(
-              card.subtitle,
+              LanguageController.tr(card.subtitle),
               maxLines: 4,
               overflow: TextOverflow.fade,
               style: const TextStyle(
@@ -136,18 +140,18 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 14),
-            const Row(
+            Row(
               children: [
                 Text(
-                  'Abrir',
-                  style: TextStyle(
+                  LanguageController.tr('Abrir'),
+                  style: const TextStyle(
                     color: _ink,
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                SizedBox(width: 6),
-                Icon(Icons.arrow_forward_rounded, size: 18, color: _ink),
+                const SizedBox(width: 6),
+                const Icon(Icons.arrow_forward_rounded, size: 18, color: _ink),
               ],
             ),
           ],
@@ -196,10 +200,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(width: 14),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'OPERACION MESEROS',
-                  style: TextStyle(
+                  LanguageController.tr('OPERACION MESEROS'),
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 11,
                     letterSpacing: 2.8,
@@ -210,9 +214,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const SizedBox(height: 22),
-          const Text(
-            'Todo el piso en un solo panel.',
-            style: TextStyle(
+          Text(
+            LanguageController.tr('Todo el piso en un solo panel.'),
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 30,
               height: 1.06,
@@ -221,7 +225,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 10),
           Text(
-            'Bienvenido, $nombre. Desde aqui revisas pedidos, llamados, mesas, menu, cola musical y chat.',
+            LanguageController.t(
+              'Bienvenido, $nombre. Desde aqui revisas pedidos, llamados, mesas, menu, cola musical y chat.',
+              'Welcome, $nombre. From here you can review orders, calls, tables, menu, music queue and chat.',
+            ),
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.86),
               fontSize: 14,
@@ -243,11 +250,11 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: _bg,
       appBar: AppBar(
         backgroundColor: _bg,
-        foregroundColor: _ink,
+        foregroundColor: _isDark ? Colors.white : _ink,
         automaticallyImplyLeading: false,
-        title: const Text(
-          'Inicio',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          LanguageController.tr('Inicio'),
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
       ),
       body: SafeArea(
@@ -256,9 +263,9 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             _hero(nombre),
             const SizedBox(height: 18),
-            const Text(
-              'Accesos del turno',
-              style: TextStyle(
+            Text(
+              LanguageController.tr('Accesos del turno'),
+              style: const TextStyle(
                 color: _ink,
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
@@ -289,14 +296,14 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.pushNamed(context, '/perfil');
           }
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: 'Inicio',
+            icon: const Icon(Icons.home_outlined),
+            label: LanguageController.tr('Inicio'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Perfil',
+            icon: const Icon(Icons.person_outline),
+            label: LanguageController.tr('Perfil'),
           ),
         ],
       ),

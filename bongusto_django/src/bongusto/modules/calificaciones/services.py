@@ -1,26 +1,21 @@
 """
 Servicios del módulo calificaciones.
-
-Aquí se maneja toda la lógica de opiniones y puntajes de clientes.
+Aquí se maneja la lógica relacionada con las calificaciones de los clientes.
 """
-
-# Permite ejecutar SQL directamente
-from django.db import connection
-
-# Para filtros más avanzados
+# Permite ejecutar SQL directamente (cuando no usamos migraciones)
+from django.db import connection, IntegrityError
+# Para hacer filtros más flexibles (OR, AND, etc.)
 from django.db.models import Q
-
-# Modelos
+# Modelos que se usan en este módulo
 from bongusto.domain.models import CalificacionCliente, PedidoEncabezado, Usuario
 
-
 class CalificacionService:
+    ESTADOS_CALIFICABLES = {"pagado", "entregado", "finalizado"}
 
-
-    # Asegura que la tabla exista en la base de datos
+    # Se asegura de que la tabla exista en la base de datos
     def asegurar_tabla(self):
 
-        # cursor sirve para ejecutar SQL manual
+        # cursor permite ejecutar SQL manualmente
         with connection.cursor() as cursor:
 
             cursor.execute(
@@ -38,14 +33,13 @@ class CalificacionService:
                 """
             )
 
-
-    # Lista todas las calificaciones
+    # Trae todas las calificaciones
     def listar_todas(self):
 
         # Primero se asegura que la tabla exista
         self.asegurar_tabla()
 
-        # select_related trae usuario y pedido en una sola consulta (optimiza)
+        # select_related mejora el rendimiento trayendo usuario y pedido en la misma consulta
         return (
             CalificacionCliente.objects
             .select_related("id_usuario", "id_pedido")
@@ -53,10 +47,10 @@ class CalificacionService:
             .order_by("-fecha_calificacion", "-id_calificacion")
         )
 
-
-    # Lista con filtros
+    # Lista calificaciones aplicando filtros
     def listar_filtrado(self, usuario=None, puntaje=None):
 
+        # Parte de todos los registros
         qs = self.listar_todas()
 
         # Filtro por nombre o apellido del usuario
@@ -66,26 +60,28 @@ class CalificacionService:
                 Q(id_usuario__apellido__icontains=usuario)
             )
 
-        # Filtro por puntaje mínimo
+        # Filtro por puntaje exacto de estrellas.
         if puntaje:
             try:
                 puntaje_int = int(puntaje)
             except (TypeError, ValueError):
                 puntaje_int = None
 
-            # Aquí se usa una lista porque promedio es un cálculo (no está en DB)
+            # Como el promedio no está en la base de datos sino calculado en Python,
+            # el filtro se hace en memoria. Se compara con el promedio redondeado
+            # para que 4.6 cuente como 5 estrellas y 4.4 como 4 estrellas.
             if puntaje_int:
                 qs = [
                     item for item in qs
-                    if int(item.promedio or 0) >= puntaje_int
+                    if int(round(float(item.promedio or 0))) == puntaje_int
                 ]
 
         return qs
 
-
-    # Buscar una calificación por id
+    # Busca una calificación por su id
     def buscar_por_id(self, pk):
 
+        # Asegura la existencia de la tabla antes de consultar
         self.asegurar_tabla()
 
         return (
@@ -95,27 +91,62 @@ class CalificacionService:
             .first()
         )
 
-
-    # Buscar usuario por id
+    # Busca un usuario por id
     def buscar_usuario_por_id(self, pk):
+
+        # Devuelve el usuario si existe, si no retorna None
         return Usuario.objects.filter(pk=pk).first()
 
-
-    # Buscar pedido por id
+    # Busca un pedido por id
     def buscar_pedido_por_id(self, pk):
+
+        # Devuelve el pedido si existe
         return PedidoEncabezado.objects.filter(pk=pk).first()
 
+    def pedido_ya_calificado(self, pedido_id):
+        if not pedido_id:
+            return False
+        return CalificacionCliente.objects.filter(id_pedido_id=pedido_id).exists()
 
-    # Guardar calificación
+    # Busca el ultimo pedido ya finalizado de un usuario
+    def buscar_ultimo_pedido_finalizado_por_usuario(self, usuario_id):
+        return (
+            PedidoEncabezado.objects
+            .filter(id_usuario_id=usuario_id)
+            .filter(estado_pedido__in=self.ESTADOS_CALIFICABLES)
+            .exclude(calificacioncliente__isnull=False)
+            .order_by("-id_pedido")
+            .first()
+        )
+
+    # Busca el ultimo pedido finalizado aun no calificado de un usuario
+    def buscar_pedido_pendiente_calificacion_por_usuario(self, usuario_id):
+        return (
+            PedidoEncabezado.objects
+            .filter(id_usuario_id=usuario_id, estado_pedido__in=self.ESTADOS_CALIFICABLES)
+            .exclude(calificacioncliente__isnull=False)
+            .order_by("-id_pedido")
+            .first()
+        )
+
+    # Guarda una calificación
     def guardar(self, calificacion):
 
+        # Asegura que la tabla exista antes de guardar
         self.asegurar_tabla()
 
-        calificacion.save()
+        # Evita duplicar calificaciones para el mismo pedido
+        if self.pedido_ya_calificado(getattr(calificacion, "id_pedido_id", None)):
+            raise ValueError("Este pedido ya fue calificado.")
+
+        try:
+            calificacion.save()
+        except IntegrityError as exc:
+            raise ValueError("Este pedido ya fue calificado.") from exc
         return calificacion
 
 
-# Define lo que se exporta desde este archivo
+# Define qué se puede importar desde este archivo
 __all__ = [
     "CalificacionService",
     "CalificacionCliente",

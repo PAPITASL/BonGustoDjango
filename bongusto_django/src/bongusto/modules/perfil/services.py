@@ -1,9 +1,7 @@
-"""Servicios del modulo `perfil`. Aqui se concentra la logica relacionada con la gestion del perfil del usuario autenticado."""
+"""Servicios del modulo `perfil`, aqui se maneja la logica del perfil del usuario."""
 
-# ===== Importaciones | Dependencias que este archivo necesita para funcionar dentro del modulo. =====
+# Se importa el servicio de usuario que se va a usar
 from bongusto.application.services import UsuarioService
 
-
-
-# ===== Exportaciones | Modulo `perfil` | Define los servicios disponibles para el manejo de perfil. =====
+# Aqui se define el servicio disponible en este modulo
 __all__ = ["UsuarioService"]

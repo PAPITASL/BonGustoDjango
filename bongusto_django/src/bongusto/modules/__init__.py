@@ -10,6 +10,7 @@ Modulos principales:
 - roles y permisos: administracion de acceso
 - perfil: datos del usuario autenticado
 - menus, categorias y productos: catalogo del restaurante
+- mesas: estado operativo en vivo entre cliente, mesero y administrador
 - pedidos: pedidos, detalle y llamados al mesero
 - musica: catalogo musical y solicitudes
 - eventos: reservas y eventos
@@ -28,6 +29,7 @@ __all__ = [
     "dashboard",
     "eventos",
     "menus",
+    "mesas",
     "musica",
     "perfil",
     "pedidos",

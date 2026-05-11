@@ -1,4 +1,4 @@
-"""Vistas sencillas del dashboard."""
+"""Vistas del dashboard con una estructura simple y fácil de seguir."""
 
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
@@ -8,20 +8,20 @@ from bongusto.infrastructure.pdf_generator import crear_pdf_compuesto
 
 
 class DashboardPageBuilder:
-    """Clase pequena para armar contexto y reporte del dashboard."""
+    """Clase de apoyo para armar el contexto y también el reporte del dashboard."""
 
     def __init__(self):
         self.service = DashboardService()
 
     def construir_contexto(self):
-        """Une estadisticas y ultimos registros."""
+        """Une las estadísticas generales con los últimos registros del sistema."""
         contexto = {}
         contexto.update(self.service.obtener_estadisticas())
         contexto.update(self.service.obtener_ultimos())
         return contexto
 
     def contexto_vacio(self):
-        """Devuelve una estructura segura si algo falla."""
+        """Devuelve una estructura segura por si algo falla al cargar el dashboard."""
         return {
             "metricas_resumen": [],
             "actividad_modulos": [],
@@ -40,7 +40,7 @@ class DashboardPageBuilder:
         }
 
     def construir_bloques_pdf(self, contexto):
-        """Transforma el contexto en bloques simples para el generador PDF."""
+        """Convierte el contexto del dashboard en bloques simples para generar el PDF."""
         metricas_rows = self._filas_metricas(contexto.get("metricas_resumen", []))
         actividad_rows = self._filas_actividad(contexto.get("actividad_modulos", []))
         usuarios_rows = self._filas_usuarios(contexto.get("usuarios_por_tipo", []))
@@ -99,6 +99,7 @@ class DashboardPageBuilder:
         ]
 
     def _filas_metricas(self, metricas):
+        # Arma las filas de las métricas principales para el PDF
         filas = []
         for item in metricas:
             filas.append(
@@ -113,6 +114,7 @@ class DashboardPageBuilder:
         return filas
 
     def _filas_actividad(self, actividad):
+        # Arma las filas de actividad por módulo
         filas = []
         for item in actividad:
             filas.append(
@@ -127,6 +129,7 @@ class DashboardPageBuilder:
         return filas
 
     def _filas_usuarios(self, usuarios):
+        # Arma las filas de distribución de usuarios por tipo
         filas = []
         for item in usuarios:
             filas.append(
@@ -141,6 +144,7 @@ class DashboardPageBuilder:
         return filas
 
     def _filas_reservas(self, linea_reservas):
+        # Convierte los puntos de la línea de reservas en filas simples
         filas = []
         for point in linea_reservas.get("points", []):
             filas.append([point.get("label", "-"), str(point.get("value", 0))])
@@ -149,6 +153,7 @@ class DashboardPageBuilder:
         return filas
 
     def _filas_operativas(self, resumen_operativo):
+        # Arma las filas del bloque de pulso operativo
         filas = []
         for item in resumen_operativo:
             filas.append(
@@ -163,6 +168,7 @@ class DashboardPageBuilder:
         return filas
 
     def _filas_calendario(self, calendario_dashboard):
+        # Convierte las semanas del calendario en filas para el PDF
         filas = []
         for week in calendario_dashboard.get("weeks", []):
             fila = []
@@ -174,6 +180,7 @@ class DashboardPageBuilder:
         return filas
 
     def _bloques_ultimos_registros(self, bloques):
+        # Convierte los últimos registros en bloques fáciles de imprimir en el PDF
         pdf_bloques = []
         for bloque in bloques:
             filas = []
@@ -196,12 +203,12 @@ page_builder = DashboardPageBuilder()
 
 
 def _sesion_activa(request):
-    """Valida si existe usuario en sesion."""
+    """Valida si realmente hay un usuario guardado en sesión."""
     return bool(request.session.get("usuario_id"))
 
 
 def index(request):
-    """Muestra la pantalla principal del dashboard."""
+    """Muestra la vista principal del dashboard."""
     if not _sesion_activa(request):
         return redirect("/login")
 
@@ -214,7 +221,7 @@ def index(request):
 
 
 def reporte(request):
-    """Genera el PDF del dashboard."""
+    """Genera el reporte PDF del dashboard."""
     if not _sesion_activa(request):
         return redirect("/login")
 

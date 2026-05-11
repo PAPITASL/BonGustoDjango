@@ -1,22 +1,23 @@
-<!-- Formulario de solo lectura para ver el detalle de una calificacion. -->
+<!-- Formulario en modo solo lectura -->
+<!-- Se usa únicamente para ver la información de la calificación, no permite editar -->
 
 {% extends "base.html" %}
 
-<!-- Titulo de la pagina -->
+<!-- Título que aparece en la pestaña -->
 {% block title %}
 Ver Calificacion
 {% endblock %}
 
 {% block content %}
 
-<!-- Contenedor centrado -->
+<!-- Contenedor centrado en pantalla -->
 <div class="row justify-content-center">
   <div class="col-md-7">
 
-    <!-- Tarjeta principal -->
+    <!-- Card principal donde va todo el contenido -->
     <div class="card p-4">
 
-      <!-- Titulo -->
+      <!-- Título del formulario -->
       <h4 class="mb-4">
         <strong>Detalle de la calificacion</strong>
       </h4>
@@ -25,7 +26,8 @@ Ver Calificacion
       <div class="mb-3">
         <label>Cliente</label>
 
-        <!-- Muestra el nombre del usuario si existe; de lo contrario un texto por defecto. -->
+        <!-- Si hay usuario muestra nombre completo -->
+        <!-- Si no hay, muestra un texto por defecto -->
         <input
           type="text"
           class="form-control"
@@ -42,7 +44,8 @@ Ver Calificacion
       <div class="mb-3">
         <label>Pedido asociado</label>
 
-        <!-- Muestra el ID del pedido o '-' si no existe. -->
+        <!-- Muestra el id del pedido -->
+        <!-- Si no tiene, se muestra '-' -->
         <input
           type="text"
           class="form-control"
@@ -51,12 +54,14 @@ Ver Calificacion
         >
       </div>
 
-      <!-- Calificaciones -->
+      <!-- Calificaciones individuales -->
       <div class="row g-3">
 
         <!-- Comida -->
         <div class="col-md-4">
           <label>Comida</label>
+
+          <!-- Se muestra la nota sobre 5 -->
           <input
             type="text"
             class="form-control"
@@ -68,6 +73,8 @@ Ver Calificacion
         <!-- Servicio -->
         <div class="col-md-4">
           <label>Servicio</label>
+
+          <!-- Se muestra la nota sobre 5 -->
           <input
             type="text"
             class="form-control"
@@ -79,6 +86,8 @@ Ver Calificacion
         <!-- Ambiente -->
         <div class="col-md-4">
           <label>Ambiente</label>
+
+          <!-- Se muestra la nota sobre 5 -->
           <input
             type="text"
             class="form-control"
@@ -89,11 +98,11 @@ Ver Calificacion
 
       </div>
 
-      <!-- Promedio -->
+      <!-- Promedio general -->
       <div class="mb-3 mt-3">
         <label>Promedio</label>
 
-        <!-- Usa la propiedad promedio del modelo. -->
+        <!-- Este valor ya viene calculado desde el backend -->
         <input
           type="text"
           class="form-control"
@@ -106,7 +115,8 @@ Ver Calificacion
       <div class="mb-3">
         <label>Fecha</label>
 
-        <!-- Formatea la fecha si esta disponible. -->
+        <!-- Si hay fecha la formatea -->
+        <!-- Si no, se muestra '-' -->
         <input
           type="text"
           class="form-control"
@@ -123,7 +133,7 @@ Ver Calificacion
       <div class="mb-4">
         <label>Observaciones</label>
 
-        <!-- Muestra el comentario o un valor vacio. -->
+        <!-- Muestra el comentario si existe, si no queda vacío -->
         <textarea
           class="form-control"
           rows="4"
@@ -131,7 +141,7 @@ Ver Calificacion
         >{{ calificacion.observaciones|default:'' }}</textarea>
       </div>
 
-      <!-- Boton para regresar al listado. -->
+      <!-- Botón para volver al listado -->
       <a href="/calificaciones" class="btn btn-outline-secondary">
         Volver
       </a>

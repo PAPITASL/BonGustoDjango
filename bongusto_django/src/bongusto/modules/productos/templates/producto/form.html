@@ -3,13 +3,15 @@
 {% block title %}{{ accion }} Producto{% endblock %}
 
 {% block content %}
+<!-- Titulo principal -->
 <h4 class="titulo-seccion text-center mb-4">{{ accion }} Producto</h4>
 
 <div class="card p-3">
+  <!-- Si hay error se muestra aqui -->
   {% if error %}
   <div class="alert alert-danger">{{ error }}</div>
   {% endif %}
-
+  <!-- Formulario para crear o actualizar producto -->
   <form
     action="{% if producto.id_producto %}/productos/{{ producto.id_producto }}/update{% else %}/productos/store{% endif %}"
     method="post"
@@ -19,8 +21,9 @@
     data-confirm-button="{% if producto.id_producto %}Si, actualizar{% else %}Si, crear{% endif %}"
     {% endif %}
   >
+    <!-- Token de seguridad -->
     {% csrf_token %}
-
+    <!-- Campo nombre -->
     <div class="form-group">
       <label>Nombre</label>
       <input
@@ -32,7 +35,7 @@
         {% if readonly %}disabled{% else %}required{% endif %}
       >
     </div>
-
+    <!-- Campo precio -->
     <div class="form-group">
       <label>Precio</label>
       <input
@@ -45,7 +48,7 @@
         {% if readonly %}disabled{% else %}required{% endif %}
       >
     </div>
-
+    <!-- Campo descripcion -->
     <div class="form-group">
       <label>Descripcion</label>
       <input
@@ -57,7 +60,7 @@
         {% if readonly %}disabled{% else %}required{% endif %}
       >
     </div>
-
+    <!-- Seleccion de menu -->
     <div class="form-group">
       <label>Menu</label>
       <select name="id_menu" class="form-control" {% if readonly %}disabled{% else %}required{% endif %}>
@@ -69,7 +72,7 @@
         {% endfor %}
       </select>
     </div>
-
+    <!-- Seleccion de categoria -->
     <div class="form-group">
       <label>Categoria</label>
       <select name="id_cate" class="form-control" {% if readonly %}disabled{% else %}required{% endif %}>
@@ -81,7 +84,7 @@
         {% endfor %}
       </select>
     </div>
-
+    <!-- Estado del producto -->
     <div class="form-group">
       <label>Estado</label>
       <select name="estado" class="form-control" {% if readonly %}disabled{% else %}required{% endif %}>
@@ -89,12 +92,13 @@
         <option value="inactivo" {% if producto.estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
       </select>
     </div>
-
+    <!-- Botones -->
     <div class="d-flex justify-content-between mt-3">
+      <!-- Volver o cancelar -->
       <a href="/productos" class="btn btn-secondary">
         {% if readonly %}Volver{% else %}Cancelar{% endif %}
       </a>
-
+      <!-- Boton editar o guardar -->
       {% if readonly %}
       <a href="/productos/{{ producto.id_producto }}/edit" class="btn btn-success">Editar</a>
       {% else %}

@@ -6,13 +6,11 @@ body {
     font-family: system-ui, sans-serif;
 }
 
-
 /* ---------- Layout general ---------- */
 .main-container {
     display: flex;
     min-height: 100vh;
 }
-
 
 /* ---------- Titulo ---------- */
 .titulo-seccion {
@@ -21,7 +19,6 @@ body {
     font-weight: bold;
     font-size: 1.4rem;
 }
-
 
 /* ---------- Filtros ---------- */
 .filtros-form {
@@ -45,7 +42,6 @@ body {
     cursor: pointer;
 }
 
-
 /* ---------- Tabla ---------- */
 .menu-table {
     width: 100%;
@@ -66,7 +62,6 @@ body {
 .menu-table tr:hover {
     background: #f7f7f7;
 }
-
 
 /* ---------- Botones ---------- */
 .btn {
@@ -98,7 +93,6 @@ body {
     background: #0058ff;
     color: #fff;
 }
-
 
 /* ---------- Utilidades ---------- */
 .text-end {

@@ -14,22 +14,35 @@ class MenuScreen extends StatefulWidget {
 
 // ===== Estado `_MenuScreenState` | Controla la carga remota de menus y la construccion visual de sus tarjetas. =====
 class _MenuScreenState extends State<MenuScreen> {
-  static const _bg = Color(0xFFF2F1F4);
-  static const _card = Color(0xFFFFFFFF);
-  static const _ink = Color(0xFF181818);
-  static const _muted = Color(0xFF73727A);
-  static const _accent = Color(0xFFD90416);
-  static const _line = Color(0xFFE8E6EB);
+  static const Color _accent = Color(0xFFD90416);
 
   bool _loading = true;
   String _error = '';
   List<MenuData> _menus = [];
   Map<int, List<MenuProductData>> _productosPorMenu = {};
 
+  static const String _todosMenusValue = '__todos__';
+  String _menuDropdownValue = _todosMenusValue;
+  String _searchText = '';
+  final TextEditingController _searchController = TextEditingController();
+
+  bool get _isDark => Theme.of(context).brightness == Brightness.dark;
+  Color get _bg => _isDark ? const Color(0xFF0F1117) : const Color(0xFFF2F1F4);
+  Color get _card => Colors.white;
+  Color get _ink => const Color(0xFF181818);
+  Color get _muted => const Color(0xFF54515A);
+  Color get _line => _isDark ? const Color(0xFF313544) : const Color(0xFFE8E6EB);
+
   @override
   void initState() {
     super.initState();
     _cargar();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _cargar() async {
@@ -41,15 +54,26 @@ class _MenuScreenState extends State<MenuScreen> {
       final menus = await BongustoApi.obtenerMenus();
       final menusTipados = menus.map(MenuData.fromMap).toList();
       final productosPorMenu = <int, List<MenuProductData>>{};
-      for (final menu in menusTipados) {
-        productosPorMenu[menu.id] = (await BongustoApi.obtenerProductos(
-          menuId: menu.id,
-        )).map(MenuProductData.fromMap).toList();
+      final resultados = await Future.wait(
+        menusTipados.map((menu) async {
+          final productos = await BongustoApi.obtenerProductos(menuId: menu.id);
+          return MapEntry(
+            menu.id,
+            productos.map(MenuProductData.fromMap).toList(),
+          );
+        }),
+      );
+      for (final entry in resultados) {
+        productosPorMenu[entry.key] = entry.value;
       }
       if (!mounted) return;
       setState(() {
         _menus = menusTipados;
         _productosPorMenu = productosPorMenu;
+        if (_menuDropdownValue != _todosMenusValue &&
+            !_menus.any((menu) => menu.id.toString() == _menuDropdownValue)) {
+          _menuDropdownValue = _todosMenusValue;
+        }
         _loading = false;
       });
     } catch (e) {
@@ -61,6 +85,19 @@ class _MenuScreenState extends State<MenuScreen> {
     }
   }
 
+  List<MenuData> get _menusFiltrados {
+    final query = _searchText.trim().toLowerCase();
+    return _menus.where((menu) {
+      final matchesDropdown = _menuDropdownValue == _todosMenusValue ||
+          menu.id.toString() == _menuDropdownValue;
+      final nombre = menu.nombre.toLowerCase();
+      final descripcion = menu.descripcion.toLowerCase();
+      final matchesSearch =
+          query.isEmpty || nombre.contains(query) || descripcion.contains(query);
+      return matchesDropdown && matchesSearch;
+    }).toList();
+  }
+
   Widget _hero() {
     return Container(
       padding: const EdgeInsets.all(22),
@@ -69,10 +106,10 @@ class _MenuScreenState extends State<MenuScreen> {
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: _line),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'MENU',
             style: TextStyle(
               color: _accent,
@@ -81,9 +118,9 @@ class _MenuScreenState extends State<MenuScreen> {
               fontWeight: FontWeight.w800,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
-            'Solo lectura para el equipo',
+            'Vista de consulta para meseros',
             style: TextStyle(
               color: _ink,
               fontSize: 30,
@@ -91,7 +128,11 @@ class _MenuScreenState extends State<MenuScreen> {
               fontWeight: FontWeight.w900,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
+          Text(
+            'Filtra por nombre o selecciona un menu para revisar sus platos.',
+            style: TextStyle(color: _muted, fontSize: 14, height: 1.5),
+          ),
         ],
       ),
     );
@@ -109,12 +150,96 @@ class _MenuScreenState extends State<MenuScreen> {
         children: [
           Icon(icon, size: 48, color: _accent),
           const SizedBox(height: 12),
-          Text(text, textAlign: TextAlign.center),
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: _ink),
+          ),
           if (retry) ...[
             const SizedBox(height: 16),
             ElevatedButton(onPressed: _cargar, child: const Text('Reintentar')),
           ],
         ],
+      ),
+    );
+  }
+
+
+  Widget _searchCard() {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: _card,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: _line),
+      ),
+      child: TextField(
+        controller: _searchController,
+        style: TextStyle(color: _ink),
+        onChanged: (value) => setState(() => _searchText = value),
+        decoration: InputDecoration(
+          hintText: 'Buscar menu, bebidas, brunch...',
+          hintStyle: TextStyle(color: _muted),
+          fillColor: const Color(0xFFF2F3F7),
+          prefixIcon: Icon(Icons.search_rounded, color: _muted),
+          suffixIcon: _searchText.isEmpty
+              ? null
+              : IconButton(
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() => _searchText = '');
+                  },
+                  icon: Icon(Icons.close_rounded, color: _muted),
+                ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 16,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _menuDropdown() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+      decoration: BoxDecoration(
+        color: _card,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _line),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: _menuDropdownValue,
+          isExpanded: true,
+          dropdownColor: _card,
+          icon: Icon(Icons.keyboard_arrow_down_rounded, color: _muted),
+          style: TextStyle(
+            color: _ink,
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          ),
+          items: [
+            const DropdownMenuItem<String>(
+              value: _todosMenusValue,
+              child: Text('Menu: todos'),
+            ),
+            ..._menus.map(
+              (menu) => DropdownMenuItem<String>(
+                value: menu.id.toString(),
+                child: Text(menu.nombre),
+              ),
+            ),
+          ],
+          onChanged: (value) {
+            if (value == null) {
+              return;
+            }
+            setState(() => _menuDropdownValue = value);
+          },
+        ),
       ),
     );
   }
@@ -129,11 +254,11 @@ class _MenuScreenState extends State<MenuScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(color: _muted, fontSize: 12)),
+          Text(label, style: TextStyle(color: _muted, fontSize: 12)),
           const SizedBox(height: 4),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               color: _ink,
               fontWeight: FontWeight.w800,
             ),
@@ -171,7 +296,7 @@ class _MenuScreenState extends State<MenuScreen> {
           children: [
             Text(
               menu.nombre,
-              style: const TextStyle(
+              style: TextStyle(
                 color: _ink,
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
@@ -183,7 +308,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 menu.descripcion,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: _muted, height: 1.45),
+                style: TextStyle(color: _muted, height: 1.45),
               ),
             ],
             const SizedBox(height: 14),
@@ -195,7 +320,7 @@ class _MenuScreenState extends State<MenuScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            const Row(
+            Row(
               children: [
                 Text(
                   'Toca para ver los platos',
@@ -204,8 +329,8 @@ class _MenuScreenState extends State<MenuScreen> {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                SizedBox(width: 6),
-                Icon(Icons.arrow_forward_rounded, color: _accent, size: 18),
+                const SizedBox(width: 6),
+                const Icon(Icons.arrow_forward_rounded, color: _accent, size: 18),
               ],
             ),
           ],
@@ -216,11 +341,13 @@ class _MenuScreenState extends State<MenuScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final menusFiltrados = _menusFiltrados;
+
     return Scaffold(
       backgroundColor: _bg,
       appBar: AppBar(
         backgroundColor: _bg,
-        foregroundColor: _ink,
+        foregroundColor: _isDark ? Colors.white : _ink,
         title: const Text('Menu', style: TextStyle(fontWeight: FontWeight.w800)),
       ),
       body: RefreshIndicator(
@@ -230,6 +357,12 @@ class _MenuScreenState extends State<MenuScreen> {
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
           children: [
             _hero(),
+            const SizedBox(height: 18),
+            _searchCard(),
+            if (_menus.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              _menuDropdown(),
+            ],
             const SizedBox(height: 18),
             if (_loading)
               const Padding(
@@ -247,8 +380,13 @@ class _MenuScreenState extends State<MenuScreen> {
                 icon: Icons.menu_book_outlined,
                 text: 'No hay menus creados en Django.',
               )
+            else if (menusFiltrados.isEmpty)
+              _stateCard(
+                icon: Icons.search_off_rounded,
+                text: 'No encontramos menus con ese filtro.',
+              )
             else
-              ..._menus.map(_menuCard),
+              ...menusFiltrados.map(_menuCard),
           ],
         ),
       ),

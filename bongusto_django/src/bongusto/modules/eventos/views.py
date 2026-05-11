@@ -1,5 +1,8 @@
 """Vistas del modulo eventos en un estilo simple y directo."""
 
+# ===== Importaciones | Aqui traemos todo lo necesario para que funcione este modulo. =====
+# defaultdict nos ayuda a agrupar datos (por ejemplo eventos por mes)
+# datetime y time sirven para manejar fechas y horas
 from collections import defaultdict
 from datetime import datetime, time
 
@@ -7,26 +10,39 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
 
+# Servicios que ya tienen la logica del negocio
 from bongusto.application.services import ReservaService, UsuarioService
+
+# Modelos que se usan directamente aqui
 from bongusto.domain.models import PedidoEncabezado, Reserva
+
+# Para generar PDF
 from bongusto.infrastructure.pdf_generator import crear_pdf_compuesto
+
+# Para registrar acciones en la bitacora
 from bongusto.modules.shared.audit import registrar_movimiento
 
 
+# ===== Instancias de servicios | Se crean una sola vez para reutilizar en todo el archivo. =====
 _service = ReservaService()
 _usuario_service = UsuarioService()
+
+# Horarios disponibles para reservas (de 8am a 9pm)
 _HORARIO_RESERVAS = [f"{hora:02d}:00" for hora in range(8, 22)]
 
 
+# ===== Helper del modulo | Aqui se deja toda la logica auxiliar para no ensuciar las vistas. =====
 class EventoPageHelper:
     """Agrupa pasos simples para que las vistas sean faciles de seguir."""
 
+    # Trae todos los usuarios del sistema
     def listar_usuarios(self):
         try:
             return _usuario_service.listar_todos()
         except Exception:
             return []
 
+    # Renderiza el formulario (crear, editar o ver)
     def render_formulario(self, request, evento, accion, error=""):
         return render(
             request,
@@ -42,6 +58,7 @@ class EventoPageHelper:
             },
         )
 
+    # Lee filtros desde la URL
     def leer_filtros(self, request):
         estado = request.GET.get("estado", "")
         fecha = request.GET.get("fecha", "")
@@ -51,6 +68,7 @@ class EventoPageHelper:
             "fecha_busqueda": fecha or None,
         }
 
+    # Lista eventos segun filtros
     def listar_eventos(self, filtros):
         try:
             return _service.listar_filtrado(
@@ -60,12 +78,14 @@ class EventoPageHelper:
         except Exception:
             return []
 
+    # Busca un evento por ID
     def buscar_evento(self, pk):
         try:
             return _service.buscar_por_id(pk)
         except Exception:
             return None
 
+    # Convierte string a fecha
     def leer_fecha(self, valor):
         if not valor:
             return None
@@ -74,6 +94,7 @@ class EventoPageHelper:
         except (TypeError, ValueError):
             return None
 
+    # Convierte string a hora
     def leer_hora(self, valor):
         if not valor:
             return None
@@ -82,12 +103,14 @@ class EventoPageHelper:
         except (TypeError, ValueError):
             return None
 
+    # Busca usuario por ID
     def buscar_usuario(self, usuario_id):
         try:
             return _usuario_service.buscar_por_id(usuario_id)
         except Exception:
             return None
 
+    # Carga datos del formulario al objeto evento
     def cargar_desde_post(self, request, evento):
         evento.fecha_reser = self.leer_fecha(request.POST.get("fecha_reser"))
         evento.hora_reser = (request.POST.get("hora_reser", "") or "").strip()
@@ -96,10 +119,12 @@ class EventoPageHelper:
         evento.detalle_evento = (request.POST.get("detalle_evento", "") or "").strip()
         return evento
 
+    # Validaciones del formulario
     def validar(self, request, evento, accion):
         usuario_id = (request.POST.get("id_usuario", "") or "").strip()
         hora_valida = self.leer_hora(evento.hora_reser)
 
+        # Validaciones paso a paso
         if not usuario_id:
             return None, self.render_formulario(request, evento, accion, "Debes seleccionar un usuario registrado.")
 
@@ -135,16 +160,25 @@ class EventoPageHelper:
 
         return evento, None
 
+    # Guarda evento
     def guardar(self, evento):
         _service.guardar(evento)
 
+    # Elimina evento
     def eliminar(self, pk):
         _service.eliminar(pk)
 
+    # Construye datos para el PDF
     def construir_reporte(self, eventos):
         eventos = list(eventos)
+
+        # Tabla principal
         tabla_principal = []
+
+        # Agrupaciones
         eventos_por_mes = defaultdict(int)
+
+        # Datos de pedidos para calcular ingresos
         pedidos_por_fecha = self._pedidos_por_fecha()
 
         for evento in eventos:
@@ -162,6 +196,7 @@ class EventoPageHelper:
 
         eventos_mes_rows = [[mes, str(total)] for mes, total in sorted(eventos_por_mes.items())] or [["Sin fechas", "0"]]
 
+        # Calculo de ingresos
         ingresos_rows = []
         for evento in eventos:
             if evento.fecha_reser:
@@ -193,6 +228,7 @@ class EventoPageHelper:
             },
         ]
 
+    # Funciones auxiliares
     def _nombre_responsable(self, evento):
         if evento.nombre_evento:
             return evento.nombre_evento
@@ -214,20 +250,26 @@ class EventoPageHelper:
         return pedidos_por_fecha
 
 
+# ===== Instancia del helper =====
 _helper = EventoPageHelper()
 
 
+# ===== Vistas principales =====
+
 def index(request):
+    # Lista eventos con filtros
     filtros = _helper.leer_filtros(request)
     eventos = _helper.listar_eventos(filtros)
     return render(request, "evento/index.html", {"eventos": eventos, "filtros": {"estado": filtros["estado"], "fecha": filtros["fecha"]}})
 
 
 def nuevo(request):
+    # Muestra formulario para crear
     return _helper.render_formulario(request, Reserva(), "Crear")
 
 
 def ver(request, pk):
+    # Muestra detalle
     evento = _helper.buscar_evento(pk)
     if not evento:
         return redirect("/eventos")
@@ -235,6 +277,7 @@ def ver(request, pk):
 
 
 def store(request):
+    # Guarda evento nuevo
     if request.method != "POST":
         return redirect("/eventos")
 
@@ -252,6 +295,7 @@ def store(request):
 
 
 def editar(request, pk):
+    # Muestra formulario de edicion
     evento = _helper.buscar_evento(pk)
     if not evento:
         return redirect("/eventos")
@@ -259,6 +303,7 @@ def editar(request, pk):
 
 
 def update(request, pk):
+    # Actualiza evento
     if request.method != "POST":
         return redirect("/eventos")
 
@@ -280,6 +325,7 @@ def update(request, pk):
 
 
 def eliminar(request, pk):
+    # Elimina evento
     try:
         evento = _helper.buscar_evento(pk)
         _helper.eliminar(pk)
@@ -291,6 +337,7 @@ def eliminar(request, pk):
 
 
 def pdf(request):
+    # Genera PDF
     try:
         filtros = _helper.leer_filtros(request)
         eventos = _helper.listar_eventos(filtros)

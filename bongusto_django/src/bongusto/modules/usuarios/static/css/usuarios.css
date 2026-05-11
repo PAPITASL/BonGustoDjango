@@ -1,138 +1,136 @@
-/* Hoja de estilos `usuarios.css` del modulo `usuarios`. Este archivo controla la apariencia de la gestion de usuarios. */
+/* Hoja de estilos `usuarios.css` del modulo `usuarios`. Aqui se controla toda la parte visual
+   de la gestion de usuarios dentro del sistema. */
 
 
-/* ===== Estilos base del layout | Fondo general del sistema. ===== */
+/* ===== Estilos base del layout | Define el fondo general de toda la pagina. ===== */
 body {
-    background: #fafbfc;
+    background: #fafbfc; /* Color suave para no cansar la vista */
 }
 
 
-/* ===== Contenedor principal | Estructura general de sidebar + contenido. ===== */
+/* ===== Contenedor principal | Aqui se arma la estructura general: sidebar + contenido. ===== */
 .main-container {
-    display: flex;
-    min-height: 100vh;
+    display: flex; /* Permite colocar sidebar y contenido uno al lado del otro */
+    min-height: 100vh; /* Hace que siempre ocupe toda la altura de la pantalla */
 }
 
 
-/* ===== Sidebar lateral | Menu principal de navegacion. ===== */
+/* ===== Sidebar lateral | Menu principal de navegacion del sistema. ===== */
 .sidebar {
-    background: #d90416;
+    background: #d90416; /* Color principal del sistema (rojo BonGusto) */
     color: #fff;
-    width: 240px;
+    width: 240px; /* Ancho fijo del menu */
     padding: 32px 20px 20px 20px;
-    border-radius: 28px;
+    border-radius: 28px; /* Bordes redondeados para un look moderno */
     margin: 16px;
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    position: sticky;
+    flex-direction: column; /* Organiza los elementos en columna */
+    justify-content: space-between; /* Separa contenido superior e inferior */
+    position: sticky; /* Hace que el sidebar se mantenga visible al hacer scroll */
     top: 0;
-    height: calc(100vh - 32px);
+    height: calc(100vh - 32px); /* Ajusta la altura restando el margen */
     align-self: flex-start;
 }
 
 /* Titulo dentro del sidebar */
 .sidebar h3 {
     font-weight: bold;
-    margin-bottom: 32px;
+    margin-bottom: 32px; /* Espacio para separar del menu */
 }
 
 /* Lista de navegacion */
 .sidebar ul {
-    list-style: none;
+    list-style: none; /* Quita los puntos de lista */
     padding: 0;
 }
 
 /* Elementos del menu */
 .sidebar ul li {
-    margin-bottom: 18px;
+    margin-bottom: 18px; /* Espacio entre cada opcion */
 }
 
 /* Links del menu */
 .sidebar ul li a {
     color: #fff;
-    text-decoration: none;
-    font-size: 1.08em;
+    text-decoration: none; /* Quita el subrayado */
+    font-size: 1.08em; /* Un poco mas grande para mejor lectura */
 }
 
 /* Iconos dentro del menu */
 .sidebar ul li a i {
-    margin-right: 10px;
+    margin-right: 10px; /* Espacio entre icono y texto */
 }
 
 
-/* ===== Boton logout | Cierre de sesion dentro del sidebar. ===== */
+/* ===== Boton logout | Boton para cerrar sesion dentro del sidebar. ===== */
 .logout {
     color: #fff;
     text-decoration: none;
     background: none;
     border: none;
     font-size: 1.08em;
-    cursor: pointer;
+    cursor: pointer; /* Indica que es clickeable */
     display: block;
     width: 100%;
     text-align: left;
 }
 
 
-/* ===== Contenido principal | Area donde se muestran las vistas. ===== */
+/* ===== Contenido principal | Zona donde se cargan todas las vistas. ===== */
 .content {
-    flex: 1;
-    padding: 40px 60px 40px 60px;
+    flex: 1; /* Ocupa todo el espacio restante al lado del sidebar */
+    padding: 40px 60px 40px 60px; /* Espaciado interno para que no se vea pegado */
 }
-
 
 /* ===== Header de usuario | Parte superior con avatar y notificaciones. ===== */
 .user-header {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 18px;
+    justify-content: flex-end; /* Alinea todo a la derecha */
+    gap: 18px; /* Espacio entre elementos */
     margin-bottom: 30px;
 }
 
 /* Avatar del usuario */
 .avatar {
-    border-radius: 50%;
-    border: 2px solid #eee;
+    border-radius: 50%; /* Hace la imagen completamente circular */
+    border: 2px solid #eee; /* Borde suave para destacar */
 }
 
 /* Icono de notificaciones */
 .bell {
     font-size: 1.7em;
-    color: #888;
+    color: #888; /* Color neutro para no saturar */
 }
 
 
-/* ===== Tabla de usuarios | Estilos base de la tabla. ===== */
+/* ===== Tabla de usuarios | Estilos base de la tabla donde se listan usuarios. ===== */
 .table {
     background: #fff;
     border-radius: 12px;
-    overflow: hidden;
+    overflow: hidden; /* Evita que los bordes se salgan del contenedor */
 }
 
 /* Celdas de la tabla */
 .table th,
 .table td {
-    vertical-align: middle;
+    vertical-align: middle; /* Centra el contenido verticalmente */
     border: none;
-    padding: 15px;
+    padding: 15px; /* Espaciado interno para mejor lectura */
 }
 
 /* Encabezado de la tabla */
 .table thead th {
-    background: #f8f9fa;
+    background: #f8f9fa; /* Fondo gris claro para diferenciar */
     font-weight: 600;
 }
 
-
-/* ===== Badges | Indicadores visuales de estado. ===== */
+/* ===== Badges | Indicadores visuales de estado (ej: activo, inactivo). ===== */
 .badge-success {
-    background-color: #28a745;
+    background-color: #28a745; /* Verde para estados positivos */
 }
 
-
-/* ===== Botones | Acciones comunes en la tabla. ===== */
+/* ===== Botones | Estilos de acciones comunes dentro de la tabla. ===== */
 .btn-success {
     background-color: #28a745;
     border-color: #28a745;

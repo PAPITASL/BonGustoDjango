@@ -1,10 +1,9 @@
-"""Modelos del modulo musica, aqui se agrupan las entidades relacionadas con canciones y solicitudes del sistema."""
+"""Modelos del modulo musica, aqui se agrupan todo lo relacionado con canciones y solicitudes."""
 
-# ===== Importaciones principales | Se traen los modelos desde la capa de dominio. =====
+# Se importan los modelos desde la capa de dominio
 from bongusto.domain.models import Musica, Reserva, SolicitudMusica
 
-
-# ===== Exportacion de modelos | Se define que modelos quedan disponibles en este modulo. =====
+# Aqui se define que modelos se van a usar en este modulo
 __all__ = [
     "Musica",
     "SolicitudMusica",

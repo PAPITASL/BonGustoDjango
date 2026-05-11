@@ -1,4 +1,4 @@
-/* ---------- Variables base del sistema ---------- */
+/* Variables principales que se usan en todo el sistema */
 :root {
     --bg: #f2f1f4;
     --surface: rgba(255, 255, 255, 0.82);
@@ -20,8 +20,25 @@
     --radius-sm: 14px;
 }
 
+body[data-theme="dark"] {
+    --bg: #0f1117;
+    --surface: rgba(27, 30, 40, 0.86);
+    --surface-strong: #1a1d27;
+    --surface-muted: #242837;
+    --surface-soft: #171a23;
+    --line: #313544;
+    --line-soft: #262a37;
+    --text: #f4f5f9;
+    --muted: #a7adbd;
+    --accent: #ff4052;
+    --accent-dark: #f21d33;
+    --accent-soft: rgba(255, 64, 82, 0.15);
+    --shadow-lg: 0 24px 44px rgba(0, 0, 0, 0.34);
+    --shadow-md: 0 12px 28px rgba(0, 0, 0, 0.26);
+}
 
-/* ---------- Reset general ---------- */
+
+/* Reset general para todos los elementos */
 *,
 *::before,
 *::after {
@@ -31,24 +48,28 @@
 }
 
 
-/* ---------- Base del documento ---------- */
+/* Estilos base de toda la pagina */
 body {
     min-height: 100vh;
     background: var(--bg);
     color: var(--text);
     font-family: "Manrope", system-ui, sans-serif;
     overflow-x: hidden;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
+/* Contenedor general de la app */
 .app-shell {
     position: relative;
 }
 
+/* Boton y fondo del sidebar en responsive */
 .sidebar-toggle,
 .sidebar-backdrop {
     display: none;
 }
 
+/* Boton para abrir sidebar */
 .sidebar-toggle {
     position: relative;
     z-index: 2;
@@ -63,6 +84,7 @@ body {
     flex: 0 0 auto;
 }
 
+/* Fondo oscuro cuando se abre el sidebar */
 .sidebar-backdrop {
     position: fixed;
     inset: 0;
@@ -73,6 +95,7 @@ body {
     transition: opacity 0.2s ease;
 }
 
+/* Ajuste general para imagenes y medios */
 img,
 svg,
 canvas,
@@ -82,7 +105,7 @@ video {
 }
 
 
-/* ---------- Layout principal ---------- */
+/* Estructura principal de la pagina */
 .main-container {
     display: flex;
     flex-direction: row;
@@ -93,7 +116,7 @@ video {
 }
 
 
-/* ---------- Sidebar ---------- */
+/* Barra lateral */
 .sidebar {
     width: 250px;
     min-height: calc(100vh - 36px);
@@ -111,6 +134,7 @@ video {
     box-shadow: 0 24px 40px rgba(217, 4, 22, 0.22);
 }
 
+/* Parte superior del sidebar */
 .sidebar-top {
     display: flex;
     align-items: center;
@@ -120,6 +144,7 @@ video {
     margin-bottom: 10px;
 }
 
+/* Imagen del logo */
 .brand-logo-image {
     width: 54px;
     height: 54px;
@@ -134,6 +159,7 @@ video {
     mix-blend-mode: screen;
 }
 
+/* Titulo del logo */
 .brand-copy h3 {
     font-size: 0.92rem;
     font-weight: 800;
@@ -142,12 +168,14 @@ video {
     line-height: 1;
 }
 
+/* Texto pequeño del logo */
 .brand-copy p {
     font-size: 0.66rem;
     line-height: 1.1;
     color: rgba(255, 255, 255, 0.78);
 }
 
+/* Lista del menu lateral */
 .sidebar-nav ul {
     list-style: none;
     display: grid;
@@ -155,6 +183,7 @@ video {
     margin-top: 2px;
 }
 
+/* Links del sidebar */
 .sidebar-nav a {
     display: flex;
     flex-direction: row;
@@ -171,6 +200,7 @@ video {
     line-height: 1.05;
 }
 
+/* Iconos del sidebar */
 .sidebar-nav a i {
     width: 16px;
     text-align: center;
@@ -178,21 +208,25 @@ video {
     flex: 0 0 auto;
 }
 
+/* Efecto al pasar el mouse */
 .sidebar-nav a:hover {
     background: rgba(255, 255, 255, 0.12);
     transform: translateX(2px);
 }
 
+/* Opcion activa */
 .sidebar-nav a.active {
     background: rgba(0, 0, 0, 0.18);
     color: white;
     box-shadow: none;
 }
 
+/* Formulario del boton logout */
 .logout-form {
     margin-top: 8px;
 }
 
+/* Boton cerrar sesion */
 .logout {
     width: 100%;
     border: 1px solid rgba(255, 255, 255, 0.14);
@@ -206,6 +240,7 @@ video {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Efecto del boton logout */
 .logout:hover {
     transform: translateY(-1px);
     box-shadow: none;
@@ -213,7 +248,7 @@ video {
 }
 
 
-/* ---------- Contenido ---------- */
+/* Contenido principal */
 .content {
     flex: 1;
     width: calc(100% - 268px);
@@ -222,7 +257,7 @@ video {
 }
 
 
-/* ---------- Topbar ---------- */
+/* Barra superior */
 .topbar-card {
     display: flex;
     align-items: center;
@@ -237,10 +272,22 @@ video {
     box-shadow: var(--shadow-md);
 }
 
+body[data-theme="dark"] .topbar-card,
+body[data-theme="dark"] .page-surface,
+body[data-theme="dark"] .table-responsive,
+body[data-theme="dark"] .form-container,
+body[data-theme="dark"] .popular-artists-box,
+body[data-theme="dark"] .music-card {
+    background: var(--surface);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* El boton del sidebar en topbar normalmente oculto */
 .topbar-card .sidebar-toggle {
     display: none;
 }
 
+/* Texto pequeño arriba del titulo */
 .topbar-kicker {
     color: var(--muted);
     font-size: 0.72rem;
@@ -250,18 +297,21 @@ video {
     margin-bottom: 6px;
 }
 
+/* Titulo principal de la barra */
 .topbar-title {
     font-size: 1.6rem;
     font-weight: 800;
     color: var(--text);
 }
 
+/* Zona del usuario */
 .user-header {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
+/* Tarjeta del perfil */
 .profile-chip {
     display: flex;
     align-items: center;
@@ -273,10 +323,16 @@ video {
     transition: background 0.2s ease;
 }
 
+/* Hover del perfil */
 .profile-chip:hover {
     background: rgba(24, 24, 24, 0.05);
 }
 
+body[data-theme="dark"] .profile-chip:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* Avatar del perfil */
 .profile-avatar {
     width: 44px;
     height: 44px;
@@ -289,10 +345,12 @@ video {
     color: var(--accent);
 }
 
+/* Texto pequeño del perfil */
 .profile-chip small {
     color: var(--muted);
 }
 
+/* Caja de notificaciones */
 .bell-container {
     position: relative;
     width: 46px;
@@ -306,11 +364,13 @@ video {
     cursor: pointer;
 }
 
+/* Icono campana */
 .bell {
     color: var(--text);
     font-size: 1.1rem;
 }
 
+/* Numero de notificaciones */
 .notification-badge {
     position: absolute;
     top: -4px;
@@ -327,7 +387,7 @@ video {
 }
 
 
-/* ---------- Superficie principal ---------- */
+/* Superficie principal de cada vista */
 .page-surface {
     padding: 28px;
     width: 100%;
@@ -341,7 +401,7 @@ video {
 }
 
 
-/* ---------- Titulos y utilidades ---------- */
+/* Titulos y clases utiles */
 h1, h2, h3, h4, h5 {
     font-family: "Manrope", system-ui, sans-serif;
     color: var(--text);
@@ -388,7 +448,7 @@ h4, h5 {
 .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
 
 
-/* ---------- Grid y columnas ---------- */
+/* Sistema de filas y columnas */
 .row {
     display: flex;
     flex-wrap: wrap;
@@ -419,7 +479,7 @@ h4, h5 {
 .col-md-7 { flex-basis: 58.333%; }
 
 
-/* ---------- Contenedores generales ---------- */
+/* Cajas generales usadas en el sistema */
 .table-responsive,
 .form-container,
 .popular-artists-box,
@@ -430,6 +490,7 @@ h4, h5 {
     box-shadow: var(--shadow-md);
 }
 
+/* Contenedor de tablas */
 .table-responsive {
     padding: 14px;
     width: 100%;
@@ -441,8 +502,12 @@ h4, h5 {
     -webkit-overflow-scrolling: touch;
 }
 
+body[data-theme="dark"] .table-responsive {
+    background: linear-gradient(180deg, rgba(29, 32, 43, 0.95) 0%, rgba(20, 23, 32, 0.92) 100%);
+}
 
-/* ---------- Tablas ---------- */
+
+/* Tabla general */
 .table {
     width: 100%;
     min-width: 720px;
@@ -451,6 +516,7 @@ h4, h5 {
     border-spacing: 0 12px;
 }
 
+/* Encabezados de tabla */
 .table thead th {
     padding: 10px 16px 12px;
     color: var(--muted);
@@ -462,17 +528,20 @@ h4, h5 {
     white-space: nowrap;
 }
 
+/* Filas del cuerpo */
 .table tbody tr {
     background: linear-gradient(180deg, #ffffff 0%, #fdfcfd 100%);
     box-shadow: 0 10px 24px rgba(24, 24, 24, 0.04);
     transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
 }
 
+/* Hover de filas */
 .table tbody tr:hover {
     transform: translateY(-1px);
     box-shadow: 0 14px 28px rgba(24, 24, 24, 0.06);
 }
 
+/* Celdas */
 .table tbody td {
     padding: 17px 16px;
     border-top: 1px solid var(--line-soft);
@@ -486,6 +555,7 @@ h4, h5 {
     hyphens: none;
 }
 
+/* Primera celda de cada fila */
 .table tbody td:first-child {
     min-width: 78px;
     border-left: 1px solid var(--line-soft);
@@ -494,6 +564,7 @@ h4, h5 {
     white-space: nowrap;
 }
 
+/* Ultima celda de cada fila */
 .table tbody td:last-child {
     min-width: 112px;
     border-right: 1px solid var(--line-soft);
@@ -502,16 +573,19 @@ h4, h5 {
     white-space: nowrap;
 }
 
+/* Primer encabezado */
 .table thead th:first-child {
     min-width: 78px;
     white-space: nowrap;
 }
 
+/* Ultimo encabezado */
 .table thead th:last-child {
     min-width: 112px;
     white-space: nowrap;
 }
 
+/* Botones dentro de la ultima columna */
 .table tbody td:last-child .btn,
 .table tbody td:last-child a.btn,
 .table tbody td:last-child button.btn {
@@ -519,6 +593,7 @@ h4, h5 {
     white-space: nowrap;
 }
 
+/* Columna de dinero */
 .table .money-cell,
 .table td.money-cell,
 .table th.money-cell {
@@ -531,6 +606,7 @@ h4, h5 {
     font-variant-numeric: tabular-nums;
 }
 
+/* Columna de ID */
 .table .id-cell,
 .table td.id-cell,
 .table th.id-cell {
@@ -548,6 +624,7 @@ h4, h5 {
     text-align: left;
 }
 
+/* Valor interno del ID */
 .table .id-cell .id-value,
 .table td.id-cell .id-value {
     display: inline-flex;
@@ -563,6 +640,7 @@ h4, h5 {
     font-variant-numeric: tabular-nums;
 }
 
+/* Texto importante dentro de la tabla */
 .table tbody td strong,
 .table tbody td b,
 .table tbody td a,
@@ -573,6 +651,7 @@ h4, h5 {
     hyphens: none;
 }
 
+/* Celdas que no deben partirse */
 .table td.nowrap-cell,
 .table th.nowrap-cell,
 .table .nowrap-cell,
@@ -585,16 +664,18 @@ h4, h5 {
     hyphens: none;
 }
 
+/* Checkbox en primera columna */
 .table tbody td:first-child input.form-check-input {
     margin-left: 2px;
 }
 
+/* Texto centrado en tabla */
 .table .text-center {
     color: var(--muted);
 }
 
 
-/* ---------- Badges ---------- */
+/* Etiquetas tipo badge */
 .badge {
     display: inline-flex;
     align-items: center;
@@ -608,24 +689,28 @@ h4, h5 {
     letter-spacing: 0.01em;
 }
 
+/* Badge de exito */
 .badge-success {
     background: #eef8f1;
     color: #1f7a34;
     border-color: #d6ebdc;
 }
 
+/* Badge de advertencia */
 .badge-warning {
     background: #fff6e7;
     color: #b36a07;
     border-color: #f3e4bf;
 }
 
+/* Badge de peligro */
 .badge-danger {
     background: #ffe9eb;
     color: #a61a27;
     border-color: #ffd3d8;
 }
 
+/* Badge secundario */
 .badge-secondary {
     background: #f4f3f7;
     color: #66656d;
@@ -633,7 +718,7 @@ h4, h5 {
 }
 
 
-/* ---------- Botones ---------- */
+/* Botones generales */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -651,10 +736,12 @@ h4, h5 {
     transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
 }
 
+/* Hover general de botones */
 .btn:hover {
     transform: translateY(-1px);
 }
 
+/* Botones principales */
 .btn-primary,
 .btn-secondary,
 .btn-danger {
@@ -663,12 +750,14 @@ h4, h5 {
     box-shadow: 0 10px 18px rgba(217, 4, 22, 0.16);
 }
 
+/* Hover de botones principales */
 .btn-primary:hover,
 .btn-secondary:hover,
 .btn-danger:hover {
     background: var(--accent-dark);
 }
 
+/* Boton success */
 .btn-success {
     background: var(--surface-strong);
     color: var(--text);
@@ -676,6 +765,7 @@ h4, h5 {
     box-shadow: var(--shadow-md);
 }
 
+/* Boton outline dark */
 .btn-outline-dark {
     background: #ffffff;
     color: var(--text);
@@ -683,6 +773,7 @@ h4, h5 {
     box-shadow: 0 10px 18px rgba(24, 24, 24, 0.05);
 }
 
+/* Boton ver */
 .btn-view {
     background: #ffecef;
     color: var(--accent);
@@ -690,6 +781,7 @@ h4, h5 {
     box-shadow: 0 10px 18px rgba(217, 4, 22, 0.08);
 }
 
+/* Hover de algunos botones claros */
 .btn-success:hover,
 .btn-view:hover,
 .btn-outline-dark:hover,
@@ -697,12 +789,14 @@ h4, h5 {
     background: #ffe2e7;
 }
 
+/* Boton light */
 .btn-light {
     background: var(--surface-strong);
     color: var(--text);
     border-color: var(--line);
 }
 
+/* Boton pequeño */
 .btn-sm {
     padding: 8px 14px;
     border-radius: 999px;
@@ -710,7 +804,7 @@ h4, h5 {
 }
 
 
-/* ---------- Acciones de tabla ---------- */
+/* Contenedor de acciones dentro de tablas */
 .action-stack {
     display: flex;
     flex-direction: column;
@@ -720,21 +814,25 @@ h4, h5 {
     width: 100%;
 }
 
+/* Botones dentro del action stack */
 .action-stack .btn {
     min-width: 132px;
     justify-content: center;
     box-shadow: none;
 }
 
+/* Formulario de accion */
 .action-form {
     margin: 0;
 }
 
+/* Ajuste del boton success en acciones */
 .action-stack .btn-success {
     background: #ffffff;
     border-color: #e7e4eb;
 }
 
+/* Ajuste de boton outline y view en acciones */
 .action-stack .btn-outline-dark,
 .action-stack .btn-view {
     background: #ffecef;
@@ -743,17 +841,19 @@ h4, h5 {
     border-radius: 999px;
 }
 
+/* Hover del success en acciones */
 .action-stack .btn-success:hover {
     background: #f7f6f9;
 }
 
+/* Hover de otros botones en acciones */
 .action-stack .btn-outline-dark:hover,
 .action-stack .btn-view:hover {
     background: #ffe2e7;
 }
 
 
-/* ---------- Formularios ---------- */
+/* Formularios */
 form.mb-4 {
     margin-bottom: 1.5rem;
     padding: 16px;
@@ -763,6 +863,13 @@ form.mb-4 {
     box-shadow: 0 10px 24px rgba(24, 24, 24, 0.04);
 }
 
+body[data-theme="dark"] form.mb-4 {
+    background: linear-gradient(180deg, rgba(29, 32, 43, 0.94) 0%, rgba(20, 23, 32, 0.96) 100%);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+}
+
+/* Inputs y selects */
 .form-control,
 .modern-form .form-control,
 .modern-form .form-select,
@@ -778,10 +885,22 @@ textarea.form-control {
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
+body[data-theme="dark"] .form-control,
+body[data-theme="dark"] .modern-form .form-control,
+body[data-theme="dark"] .modern-form .form-select,
+body[data-theme="dark"] select.form-control,
+body[data-theme="dark"] textarea.form-control {
+    background: #242837;
+    color: var(--text);
+    border-color: var(--line);
+}
+
+/* Placeholder */
 .form-control::placeholder {
     color: #a2a1aa;
 }
 
+/* Focus de inputs */
 .form-control:focus,
 .modern-form .form-control:focus,
 .modern-form .form-select:focus {
@@ -790,6 +909,7 @@ textarea.form-control {
     box-shadow: 0 0 0 4px var(--accent-soft);
 }
 
+/* Texto de ayuda */
 .field-help {
     display: block;
     margin-top: 6px;
@@ -798,6 +918,7 @@ textarea.form-control {
     line-height: 1.35;
 }
 
+/* Labels */
 label,
 .modern-form .form-label {
     display: block;
@@ -806,6 +927,12 @@ label,
     font-weight: 700;
 }
 
+body[data-theme="dark"] label,
+body[data-theme="dark"] .modern-form .form-label {
+    color: var(--text);
+}
+
+/* Contenedor de formulario */
 .form-container {
     max-width: 760px;
     width: 100%;
@@ -814,7 +941,7 @@ label,
 }
 
 
-/* ---------- Ajustes de texto y estructura ---------- */
+/* Ajustes para que el texto no se rompa raro */
 .page-surface form,
 .page-surface .d-flex,
 .page-surface .justify-content-between {
@@ -840,7 +967,7 @@ label,
 }
 
 
-/* ---------- Alertas ---------- */
+/* Alertas */
 .alert {
     padding: 15px 16px;
     margin-bottom: 18px;
@@ -848,18 +975,21 @@ label,
     border: 1px solid transparent;
 }
 
+/* Alerta info */
 .alert-info {
     background: #eef4ff;
     border-color: #dde6fb;
     color: #36507f;
 }
 
+/* Alerta error */
 .alert-danger {
     background: #ffecee;
     border-color: #ffd9dd;
     color: #a21d2a;
 }
 
+/* Alerta exito */
 .alert-success {
     background: #ecf9ee;
     border-color: #d6f0da;
@@ -867,7 +997,7 @@ label,
 }
 
 
-/* ---------- Checkboxes ---------- */
+/* Checkbox */
 .form-check-input {
     width: 1.12rem;
     height: 1.12rem;
@@ -876,30 +1006,33 @@ label,
     cursor: pointer;
 }
 
+/* Checkbox marcado */
 .form-check-input:checked {
     background-color: var(--accent);
     border-color: var(--accent);
 }
 
 
-/* ---------- Musica ---------- */
+/* Seccion de musica */
 .music-hero {
     text-align: center;
     margin-bottom: 28px;
 }
 
+/* Caja de artistas y tarjetas de musica */
 .popular-artists-box,
 .music-card {
     padding: 20px;
 }
 
+/* Imagen de portada */
 .music-cover {
     border-radius: 18px;
     object-fit: cover;
 }
 
 
-/* ---------- Responsive 1200 ---------- */
+/* Ajustes para pantallas menores a 1200 */
 @media (max-width: 1200px) {
     .sidebar {
         width: 220px;
@@ -929,7 +1062,7 @@ label,
 }
 
 
-/* ---------- Responsive 1320 ---------- */
+/* Ajustes para pantallas menores a 1320 */
 @media (max-width: 1320px) {
     .sidebar-toggle,
     .sidebar-backdrop {
@@ -983,7 +1116,7 @@ label,
 }
 
 
-/* ---------- Responsive 760 ---------- */
+/* Ajustes para pantallas menores a 760 */
 @media (max-width: 760px) {
     .sidebar {
         top: 12px;
@@ -1053,7 +1186,7 @@ label,
 }
 
 
-/* ---------- Responsive 640 ---------- */
+/* Ajustes para pantallas menores a 640 */
 @media (max-width: 640px) {
     .sidebar-nav ul {
         grid-template-columns: 1fr;
@@ -1156,7 +1289,7 @@ label,
 }
 
 
-/* ---------- Responsive 480 ---------- */
+/* Ajustes para pantallas menores a 480 */
 @media (max-width: 480px) {
     .sidebar-top {
         width: 100%;
@@ -1183,4 +1316,9 @@ label,
     .bell-container {
         justify-self: stretch;
     }
+}
+
+body[data-theme="dark"] .table tbody tr {
+    background: linear-gradient(180deg, #202432 0%, #191d29 100%);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
 }

@@ -1,24 +1,24 @@
 """
 Configuración del módulo calificaciones.
-
-Aquí se registra la app que maneja opiniones y puntajes de clientes.
+Aquí se define cómo Django reconoce esta app dentro del proyecto.
+Este módulo es el que maneja las opiniones y puntajes de los clientes.
 """
-
-# Importamos AppConfig (esto es lo que usa Django para registrar apps)
+# Se importa AppConfig, que es la base para registrar una app en Django
 from django.apps import AppConfig
 
-
-# Configuración del módulo calificaciones
+# Clase de configuración del módulo calificaciones
 class CalificacionesConfig(AppConfig):
 
-    # Tipo de id automático (llave primaria en modelos)
+    # Tipo de id automático que usarán los modelos (BigAutoField)
     default_auto_field = "django.db.models.BigAutoField"
 
-    # Ruta del módulo dentro del proyecto
+    # Ruta completa donde está el módulo dentro del proyecto
+    # Django usa esto para ubicar correctamente la app
     name = "bongusto.modules.calificaciones"
 
-    # Nombre interno (sirve para evitar conflictos entre apps)
+    # Nombre interno corto de la app
+    # Sirve para identificarla sin chocar con otras apps
     label = "modules_calificaciones"
 
-    # Nombre bonito (se usa en admin o configuraciones)
+    # Nombre más legible que se puede mostrar en el admin u otras partes
     verbose_name = "Modulo Calificaciones"

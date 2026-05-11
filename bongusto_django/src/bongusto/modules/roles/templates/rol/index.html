@@ -3,15 +3,18 @@
 {% block title %}Gestion de Roles{% endblock %}
 
 {% block content %}
+<!-- Titulo principal de la vista -->
 <h2 class="text-center mb-4"><strong>Gestion de Roles</strong></h2>
 
+<!-- Boton para crear un nuevo rol -->
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div></div>
   <a href="/roles/create" class="btn btn-secondary">+ Nuevo Rol</a>
 </div>
-
+<!-- Tabla donde se muestran los roles -->
 <div class="table-responsive">
   <table class="table table-hover">
+    <!-- Encabezados -->
     <thead>
       <tr>
         <th class="id-cell">ID</th>
@@ -19,15 +22,22 @@
         <th>Acciones</th>
       </tr>
     </thead>
+    <!-- Datos -->
     <tbody>
       {% for r in roles %}
       <tr>
+        <!-- ID -->
         <td class="id-cell"><span class="id-value">{{ r.id_rol }}</span></td>
+        <!-- Nombre del rol -->
         <td>{{ r.nombre_rol }}</td>
+        <!-- Botones -->
         <td>
           <div class="action-stack">
+            <!-- Ver -->
             <a href="/roles/{{ r.id_rol }}" class="btn btn-view btn-sm">Ver</a>
+            <!-- Editar -->
             <a href="/roles/{{ r.id_rol }}/edit" class="btn btn-success btn-sm">Editar</a>
+            <!-- Eliminar -->
             <form
               action="/roles/{{ r.id_rol }}/delete"
               method="post"
@@ -42,6 +52,7 @@
           </div>
         </td>
       </tr>
+      <!-- Si no hay roles -->
       {% empty %}
       <tr>
         <td colspan="3" class="text-center">Sin roles</td>

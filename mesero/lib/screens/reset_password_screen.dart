@@ -1,7 +1,7 @@
-// ===== Pantalla `reset_password_screen.dart` | Aqui el usuario define y confirma su nueva contrasena. =====
 import 'package:flutter/material.dart';
 
-// ===== Clase `ResetPasswordScreen` | Representa el ultimo paso del flujo de restablecimiento de clave. =====
+import '../services/bongusto_api.dart';
+
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
 
@@ -9,12 +9,12 @@ class ResetPasswordScreen extends StatefulWidget {
   State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
 }
 
-// ===== Estado `_ResetPasswordScreenState` | Controla validaciones, visibilidad y confirmacion de contrasenas. =====
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
-  final _pass1Ctrl = TextEditingController(); // Nueva contraseña
-  final _pass2Ctrl = TextEditingController(); // Confirmar contraseña
-  bool _obscure1 = true; // visibilidad del campo 1
-  bool _obscure2 = true; // visibilidad del campo 2
+  final _pass1Ctrl = TextEditingController();
+  final _pass2Ctrl = TextEditingController();
+  bool _obscure1 = true;
+  bool _obscure2 = true;
+  bool _saving = false;
 
   @override
   void dispose() {
@@ -23,37 +23,91 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     super.dispose();
   }
 
-  // Parametros de Seguraridad
   bool _strongPass(String v) {
     final reg = RegExp(
-        r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&\.\-\_]).{8,}$');
+      r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&\.\-_]).{8,}$',
+    );
     return reg.hasMatch(v);
   }
 
-  // Resetear contraseña
-  void _reset() {
+  Future<void> _reset() async {
+    final args =
+        (ModalRoute.of(context)?.settings.arguments as Map?) ?? const {};
+    final correo = (args['correo'] ?? '').toString();
+    final codigo = (args['codigo'] ?? '').toString();
+    final token = (args['token'] ?? '').toString();
     final p1 = _pass1Ctrl.text;
     final p2 = _pass2Ctrl.text;
 
+    final usaToken = token.isNotEmpty;
+    if (!usaToken && (correo.isEmpty || codigo.isEmpty)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('El flujo de recuperación no es válido')),
+      );
+      return;
+    }
+
     if (!_strongPass(p1)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
           content: Text(
-              'Incluye mayúscula, minúscula, número y símbolo (8+)')));
+            'Incluye mayúscula, minúscula, número y símbolo (8+)',
+          ),
+        ),
+      );
       return;
     }
     if (p1 != p2) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Las contraseñas no coinciden')));
+        const SnackBar(content: Text('Las contraseñas no coinciden')),
+      );
       return;
     }
 
-    Navigator.pushReplacementNamed(context, '/success');
+    setState(() => _saving = true);
+    try {
+      final response = usaToken
+          ? await BongustoApi.restablecerContrasenaConToken(
+              token: token,
+              password: p1,
+              passwordConfirm: p2,
+            )
+          : await BongustoApi.restablecerContrasena(
+              correo: correo,
+              codigo: codigo,
+              password: p1,
+              passwordConfirm: p2,
+            );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            (response['message'] ??
+                    response['mensaje'] ??
+                    'Contraseña actualizada')
+                .toString(),
+          ),
+        ),
+      );
+      Navigator.pushReplacementNamed(context, '/success');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _saving = false);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const cardText = Color(0xFF181818);
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: isDark ? const Color(0xFF101218) : const Color(0xFFF5F5F5),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -68,7 +122,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       color: Colors.black.withValues(alpha: 0.06),
                       blurRadius: 18,
                       offset: const Offset(0, 8),
-                    )
+                    ),
                   ],
                 ),
                 child: Padding(
@@ -76,19 +130,27 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text('Restablecer contraseña',
-                          style: TextStyle(
-                              fontSize: 26, fontWeight: FontWeight.w900)),
+                      const Text(
+                        'Restablecer contraseña',
+                        style: TextStyle(
+                          color: cardText,
+                          fontSize: 26,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
                       const SizedBox(height: 12),
                       TextField(
                         controller: _pass1Ctrl,
+                        style: const TextStyle(color: cardText),
                         obscureText: _obscure1,
                         decoration: InputDecoration(
                           hintText: 'Nueva contraseña',
                           suffixIcon: IconButton(
-                            icon: Icon(_obscure1
-                                ? Icons.visibility
-                                : Icons.visibility_off),
+                            icon: Icon(
+                              _obscure1
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
                             onPressed: () =>
                                 setState(() => _obscure1 = !_obscure1),
                           ),
@@ -97,13 +159,16 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       const SizedBox(height: 16),
                       TextField(
                         controller: _pass2Ctrl,
+                        style: const TextStyle(color: cardText),
                         obscureText: _obscure2,
                         decoration: InputDecoration(
                           hintText: 'Confirmar contraseña',
                           suffixIcon: IconButton(
-                            icon: Icon(_obscure2
-                                ? Icons.visibility
-                                : Icons.visibility_off),
+                            icon: Icon(
+                              _obscure2
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
                             onPressed: () =>
                                 setState(() => _obscure2 = !_obscure2),
                           ),
@@ -111,8 +176,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
-                          onPressed: _reset,
-                          child: const Text('Restablecer contraseña')),
+                        onPressed: _saving ? null : _reset,
+                        child: Text(
+                          _saving
+                              ? 'Actualizando...'
+                              : 'Restablecer contraseña',
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -124,3 +194,4 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     );
   }
 }
+

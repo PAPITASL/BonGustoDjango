@@ -1,0 +1,686 @@
+{% extends "base.html" %}
+
+{% block title %}Mesas{% endblock %}
+{% block page_heading %}Gestion de mesas en tiempo real{% endblock %}
+
+{% block content %}
+<style>
+  .mesa-shell { display: grid; gap: 18px; }
+  .mesa-admin-grid { display: grid; grid-template-columns: 360px 1fr; gap: 16px; align-items: start; }
+  .mesa-panel, .mesa-kpi, .mesa-card, .pedido-panel { background: #fff; border: 1px solid #ece8ee; border-radius: 22px; }
+  .mesa-panel, .pedido-panel { padding: 18px; }
+  .mesa-panel h3, .pedido-panel h3 { margin: 0 0 12px; color: #181818; font-size: 20px; font-weight: 900; }
+  .mesa-muted { color: #6e6b75; font-size: 13px; line-height: 1.45; }
+  .mesa-live-status { font-size: 12px; color: #6e6b75; font-weight: 700; }
+  .mesa-form { display: grid; gap: 12px; }
+  .mesa-form label { display: grid; gap: 6px; color: #2f2d36; font-size: 13px; font-weight: 800; }
+  .mesa-form input[type="text"], .mesa-form input[type="number"] {
+    width: 100%; border: 1px solid #ddd6e2; border-radius: 14px; padding: 10px 12px; font-size: 14px;
+  }
+  .mesa-form .check { display: flex; align-items: center; gap: 8px; }
+  .mesa-form .actions, .mesa-row-actions, .mesa-card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .mesa-btn, .mesa-link {
+    border: 1px solid #e4dde6; background: #f7f5f9; color: #2f2b33; border-radius: 12px; padding: 8px 12px;
+    font-size: 12px; font-weight: 800; text-decoration: none; cursor: pointer;
+  }
+  .mesa-btn.primary { background: #d90416; border-color: #d90416; color: #fff; }
+  .mesa-btn.warn { background: #fff3f4; border-color: #ffd2d8; color: #d90416; }
+  .mesa-btn.success { background: #edf9f1; border-color: #d5edda; color: #2f7a4f; }
+  .mesa-btn:hover, .mesa-link:hover { border-color: #d90416; color: #d90416; }
+  .mesa-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+  .mesa-kpi { padding: 16px; }
+  .mesa-kpi .label { font-size: 12px; color: #72707a; text-transform: uppercase; font-weight: 800; letter-spacing: .05em; }
+  .mesa-kpi .value { margin-top: 6px; font-size: 28px; color: #181818; font-weight: 900; }
+  .mesa-catalogo { width: 100%; border-collapse: collapse; }
+  .mesa-catalogo th, .mesa-catalogo td, .pedido-table th, .pedido-table td { padding: 10px 8px; border-bottom: 1px solid #f0ecf2; text-align: left; font-size: 13px; }
+  .mesa-catalogo th, .pedido-table th { color: #6d6b74; font-weight: 800; }
+  .mesa-catalogo td, .pedido-table td { color: #2f2d36; font-weight: 600; vertical-align: top; }
+  .mesa-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .mesa-card { padding: 16px; display: grid; gap: 10px; }
+  .mesa-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .mesa-title { margin: 0; font-size: 20px; font-weight: 900; color: #181818; }
+  .mesa-state { padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; }
+  .mesa-state.libre { background: #edf9f1; color: #2f7a4f; }
+  .mesa-state.ocupada { background: #fff4ec; color: #b55f1f; }
+  .mesa-state.esperando_pago { background: #fff0d9; color: #996300; }
+  .mesa-state.pagada { background: #eef1ff; color: #405aa8; }
+  .mesa-state.en_limpieza { background: #eef7ff; color: #2a5ca7; }
+  .mesa-state.bloqueada { background: #f0eef3; color: #7c7587; }
+  .mesa-meta { font-size: 13px; color: #5f5d66; line-height: 1.45; }
+  .mesa-card .totals { display: flex; justify-content: space-between; color: #42404a; font-size: 13px; font-weight: 700; }
+  .mesa-ok { color: #2f7a4f; font-weight: 800; }
+  .mesa-error { color: #d90416; font-weight: 800; }
+  .pedido-table { width: 100%; border-collapse: collapse; }
+  .pedido-takeout-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+  .pedido-takeout-card {
+    border: 1px solid #efe8ef;
+    background: #fff;
+    border-radius: 18px;
+    padding: 14px;
+    display: grid;
+    gap: 10px;
+    box-shadow: 0 8px 18px rgba(24, 24, 24, 0.04);
+  }
+  .pedido-takeout-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+  .pedido-takeout-title { margin: 0; font-size: 16px; font-weight: 900; color: #181818; }
+  .pedido-takeout-badge { padding: 5px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; text-transform: capitalize; }
+  .pedido-takeout-badge.abierto { background: #fff3f4; color: #cf1d2e; }
+  .pedido-takeout-badge.en_preparacion { background: #fff7ea; color: #a87400; }
+  .pedido-takeout-badge.listo_para_recoger { background: #eef1ff; color: #405aa8; }
+  .pedido-takeout-badge.entregado { background: #eef9f1; color: #2f7a4f; }
+  .pedido-takeout-badge.pagado { background: #edf9f1; color: #2f7a4f; }
+  .pedido-takeout-badge.finalizado { background: #f0eef3; color: #7c7587; }
+  .pedido-takeout-meta { display: grid; gap: 4px; font-size: 13px; color: #5f5d66; }
+  .pedido-takeout-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pedido-takeout-actions .mesa-btn { padding: 7px 10px; font-size: 11px; }
+  @media (max-width: 1180px) {
+    .mesa-admin-grid { grid-template-columns: 1fr; }
+    .mesa-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .mesa-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 760px) {
+    .mesa-grid { grid-template-columns: 1fr; }
+    .mesa-catalogo, .pedido-table { display: block; overflow-x: auto; }
+  }
+</style>
+
+<div class="mesa-shell">
+  <div class="mesa-live-status" id="liveStatus">Conectando canal de mesas...</div>
+
+  {% if gestion_ok %}<div class="mesa-ok">{{ gestion_ok }}</div>{% endif %}
+  {% if gestion_error %}<div class="mesa-error">{{ gestion_error }}</div>{% endif %}
+
+  <section class="mesa-admin-grid">
+    <article class="mesa-panel">
+      <h3>{% if mesa_edicion %}Editar mesa{% else %}Nueva mesa{% endif %}</h3>
+      <p class="mesa-muted">El administrador puede crear, editar, activar o desactivar mesas. El estado operativo real se calcula con pedidos, reservas y pagos.</p>
+      <div class="actions" style="margin: 0 0 14px;">
+        <button class="mesa-btn" type="button" onclick="limpiarCacheMesas()">Limpiar cache de mesas</button>
+      </div>
+      <form class="mesa-form" method="post" action="{% if mesa_edicion %}/mesas/{{ mesa_edicion.id }}/update{% else %}/mesas/store{% endif %}">
+        {% csrf_token %}
+        <label>
+          Numero de mesa
+          {{ form.numero_mesa }}
+          {% if form.numero_mesa.errors %}<span class="mesa-error">{{ form.numero_mesa.errors|join:", " }}</span>{% endif %}
+        </label>
+        <label>
+          Nombre o etiqueta
+          {{ form.nombre }}
+          {% if form.nombre.errors %}<span class="mesa-error">{{ form.nombre.errors|join:", " }}</span>{% endif %}
+        </label>
+        <label>
+          Capacidad
+          {{ form.capacidad }}
+          {% if form.capacidad.errors %}<span class="mesa-error">{{ form.capacidad.errors|join:", " }}</span>{% endif %}
+        </label>
+        <label class="check">
+          {{ form.activa }}
+          Mesa activa
+        </label>
+        <div class="actions">
+          <button class="mesa-btn primary" type="submit">{% if mesa_edicion %}Guardar cambios{% else %}Crear mesa{% endif %}</button>
+          {% if mesa_edicion %}
+          <a class="mesa-link" href="/mesas">Cancelar edicion</a>
+          {% endif %}
+        </div>
+      </form>
+    </article>
+
+    <article class="mesa-panel">
+      <h3>Catalogo de mesas</h3>
+      <table class="mesa-catalogo">
+        <thead>
+          <tr>
+            <th>Mesa</th>
+            <th>Capacidad</th>
+            <th>Estado</th>
+            <th>Activa</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in mesas_catalogo %}
+          <tr>
+            <td>
+              <strong>{{ item.etiqueta }}</strong><br>
+              <span class="mesa-muted">ID interno {{ item.id }}</span>
+            </td>
+            <td>{{ item.capacidad }}</td>
+            <td>{{ item.estado|title }}</td>
+            <td>{% if item.activa %}Si{% else %}No{% endif %}</td>
+            <td>
+              <div class="mesa-row-actions">
+                <a class="mesa-link" href="/mesas?edit={{ item.id }}">Editar</a>
+                <form method="post" action="/mesas/{{ item.id }}/toggle">
+                  {% csrf_token %}
+                  <button class="mesa-btn" type="submit">{% if item.activa %}Desactivar{% else %}Activar{% endif %}</button>
+                </form>
+                <form method="post" action="/mesas/{{ item.id }}/delete" data-confirm-title="Confirmar accion" data-confirm-text="Confirma la operacion sobre esta mesa" data-confirm-button="Si, continuar">
+                  {% csrf_token %}
+                  <button class="mesa-btn warn" type="submit">Eliminar / inactivar</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5">No hay mesas creadas.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </article>
+  </section>
+
+  <section class="mesa-kpis">
+    <article class="mesa-kpi"><div class="label">Mesas totales</div><div class="value" id="kpiMesasTotales">{{ kpis.mesas_totales|default:0 }}</div></article>
+    <article class="mesa-kpi"><div class="label">Mesas ocupadas</div><div class="value" id="kpiMesasOcupadas">{{ kpis.mesas_ocupadas|default:0 }}</div></article>
+    <article class="mesa-kpi"><div class="label">Pedidos hoy</div><div class="value" id="kpiPedidosHoy">{{ kpis.pedidos_hoy|default:0 }}</div></article>
+    <article class="mesa-kpi"><div class="label">Llamados pendientes</div><div class="value" id="kpiLlamados">{{ kpis.llamados_pendientes|default:0 }}</div></article>
+    <article class="mesa-kpi"><div class="label">Pagos pendientes</div><div class="value" id="kpiPagos">{{ kpis.pagos_pendientes|default:0 }}</div></article>
+  </section>
+
+  <section class="mesa-grid" id="mesasGrid">
+    {% for mesa in mesas %}
+    <article class="mesa-card" data-mesa-id="{{ mesa.id }}">
+      <div class="mesa-head">
+        <h3 class="mesa-title">{{ mesa.etiqueta|default:"Mesa" }}</h3>
+        <span class="mesa-state {{ mesa.estado }}">{{ mesa.estado|title }}</span>
+      </div>
+      <div class="mesa-meta">
+        <div><strong>Cliente:</strong> {{ mesa.cliente_nombre|default:"Sin asignar" }}</div>
+        <div><strong>Correo:</strong> {{ mesa.cliente_correo|default:"-" }}</div>
+        <div><strong>Capacidad:</strong> {{ mesa.capacidad }}</div>
+        <div><strong>Reserva:</strong> {% if mesa.reserva %}{{ mesa.reserva.nombre_evento|default:"Reservada" }}{% else %}Sin reserva{% endif %}</div>
+        <div><strong>Pago:</strong> {% if mesa.pago %}{{ mesa.pago.metodo_pago|default:"Pendiente" }}{% else %}Sin solicitud{% endif %}</div>
+      </div>
+      <div class="totals">
+        <span>Pedidos: <strong class="mesa-pedidos">0</strong></span>
+        <span>Total: <strong class="mesa-total">$0</strong></span>
+      </div>
+      <div class="mesa-card-actions">
+        <button class="mesa-btn success" onclick="accionMesa({{ mesa.id }}, 'liberar')">Liberar</button>
+        <button class="mesa-btn" onclick="accionMesa({{ mesa.id }}, 'en_limpieza')">En limpieza</button>
+        <button class="mesa-btn" onclick="accionMesa({{ mesa.id }}, 'reactivar')">Reactivar</button>
+        <button class="mesa-btn warn" onclick="accionMesa({{ mesa.id }}, 'bloquear')">Bloquear</button>
+      </div>
+    </article>
+    {% endfor %}
+  </section>
+
+  <section class="pedido-panel">
+    <h3>Ultimos pedidos en vivo</h3>
+    <table class="pedido-table">
+      <thead>
+        <tr>
+          <th>Pedido</th>
+          <th>Mesa</th>
+          <th>Cliente</th>
+          <th>Total</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody id="pedidosBody">
+        {% for pedido in ultimos_pedidos %}
+        <tr>
+          <td>#{{ pedido.id_pedido }}</td>
+          <td>{{ pedido.mesa_label|default:"Sin mesa" }}</td>
+          <td>{{ pedido.cliente_nombre|default:"-" }}</td>
+          <td>${{ pedido.total_pedido|default:0 }}</td>
+          <td>{{ pedido.fecha_pedido|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">Sin pedidos aun.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="pedido-panel">
+    <h3>Pedidos para llevar</h3>
+    <p class="mesa-muted" style="margin: 0 0 12px;">Pedidos sin mesa que se gestionan desde el mismo panel operativo y mantienen historial.</p>
+    <div class="pedido-takeout-grid" id="takeoutPedidosBody">
+      {% for pedido in pedidos_para_llevar %}
+      <article class="pedido-takeout-card" data-pedido-id="{{ pedido.id_pedido }}">
+        <div class="pedido-takeout-head">
+          <h4 class="pedido-takeout-title">#{{ pedido.id_pedido }} - {{ pedido.cliente_nombre|default:"Cliente" }}</h4>
+          <span class="pedido-takeout-badge {{ pedido.estado|default:'abierto' }}">{{ pedido.estado|default:"abierto" }}</span>
+        </div>
+        <div class="pedido-takeout-meta">
+          <div><strong>Total:</strong> ${{ pedido.total_pedido|default:0 }}</div>
+          <div><strong>Fecha:</strong> {{ pedido.fecha_pedido|default:"-" }}</div>
+          <div><strong>Pago:</strong> {{ pedido.pago.metodo_pago|default:"Sin solicitud" }}{% if pedido.pago.estado %} - {{ pedido.pago.estado }}{% endif %}</div>
+        </div>
+        <div class="pedido-takeout-actions">
+          <button class="mesa-btn" type="button" onclick="accionPedidoParaLlevar({{ pedido.id_pedido }}, 'ver')">Ver detalle</button>
+          <button class="mesa-btn warn" type="button" onclick="accionPedidoParaLlevar({{ pedido.id_pedido }}, 'confirmar_pago')">Confirmar pago</button>
+          <button class="mesa-btn" type="button" onclick="accionPedidoParaLlevar({{ pedido.id_pedido }}, 'preparacion')">En preparacion</button>
+          <button class="mesa-btn" type="button" onclick="accionPedidoParaLlevar({{ pedido.id_pedido }}, 'listo')">Listo para recoger</button>
+          <button class="mesa-btn" type="button" onclick="accionPedidoParaLlevar({{ pedido.id_pedido }}, 'entregado')">Entregado / finalizar</button>
+          <button class="mesa-btn success" type="button" onclick="accionPedidoParaLlevar({{ pedido.id_pedido }}, 'finalizar')">Liberar pedido para llevar</button>
+        </div>
+      </article>
+      {% empty %}
+      <div class="mesa-muted">No hay pedidos para llevar activos.</div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+
+{{ kpis|json_script:"mesas-kpis-data" }}
+{{ mesas|json_script:"mesas-list-data" }}
+{{ resumen_por_mesa|json_script:"mesas-resumen-data" }}
+{{ ultimos_pedidos|json_script:"mesas-pedidos-data" }}
+{{ pedidos_para_llevar|json_script:"mesas-takeout-data" }}
+
+<script>
+  const estado = {
+    kpis: { mesas_totales: 0, mesas_ocupadas: 0, pedidos_hoy: 0, llamados_pendientes: 0, pagos_pendientes: 0 },
+    mesas: [],
+    resumen_por_mesa: {},
+    ultimos_pedidos: [],
+    pedidos_para_llevar: [],
+  };
+  let liveSocket = null;
+  let reconnectDelayMs = 1200;
+  let reconnectTimer = null;
+  let snapshotPollTimer = null;
+  let liveSeq = 0;
+
+  function money(value) {
+    const num = Number(value || 0);
+    return `$${num.toFixed(0)}`;
+  }
+
+  function normalizeMesaState(raw) {
+    const value = (raw || "libre").toString().toLowerCase().trim();
+    return ["libre", "ocupada", "esperando_pago", "pagada", "en_limpieza", "bloqueada"].includes(value) ? value : "libre";
+  }
+
+  function mesaTitle(mesa) {
+    return mesa.etiqueta || `Mesa ${mesa.numero_mesa || mesa.id}`;
+  }
+
+  function renderKpis() {
+    document.getElementById("kpiMesasTotales").textContent = estado.kpis.mesas_totales || 0;
+    document.getElementById("kpiMesasOcupadas").textContent = estado.kpis.mesas_ocupadas || 0;
+    document.getElementById("kpiPedidosHoy").textContent = estado.kpis.pedidos_hoy || 0;
+    document.getElementById("kpiLlamados").textContent = estado.kpis.llamados_pendientes || 0;
+    document.getElementById("kpiPagos").textContent = estado.kpis.pagos_pendientes || 0;
+  }
+
+  function cardHtml(mesa) {
+    const pago = mesa.pago ? mesa.pago.metodo_pago || "Pendiente" : "Sin solicitud";
+    const reserva = mesa.reserva ? (mesa.reserva.nombre_evento || "Reservada") : "Sin reserva";
+    return `
+      <div class="mesa-head">
+        <h3 class="mesa-title">${mesaTitle(mesa)}</h3>
+        <span class="mesa-state ${normalizeMesaState(mesa.estado)}">${(mesa.estado || "libre").replaceAll("_", " ")}</span>
+      </div>
+      <div class="mesa-meta">
+        <div><strong>Cliente:</strong> ${mesa.cliente_nombre || "Sin asignar"}</div>
+        <div><strong>Correo:</strong> ${mesa.cliente_correo || "-"}</div>
+        <div><strong>Capacidad:</strong> ${mesa.capacidad || "-"}</div>
+        <div><strong>Reserva:</strong> ${reserva}</div>
+        <div><strong>Pago:</strong> ${pago}</div>
+      </div>
+      <div class="totals">
+        <span>Pedidos: <strong class="mesa-pedidos">0</strong></span>
+        <span>Total: <strong class="mesa-total">$0</strong></span>
+      </div>
+      <div class="mesa-card-actions">
+        <button class="mesa-btn success" onclick="accionMesa(${mesa.id}, 'liberar')">Liberar</button>
+        <button class="mesa-btn" onclick="accionMesa(${mesa.id}, 'en_limpieza')">En limpieza</button>
+        <button class="mesa-btn" onclick="accionMesa(${mesa.id}, 'reactivar')">Reactivar</button>
+        <button class="mesa-btn warn" onclick="accionMesa(${mesa.id}, 'bloquear')">Bloquear</button>
+      </div>
+    `;
+  }
+
+  function renderMesas() {
+    const grid = document.getElementById("mesasGrid");
+    for (const mesa of estado.mesas) {
+      let card = grid.querySelector(`[data-mesa-id="${mesa.id}"]`);
+      if (!card) {
+        card = document.createElement("article");
+        card.className = "mesa-card";
+        card.dataset.mesaId = mesa.id;
+        grid.appendChild(card);
+      }
+      card.innerHTML = cardHtml(mesa);
+      const resumen = estado.resumen_por_mesa[String(mesa.id)] || estado.resumen_por_mesa[mesa.id] || { pedidos: 0, total: 0 };
+      card.querySelector(".mesa-pedidos").textContent = resumen.pedidos || 0;
+      card.querySelector(".mesa-total").textContent = money(resumen.total || 0);
+    }
+
+    const ids = new Set((estado.mesas || []).map((item) => Number(item.id)));
+    grid.querySelectorAll("[data-mesa-id]").forEach((card) => {
+      if (!ids.has(Number(card.dataset.mesaId))) {
+        card.remove();
+      }
+    });
+  }
+
+  function renderPedidos() {
+    const tbody = document.getElementById("pedidosBody");
+    const rows = estado.ultimos_pedidos || [];
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="5">Sin pedidos aun.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rows.map((pedido) => `
+      <tr>
+        <td>#${pedido.id_pedido || "-"}</td>
+        <td>${pedido.mesa_label || "Sin mesa"}</td>
+        <td>${pedido.cliente_nombre || "-"}</td>
+        <td>${money(pedido.total_pedido || 0)}</td>
+        <td>${pedido.fecha_pedido || "-"}</td>
+      </tr>
+    `).join("");
+  }
+
+  function renderPedidosParaLlevar() {
+    const container = document.getElementById("takeoutPedidosBody");
+    const rows = estado.pedidos_para_llevar || [];
+    if (!rows.length) {
+      container.innerHTML = `<div class="mesa-muted">No hay pedidos para llevar activos.</div>`;
+      return;
+    }
+    container.innerHTML = rows.map((pedido) => `
+      <article class="pedido-takeout-card" data-pedido-id="${pedido.id_pedido}">
+        <div class="pedido-takeout-head">
+          <h4 class="pedido-takeout-title">#${pedido.id_pedido || "-"} - ${pedido.cliente_nombre || "Cliente"}</h4>
+          <span class="pedido-takeout-badge ${pedido.estado || "abierto"}">${(pedido.estado || "abierto").replaceAll("_", " ")}</span>
+        </div>
+        <div class="pedido-takeout-meta">
+          <div><strong>Total:</strong> ${money(pedido.total_pedido || 0)}</div>
+          <div><strong>Fecha:</strong> ${pedido.fecha_pedido || "-"}</div>
+          <div><strong>Pago:</strong> ${(pedido.pago && pedido.pago.metodo_pago) ? pedido.pago.metodo_pago : "Sin solicitud"}${(pedido.pago && pedido.pago.estado) ? ` - ${pedido.pago.estado}` : ""}</div>
+        </div>
+        <div class="pedido-takeout-actions">
+          <button class="mesa-btn" type="button" onclick="accionPedidoParaLlevar(${pedido.id_pedido}, 'ver')">Ver detalle</button>
+          <button class="mesa-btn warn" type="button" onclick="accionPedidoParaLlevar(${pedido.id_pedido}, 'confirmar_pago')">Confirmar pago</button>
+          <button class="mesa-btn" type="button" onclick="accionPedidoParaLlevar(${pedido.id_pedido}, 'preparacion')">En preparacion</button>
+          <button class="mesa-btn" type="button" onclick="accionPedidoParaLlevar(${pedido.id_pedido}, 'listo')">Listo para recoger</button>
+          <button class="mesa-btn" type="button" onclick="accionPedidoParaLlevar(${pedido.id_pedido}, 'entregado')">Entregado / finalizar</button>
+          <button class="mesa-btn success" type="button" onclick="accionPedidoParaLlevar(${pedido.id_pedido}, 'finalizar')">Liberar pedido para llevar</button>
+        </div>
+      </article>
+    `).join("");
+  }
+
+  function recalculateMesasOcupadas() {
+    estado.kpis.mesas_ocupadas = (estado.mesas || []).filter((item) => !["libre", "bloqueada"].includes(normalizeMesaState(item.estado))).length;
+    estado.kpis.mesas_totales = (estado.mesas || []).length;
+  }
+
+  function applySnapshot(snapshot) {
+    estado.kpis = snapshot.kpis || estado.kpis;
+    estado.mesas = snapshot.mesas || [];
+    estado.resumen_por_mesa = snapshot.resumen_por_mesa || {};
+    estado.ultimos_pedidos = snapshot.ultimos_pedidos || [];
+    estado.pedidos_para_llevar = snapshot.pedidos_para_llevar || [];
+    recalculateMesasOcupadas();
+    renderKpis();
+    renderMesas();
+    renderPedidos();
+    renderPedidosParaLlevar();
+  }
+
+  async function syncSnapshotFromRest() {
+    try {
+      const response = await fetch("/api/operacion/snapshot", {
+        headers: { "Accept": "application/json" },
+      });
+      if (!response.ok) {
+        return false;
+      }
+      const data = await response.json();
+      applySnapshot(data || {});
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function applyEvent(eventName, payload) {
+    const mesaEvents = ["mesa_creada", "mesa_actualizada", "mesa_desactivada", "estado_mesa_actualizado"];
+    if (mesaEvents.includes(eventName)) {
+      const idx = estado.mesas.findIndex((item) => Number(item.id) === Number(payload.id));
+      if (idx >= 0) estado.mesas[idx] = payload;
+      else estado.mesas.push(payload);
+      const mesaState = normalizeMesaState(payload.estado);
+      if (["libre", "bloqueada"].includes(mesaState)) {
+        estado.resumen_por_mesa[String(payload.id)] = { pedidos: 0, total: 0, total_pendiente: 0 };
+      }
+    }
+
+    if (eventName === "mesa_eliminada") {
+      estado.mesas = (estado.mesas || []).filter((item) => Number(item.id) !== Number(payload.id));
+      delete estado.resumen_por_mesa[String(payload.id)];
+    }
+
+    if (eventName === "pedido_creado") {
+      estado.ultimos_pedidos = [
+        payload,
+        ...(estado.ultimos_pedidos || []).filter((item) => Number(item.id_pedido) !== Number(payload.id_pedido)),
+      ];
+      const mesaId = payload.mesa_id;
+      if (mesaId) {
+        const key = String(mesaId);
+        const totalPedido = Number(payload.total_pedido || 0);
+        estado.resumen_por_mesa[key] = {
+          pedidos: totalPedido > 0 ? 1 : 0,
+          total: totalPedido,
+          total_pendiente: totalPedido,
+        };
+      }
+      if ((payload.tipo_pedido || "").toString().toLowerCase() === "para_llevar") {
+        estado.pedidos_para_llevar = [
+          payload,
+          ...(estado.pedidos_para_llevar || []).filter((item) => Number(item.id_pedido) !== Number(payload.id_pedido)),
+        ].filter((item) => (item.estado || "abierto") !== "finalizado");
+      }
+      syncSnapshotFromRest();
+    }
+
+    if (eventName === "pedido_actualizado") {
+      estado.ultimos_pedidos = [
+        payload,
+        ...(estado.ultimos_pedidos || []).filter((item) => Number(item.id_pedido) !== Number(payload.id_pedido)),
+      ];
+      if ((payload.tipo_pedido || "").toString().toLowerCase() === "para_llevar") {
+        estado.pedidos_para_llevar = [
+          payload,
+          ...(estado.pedidos_para_llevar || []).filter((item) => Number(item.id_pedido) !== Number(payload.id_pedido)),
+        ].filter((item) => (item.estado || "abierto") !== "finalizado");
+      }
+      syncSnapshotFromRest();
+    }
+
+    if (eventName === "solicitud_pago_creada" || eventName === "pago_actualizado" || eventName === "pago_confirmado") {
+      const mesa = (estado.mesas || []).find((item) => Number(item.id) === Number(payload.mesa_id));
+      if (mesa) {
+        mesa.pago = payload;
+        mesa.estado = payload.estado === "finalizada" ? "pagada" : "esperando_pago";
+      }
+      syncSnapshotFromRest();
+    }
+
+    if (eventName === "llamado_creado") {
+      estado.kpis.llamados_pendientes = Number(estado.kpis.llamados_pendientes || 0) + 1;
+    }
+    if (eventName === "llamado_atendido") {
+      estado.kpis.llamados_pendientes = Math.max(0, Number(estado.kpis.llamados_pendientes || 0) - 1);
+    }
+
+    recalculateMesasOcupadas();
+    renderKpis();
+    renderMesas();
+    renderPedidos();
+  }
+
+  function _mesaEndpoint(mesaId, accion) {
+    if (accion === "liberar") return `/api/mesas/${mesaId}/liberar`;
+    if (accion === "bloquear") return `/api/mesas/${mesaId}/bloquear`;
+    if (accion === "reactivar") return `/api/mesas/${mesaId}/reactivar`;
+    return `/api/mesas/${mesaId}/estado`;
+  }
+
+  function _pedidoEstadoEndpoint(pedidoId) {
+    return `/api/pedidos/${pedidoId}/estado`;
+  }
+
+  async function accionPedidoParaLlevar(pedidoId, accion) {
+    const live = document.getElementById("liveStatus");
+    try {
+      if (accion === "ver") {
+        window.open(`/api/pedidos/${pedidoId}`, "_blank", "noopener,noreferrer");
+        return;
+      }
+      if (accion === "confirmar_pago") {
+        const pedido = (estado.pedidos_para_llevar || []).find((item) => Number(item.id_pedido) === Number(pedidoId));
+        if (pedido && pedido.pago && pedido.pago.id_solicitud_pago) {
+          const response = await fetch(`/api/pagos/solicitudes/${pedido.pago.id_solicitud_pago}/estado`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ estado: "finalizada" }),
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            live.textContent = `Error al confirmar pago del pedido ${pedidoId}: ${data.error || "sin detalle"}`;
+            return;
+          }
+          syncSnapshotFromRest();
+          live.textContent = `Pago confirmado para pedido para llevar #${pedidoId}.`;
+          return;
+        }
+        live.textContent = `El pedido #${pedidoId} no tiene una solicitud de pago activa.`;
+        return;
+      }
+      const estado = accion === "preparacion"
+        ? "en_preparacion"
+        : accion === "listo"
+          ? "listo_para_recoger"
+          : accion === "entregado"
+            ? "entregado"
+            : "finalizado";
+      const response = await fetch(_pedidoEstadoEndpoint(pedidoId), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ estado }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        live.textContent = `Error al actualizar pedido ${pedidoId}: ${data.error || "sin detalle"}`;
+        return;
+      }
+      applyEvent("pedido_actualizado", data);
+      live.textContent = `Pedido para llevar #${pedidoId} actualizado a ${estado.replaceAll("_", " ")}.`;
+    } catch (_) {
+      live.textContent = "No se pudo actualizar el pedido para llevar en este momento.";
+    }
+  }
+
+  async function accionMesa(mesaId, accion) {
+    const live = document.getElementById("liveStatus");
+    try {
+      const body = accion === "liberar"
+        ? { forzada: true }
+        : (accion === "bloquear" || accion === "reactivar" ? {} : { estado: accion });
+      const response = await fetch(_mesaEndpoint(mesaId, accion), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        live.textContent = `Error al actualizar mesa ${mesaId}: ${data.error || "sin detalle"}`;
+        return;
+      }
+      const mesa = data.mesa || data;
+      applyEvent("mesa_actualizada", mesa);
+      live.textContent = `${mesaTitle(mesa)} actualizada con accion ${accion}.`;
+    } catch (_) {
+      live.textContent = "No se pudo actualizar la mesa en este momento.";
+    }
+  }
+
+  async function limpiarCacheMesas() {
+    const live = document.getElementById("liveStatus");
+    live.textContent = "Reconstruyendo estado de mesas...";
+    try {
+      const response = await fetch("/api/mesas/limpiar-cache", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        live.textContent = `Error al limpiar cache: ${data.error || "sin detalle"}`;
+        return;
+      }
+      applySnapshot(data.snapshot || {});
+      live.textContent = "Estado de mesas reconstruido correctamente.";
+    } catch (_) {
+      live.textContent = "No se pudo reconstruir el estado de mesas.";
+    }
+  }
+
+  function connectLive() {
+    const seq = ++liveSeq;
+    const live = document.getElementById("liveStatus");
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
+    if (liveSocket && liveSocket.readyState === WebSocket.OPEN) {
+      return;
+    }
+    if (liveSocket) {
+      try { liveSocket.close(); } catch (_) {}
+    }
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+    liveSocket = new WebSocket(`${protocol}://${window.location.host}/ws/operacion/mesas/`);
+
+    if (!snapshotPollTimer) {
+      snapshotPollTimer = setInterval(() => {
+        syncSnapshotFromRest();
+      }, 3500);
+    }
+
+    liveSocket.onopen = async () => {
+      if (seq !== liveSeq) return;
+      reconnectDelayMs = 1200;
+      live.textContent = "Canal de mesas conectado.";
+      await syncSnapshotFromRest();
+    };
+    liveSocket.onmessage = (event) => {
+      const data = JSON.parse(event.data || "{}");
+      if (data.type === "snapshot") applySnapshot(data.data || {});
+      if (data.type === "event") applyEvent(data.event, data.payload || {});
+    };
+    liveSocket.onclose = () => {
+      if (seq !== liveSeq) return;
+      live.textContent = "Canal desconectado. Reintentando...";
+      syncSnapshotFromRest();
+      reconnectTimer = setTimeout(connectLive, reconnectDelayMs);
+      reconnectDelayMs = Math.min(reconnectDelayMs * 2, 15000);
+    };
+    liveSocket.onerror = () => {
+      if (liveSocket && liveSocket.readyState === WebSocket.OPEN) return;
+      try { liveSocket.close(); } catch (_) {}
+    };
+  }
+
+  window.accionMesa = accionMesa;
+  window.limpiarCacheMesas = limpiarCacheMesas;
+  applySnapshot({
+    kpis: JSON.parse(document.getElementById("mesas-kpis-data").textContent),
+    mesas: JSON.parse(document.getElementById("mesas-list-data").textContent),
+    resumen_por_mesa: JSON.parse(document.getElementById("mesas-resumen-data").textContent),
+    ultimos_pedidos: JSON.parse(document.getElementById("mesas-pedidos-data").textContent),
+    pedidos_para_llevar: JSON.parse(document.getElementById("mesas-takeout-data").textContent),
+  });
+  connectLive();
+</script>
+{% endblock %}

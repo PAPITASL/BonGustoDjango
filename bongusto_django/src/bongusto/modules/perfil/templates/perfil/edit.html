@@ -3,13 +3,16 @@
 {% block title %}Editar Perfil{% endblock %}
 
 {% block content %}
+<!-- Titulo principal -->
 <h4 class="text-center mb-4"><strong>Editar Mi Perfil</strong></h4>
 
 <div class="card p-4" style="max-width:700px;margin:0 auto;">
+  <!-- Si hay error se muestra aqui -->
   {% if error %}
   <div class="alert alert-danger mb-3">{{ error }}</div>
   {% endif %}
 
+  <!-- Formulario para actualizar el perfil -->
   <form
     action="/perfil/actualizar"
     method="post"
@@ -17,25 +20,31 @@
     data-confirm-text="Seguro que deseas guardar los cambios de tu perfil?"
     data-confirm-button="Si, guardar"
   >
+    <!-- Token de seguridad -->
     {% csrf_token %}
 
+    <!-- Campo nombre -->
     <div class="form-group">
       <label><i class="fas fa-user"></i> Nombre Completo</label>
       <input type="text" name="nombre" maxlength="50" class="form-control" value="{{ usuario.nombre }}" required>
     </div>
 
+    <!-- Campo correo -->
     <div class="form-group">
       <label><i class="fas fa-envelope"></i> Correo Electronico</label>
       <input type="email" name="correo" maxlength="100" class="form-control" value="{{ usuario.correo }}" required>
     </div>
 
+    <!-- Campo telefono -->
     <div class="form-group">
       <label><i class="fas fa-phone"></i> Telefono</label>
       <input type="text" name="telefono" maxlength="20" class="form-control" value="{{ usuario.telefono|default:'' }}">
     </div>
 
+    <!-- Separador visual -->
     <hr class="my-4">
 
+    <!-- Campo para cambiar contraseña -->
     <div class="form-group">
       <label><i class="fas fa-lock"></i> Nueva Contrasena</label>
       <input
@@ -47,14 +56,18 @@
         pattern="^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&.\-_#]).{8,}$"
         title="{{ password_policy_help }}"
       >
+      <!-- Ayuda para el usuario -->
       <small class="field-help">{{ password_policy_help }} Dejala en blanco si no deseas cambiarla.</small>
     </div>
 
+    <!-- Botones -->
     <div class="d-flex justify-content-between mt-4">
+      <!-- Guardar cambios -->
       <button type="submit" class="btn btn-primary">
         <i class="fas fa-save"></i> Guardar Cambios
       </button>
 
+      <!-- Cancelar -->
       <a href="/perfil" class="btn btn-secondary">
         <i class="fas fa-times"></i> Cancelar
       </a>

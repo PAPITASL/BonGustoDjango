@@ -1,7 +1,7 @@
-"""Modelos o aliases del modulo `permisos`. Representa las entidades relacionadas con el catalogo de permisos del sistema."""
+"""Modelos o aliases del modulo `permisos`, aqui se maneja lo relacionado con los permisos."""
 
-# ===== Importaciones | Dependencias que este archivo necesita para funcionar dentro del modulo. =====
+# Se importa el modelo Permiso desde la capa de dominio
 from bongusto.domain.models import Permiso
 
-# ===== Exportaciones | Modulo `permisos` | Define los modelos disponibles para uso externo. =====
+# Aqui se define el modelo que se usa en este modulo
 __all__ = ["Permiso"]

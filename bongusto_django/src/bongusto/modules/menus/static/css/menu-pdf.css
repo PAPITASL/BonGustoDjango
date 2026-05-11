@@ -1,5 +1,4 @@
-/* Estilos del PDF de menus | Aqui se define como se ve el documento exportado */
-
+/* Estilos del PDF de menus | Aqui se define como se va a ver el documento cuando se exporta a PDF */
 body {
     font-family: "DejaVu Sans", sans-serif;
     font-size: 13px;
@@ -7,22 +6,21 @@ body {
     color: #222;
 }
 
-
 /* ---------- Titulos ---------- */
+/* Aqui se controla el estilo de los titulos principales del PDF */
 h2 {
     color: #D90416;
     margin-bottom: 15px;
 }
-
-
 /* ---------- Tabla principal ---------- */
+/* Esta es la tabla donde se muestra toda la informacion del menu */
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 15px;
 }
-
 /* Encabezados */
+/* Parte superior de la tabla (titulos de columnas) */
 th {
     background: #D90416;
     color: white;
@@ -30,20 +28,19 @@ th {
     border: 1px solid #000;
     text-align: left;
 }
-
 /* Celdas */
+/* Aqui va el contenido normal de la tabla */
 td {
     padding: 6px;
     border: 1px solid #000;
 }
-
 /* Filas alternas */
+/* Esto ayuda a que la tabla sea mas facil de leer (una fila blanca, otra gris) */
 tr:nth-child(even) {
     background: #f8f8f8;
 }
-
-
 /* ---------- Configuracion de impresion ---------- */
+/* Define los margenes del PDF al momento de generarlo */
 @page {
     margin: 20mm;
 }

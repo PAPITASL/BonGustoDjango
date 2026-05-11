@@ -1,4 +1,4 @@
-"""Servicios sencillos del dashboard para mostrar resumenes del sistema."""
+"""Servicios sencillos del dashboard para mostrar resúmenes generales del sistema."""
 
 import calendar
 from datetime import date
@@ -11,8 +11,8 @@ from bongusto.domain.models import Categoria, Menu, Musica, Producto, Reserva, U
 class DashboardService:
     """Servicio principal del dashboard.
 
-    La idea de esta clase es mantener la logica dividida en pasos pequenos
-    para que sea facil seguirla por alguien que esta empezando con Django.
+    La idea de esta clase es dividir la lógica en pasos pequeños
+    para que todo sea más fácil de entender y seguir.
     """
 
     COLOR_PRINCIPAL = "#b85c74"
@@ -27,14 +27,14 @@ class DashboardService:
     PALETA_OPERATIVA = ["#d9b1bd", "#ecc9aa", "#b5d4e8", "#c9c1e8", "#b8dcc8"]
 
     def obtener_estadisticas(self):
-        """Devuelve totales y estructuras visuales del dashboard."""
+        """Devuelve los totales principales y las estructuras visuales del dashboard."""
         totales = self._obtener_totales()
         datos_visuales = self._obtener_datos_visuales(totales)
         totales.update(datos_visuales)
         return totales
 
     def obtener_ultimos(self):
-        """Devuelve los ultimos registros de los modulos principales."""
+        """Devuelve los últimos registros de los módulos principales."""
         ultimos_menus = Menu.objects.all()[:5]
         ultimos_productos = Producto.objects.select_related("id_menu", "id_cate").all()[:5]
         ultimas_musicas = Musica.objects.all()[:5]
@@ -54,7 +54,7 @@ class DashboardService:
         }
 
     def _obtener_totales(self):
-        """Cuenta los registros principales del panel."""
+        """Cuenta los registros principales que se muestran en el panel."""
         return {
             "total_usuarios": Usuario.objects.count(),
             "total_menus": Menu.objects.count(),
@@ -65,7 +65,7 @@ class DashboardService:
         }
 
     def _obtener_datos_visuales(self, totales):
-        """Arma las listas que usa la vista para pintar tarjetas y graficas."""
+        """Arma las estructuras que luego usa la vista para pintar tarjetas y gráficas."""
         metricas_resumen = self._crear_metricas_resumen(totales)
         actividad_modulos = self._crear_actividad_modulos(totales)
         usuarios_por_tipo = self._crear_usuarios_por_tipo()
@@ -84,7 +84,7 @@ class DashboardService:
         }
 
     def _crear_metricas_resumen(self, totales):
-        """Crea las tarjetas redondas superiores."""
+        """Crea las tarjetas redondas que van en la parte superior."""
         datos_base = [
             ("Usuarios", totales["total_usuarios"], "fa-users"),
             ("Menus", totales["total_menus"], "fa-list"),
@@ -119,7 +119,7 @@ class DashboardService:
         return metricas
 
     def _crear_actividad_modulos(self, totales):
-        """Crea las barras de actividad por modulo."""
+        """Crea las barras que muestran la actividad por módulo."""
         actividad = [
             self._crear_item_actividad("Usuarios", totales["total_usuarios"], 0),
             self._crear_item_actividad("Menus", totales["total_menus"], 1),
@@ -148,7 +148,7 @@ class DashboardService:
         }
 
     def _crear_usuarios_por_tipo(self):
-        """Cuenta usuarios agrupados por su tipo."""
+        """Cuenta los usuarios agrupándolos según su tipo."""
         consulta = (
             Usuario.objects.exclude(tipo_usuario__isnull=True)
             .exclude(tipo_usuario="")
@@ -178,7 +178,7 @@ class DashboardService:
         return usuarios
 
     def _crear_resumen_operativo(self, totales):
-        """Crea los indicadores de pulso operativo."""
+        """Crea los indicadores que muestran el pulso general del sistema."""
         resumen = [
             self._crear_indicador(
                 "Usuarios activos",
@@ -227,7 +227,7 @@ class DashboardService:
         }
 
     def _crear_resumen_general(self, totales):
-        """Calcula el porcentaje principal del bloque resumen."""
+        """Calcula el porcentaje principal que aparece en el bloque resumen."""
         total_principal = (
             totales["total_usuarios"]
             + totales["total_reservas"]
@@ -242,7 +242,7 @@ class DashboardService:
         return {"total": total_principal, "porcentaje": porcentaje}
 
     def _obtener_linea_reservas(self):
-        """Crea los puntos de la grafica de reservas por mes."""
+        """Crea los puntos de la gráfica de reservas por mes."""
         meses = self._obtener_ultimos_seis_meses()
         puntos = []
 
@@ -295,7 +295,7 @@ class DashboardService:
         }
 
     def _obtener_ultimos_seis_meses(self):
-        """Devuelve una lista con los ultimos seis meses incluyendo el actual."""
+        """Devuelve una lista con los últimos seis meses, incluyendo el actual."""
         hoy = date.today()
         meses = []
 
@@ -332,7 +332,7 @@ class DashboardService:
         ultimas_musicas,
         ultimas_reservas,
     ):
-        """Convierte los ultimos registros en bloques faciles de recorrer en HTML."""
+        """Convierte los últimos registros en bloques fáciles de recorrer en HTML."""
         return [
             {
                 "titulo": "Ultimos menus",

@@ -15,7 +15,7 @@ if (-not $deviceId) {
 }
 
 Write-Host "Usando dispositivo: $deviceId"
-& $adb -s $deviceId reverse tcp:8080 tcp:8080
+& $adb -s $deviceId reverse tcp:8001 tcp:8001
 
 Set-Location "C:\Users\sebas\Downloads\bongusto_django\mesero"
-flutter run -d $deviceId
+flutter run -d $deviceId --dart-define=API_PORT=8001

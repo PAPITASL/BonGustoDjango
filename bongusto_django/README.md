@@ -1,46 +1,17 @@
 # BonGusto Django
 
-BonGusto es un sistema compuesto por:
-- un backend Django
-- una app Flutter para clientes
-- una app Flutter para meseros
+Backend Django del sistema BonGusto. Este proyecto se conecta con dos apps Flutter:
+- `clientes`
+- `mesero`
 
-Este `README.md` sirve como mapa general para ubicar rápido:
-- módulos
-- URLs web y API
+Este `README.md` funciona como mapa rápido para ubicar:
+- módulos Django
+- rutas web y API
 - base de datos
-- backend
-- frontend
-- templates HTML
-- CSS compartido
-- archivos clave del sistema
+- archivos HTML y CSS
+- conexión con las apps Flutter
 
-## Vista general
-
-Estructura principal del repositorio:
-
-```text
-bongusto_django/
-|-- bongusto_django/          -> backend Django
-|-- clientes/                 -> app Flutter de clientes
-|-- mesero/                   -> app Flutter de meseros
-|-- .env.example              -> variables de entorno de referencia
-|-- GUIA_CODIGO.md            -> guía complementaria del proyecto
-|-- CUMPLIMIENTO_RNF.md       -> estado de requerimientos no funcionales
-|-- CUMPLIMIENTO_SEGURIDAD.md -> notas de seguridad
-|-- run_clientes.ps1          -> arranque Flutter clientes
-|-- run_mesero.ps1            -> arranque Flutter mesero
-|-- run_daily_backup.ps1      -> script de respaldo
-|-- run_resilient_server.ps1  -> arranque resiliente del backend
-`-- setup_daily_backup_task.ps1
-```
-
-## Backend Django
-
-Ruta base del backend:
-- [bongusto_django](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django)
-
-Estructura interna:
+## Estructura general
 
 ```text
 bongusto_django/
@@ -57,129 +28,65 @@ bongusto_django/
         `-- main.py
 ```
 
-Archivos base importantes:
-- [manage.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/manage.py): punto de entrada de Django
-- [settings.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/infrastructure/settings.py): configuración principal
-- [urls.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/interfaces/urls.py): rutas web y API
-- [models.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/domain/models.py): modelos ORM principales
-- [main.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/main.py): mapa principal de módulos
-- [base.html](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/templates/base.html): layout base del panel web
-- [common-table.css](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/static/css/common-table.css): estilos visuales compartidos
+Archivos base:
+- [manage.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/manage.py)
+- [settings.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/infrastructure/settings.py)
+- [urls.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/interfaces/urls.py)
+- [models.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/domain/models.py)
+- [main.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/main.py)
 
-## Módulos Django
+## Módulos principales
 
-Ruta de módulos:
-- [modules](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules)
+Ruta:
+- [modules](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules)
 
-Módulos principales del backend:
+Módulos del sistema:
+- `auth`: login, logout, recuperación de contraseña.
+- `dashboard`: panel administrativo, métricas, PDF y gráficas.
+- `usuarios`: registro, login API, gestión de cuentas y refresco de sesión.
+- `roles`: CRUD de roles.
+- `permisos`: consulta de permisos.
+- `perfil`: edición y visualización de perfil.
+- `menus`: CRUD de menús y API pública.
+- `categorias`: CRUD de categorías y API pública.
+- `productos`: CRUD de productos y API pública.
+- `pedidos`: pedidos, detalle, llamado a mesero y atención.
+- `musica`: catálogo musical y cola de solicitudes.
+- `eventos`: reservas y eventos.
+- `bitacora`: auditoría e historial.
+- `calificaciones`: opiniones y calificaciones.
+- `chat`: historial de chat y soporte tiempo real.
+- `shared`: piezas compartidas de seguridad, base visual, salud, mesas simuladas y utilidades.
 
-1. `auth`
-   Responsable de login, logout y recuperación de contraseña.
-   Archivo clave: [auth/views.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/auth/views.py)
-
-2. `dashboard`
-   Panel principal administrativo, métricas y reporte PDF.
-   Archivo clave: [dashboard/views.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/dashboard/views.py)
-
-3. `usuarios`
-   Gestión de usuarios, meseros, estados y APIs de login/registro.
-   Archivo clave: [usuarios/views.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/usuarios/views.py)
-
-4. `roles`
-   CRUD de roles del sistema.
-   Archivo clave: [roles/views.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/roles/views.py)
-
-5. `permisos`
-   Consulta de permisos disponibles.
-   Archivo clave: [permisos/views.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/permisos/views.py)
-
-6. `perfil`
-   Ver y editar perfil del usuario autenticado.
-   Archivo clave: [perfil/views.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/perfil/views.py)
-
-7. `menus`
-   CRUD de menús, importación Excel, PDF y API pública.
-   Archivo clave: [menus/views.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/menus/views.py)
-
-8. `categorias`
-   CRUD de categorías y API pública.
-   Archivo clave: [categorias/views.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/categorias/views.py)
-
-9. `productos`
-   CRUD de productos, filtros, importación Excel, PDF y API pública.
-   Archivo clave: [productos/views.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/productos/views.py)
-
-10. `pedidos`
-   APIs de pedidos, detalle, llamados al mesero y atención.
-   Archivo clave: [pedidos/views.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/pedidos/views.py)
-
-11. `musica`
-   Gestión web de música y APIs para cola y solicitudes.
-   Archivo clave: [musica/views.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/musica/views.py)
-
-12. `eventos`
-   Reservas y eventos del restaurante.
-   Archivo clave: [eventos/views.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/eventos/views.py)
-
-13. `bitacora`
-   Historial de acciones y auditoría.
-   Archivo clave: [bitacora/views.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/bitacora/views.py)
-
-14. `calificaciones`
-   Calificaciones del servicio y API para clientes.
-   Archivo clave: [calificaciones/views.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/calificaciones/views.py)
-
-15. `chat`
-   Pantalla y API de historial de chat.
-   Archivo clave: [chat/views.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/chat/views.py)
-
-16. `shared`
-   Elementos compartidos: base visual, middleware, auth API, seguridad, salud, backup.
-   Archivos clave:
-   - [shared/views.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/views.py)
-   - [shared/middleware.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/middleware.py)
-   - [shared/api_auth.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/api_auth.py)
-   - [shared/security.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/security.py)
-
-## Arquitectura Django
-
-Capas principales:
-- `domain`: modelos y reglas principales
-- `application`: espacio reservado para servicios/casos de uso
-- `infrastructure`: settings, ASGI, PDF y configuración técnica
-- `interfaces`: URLs y agrupación de vistas
-- `modules`: funcionalidades organizadas por contexto
-
-Mapa de módulos:
-- [main.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/main.py)
-
-Agrupador de vistas:
-- [interfaces/views/__init__.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/interfaces/views/__init__.py)
+Archivos clave por capa:
+- [dashboard/views.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/dashboard/views.py)
+- [usuarios/views.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/usuarios/views.py)
+- [pedidos/views.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/pedidos/views.py)
+- [musica/views.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/musica/views.py)
+- [chat/views.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/chat/views.py)
+- [shared/views.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/views.py)
+- [shared/table_state.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/table_state.py)
+- [shared/excel_import.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/excel_import.py)
 
 ## Base de datos
 
-Configuración principal:
-- [settings.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/infrastructure/settings.py)
+Configuración:
+- [settings.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/infrastructure/settings.py)
 
-Motor usado:
-- `django.db.backends.mysql`
+Motor:
+- MySQL mediante `django.db.backends.mysql`
 
-Variables principales:
+Variables usadas:
 - `DB_NAME`
 - `DB_USER`
 - `DB_PASSWORD`
 - `DB_HOST`
 - `DB_PORT`
 
-Valores por defecto en desarrollo:
-- host: `127.0.0.1`
-- puerto: `3306`
-- usuario: `root`
+Modelo ORM principal:
+- [models.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/domain/models.py)
 
-Modelo principal ORM:
-- [models.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/domain/models.py)
-
-El proyecto sigue usando Django ORM como forma principal de acceso a datos:
+El acceso a datos sigue principalmente Django ORM:
 - `all()`
 - `filter()`
 - `first()`
@@ -189,163 +96,182 @@ El proyecto sigue usando Django ORM como forma principal de acceso a datos:
 - `select_related()`
 - `prefetch_related()`
 
-## URLs web principales
+## URLs web
 
 Archivo central:
-- [urls.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/interfaces/urls.py)
+- [urls.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/interfaces/urls.py)
 
 Rutas web principales:
 - `/login`
 - `/logout`
-- `/healthz`
-- `/password/email`
-- `/password/reset`
 - `/dashboard`
 - `/perfil`
 - `/usuarios`
 - `/roles`
 - `/permisos`
-- `/bitacora`
-- `/calificaciones`
 - `/menus`
 - `/categorias`
 - `/productos`
 - `/musicas`
 - `/eventos`
+- `/bitacora`
+- `/calificaciones`
 - `/chat`
+- `/password/email`
+- `/password/reset`
+- `/healthz`
+- `/menus/importar`
+- `/productos/importar`
+- `/musicas/importar`
 
 ## APIs principales
 
 Autenticación:
-- `/api/clientes/register`
-- `/api/clientes/login`
-- `/api/meseros/login`
+- `POST /api/clientes/register`
+- `POST /api/clientes/login`
+- `POST /api/meseros/login`
+- `GET /api/session/refresh`
 
 Catálogos:
-- `/api/menus`
-- `/api/categorias`
-- `/api/productos`
-- `/api/musicas`
-- `/api/musicas/cola`
+- `GET /api/menus`
+- `GET /api/categorias`
+- `GET /api/productos`
+- `GET /api/musicas`
+- `GET /api/musicas/cola`
 
 Pedidos y servicio:
-- `/api/pedidos`
-- `/api/pedidos/<id>`
-- `/api/mesero/llamados`
-- `/api/mesero/llamados/<id>/atender`
-- `/api/calificaciones`
-- `/api/solicitudes-musica`
-- `/api/chat/historial`
+- `GET /api/pedidos`
+- `POST /api/pedidos`
+- `GET /api/pedidos/<id>`
+- `POST /api/mesero/llamados`
+- `GET /api/mesero/llamados`
+- `POST /api/mesero/llamados/<id>/atender`
+- `POST /api/solicitudes-musica`
+- `POST /api/calificaciones`
+
+Chat:
+- `GET /api/chat/historial`
+- `POST /api/chat/enviar`
+- `ws /ws/chat/<participante>/?token=...`
+
+Mesas:
+- `GET /api/mesas`
+- `POST /api/mesas/asignar`
+- `GET /api/mi-mesa`
+- `POST /api/mesas/<id>/estado`
+
+Importación masiva:
+- `POST /menus/importar`
+- `POST /productos/importar`
+- `POST /musicas/importar`
 
 Notas:
-- varias rutas API aceptan versión con y sin slash final
-- varias rutas protegidas usan token Bearer
+- varias rutas aceptan versión con y sin slash final
+- el entorno local tiene compatibilidades extra para desarrollo y pruebas manuales
 
 ## HTML y CSS
 
-Layout principal:
-- [base.html](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/templates/base.html)
+Layout base:
+- [base.html](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/templates/base.html)
 
-CSS compartido principal:
-- [common-table.css](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/static/css/common-table.css)
+CSS compartido:
+- [common-table.css](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/static/css/common-table.css)
 
-Dónde están los templates HTML:
+Dónde están los templates:
 - cada módulo tiene su carpeta `templates`
-- ejemplo:
-  - [usuarios/templates](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/usuarios/templates)
-  - [productos/templates](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/productos/templates)
-  - [menus/templates](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/menus/templates)
-  - [eventos/templates](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/eventos/templates)
+- ejemplos:
+  - [usuarios/templates](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/usuarios/templates)
+  - [productos/templates](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/productos/templates)
+  - [menus/templates](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/menus/templates)
+  - [dashboard/templates](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/dashboard/templates)
 
 Dónde están los CSS por módulo:
 - cada módulo puede tener `static/css`
-- ejemplo:
-  - [bitacora/static/css](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/bitacora/static/css)
-  - [eventos/static/css](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/eventos/static/css)
-  - [pedidos/static/css](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/pedidos/static/css)
+- ejemplos:
+  - [shared/static/css](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/static/css)
+  - [bitacora/static/css](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/bitacora/static/css)
+  - [eventos/static/css](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/eventos/static/css)
 
-Regla práctica:
-- si el cambio afecta casi todo el panel, normalmente va en `common-table.css`
-- si el cambio afecta solo un módulo, normalmente va en el `static/css` de ese módulo
+Archivos visuales clave recientes:
+- [auth/templates/auth/reset_password.html](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/auth/templates/auth/reset_password.html)
+- [usuarios/templates/usuario/create.html](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/usuarios/templates/usuario/create.html)
 
-## Frontend Flutter
+## Conexión con Flutter
 
-### App clientes
+Apps conectadas:
+- [clientes](c:/Users/sebas/Downloads/bongusto_django/clientes)
+- [mesero](c:/Users/sebas/Downloads/bongusto_django/mesero)
 
-Ruta:
-- [clientes](/c:/Users/sebas/Downloads/bongusto_django/clientes)
+Clientes HTTP principales:
+- [clientes/lib/services/bongusto_api.dart](c:/Users/sebas/Downloads/bongusto_django/clientes/lib/services/bongusto_api.dart)
+- [mesero/lib/services/bongusto_api.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/services/bongusto_api.dart)
 
-Estructura `lib`:
+Sesión local:
+- [clientes/lib/services/session_service.dart](c:/Users/sebas/Downloads/bongusto_django/clientes/lib/services/session_service.dart)
+- [mesero/lib/services/session_service.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/services/session_service.dart)
 
-```text
-clientes/lib/
-|-- main.dart
-|-- api_config.dart
-|-- local_database_service.dart
-|-- screens/
-|-- services/
-`-- utils/
-```
+Flujos conectados hoy:
+- cliente inicia sesión y crea pedidos
+- cliente solicita música
+- cliente llama al mesero
+- cliente recibe o conserva mesa asignada
+- mesero ve pedidos, llamados, música y mesas
+- administrador web usa dashboard, CRUD y chat
 
-Archivos importantes:
-- [clientes/lib/main.dart](/c:/Users/sebas/Downloads/bongusto_django/clientes/lib/main.dart)
-- [clientes/lib/api_config.dart](/c:/Users/sebas/Downloads/bongusto_django/clientes/lib/api_config.dart)
-- [clientes/lib/services/bongusto_api.dart](/c:/Users/sebas/Downloads/bongusto_django/clientes/lib/services/bongusto_api.dart)
-- [clientes/lib/services/session_service.dart](/c:/Users/sebas/Downloads/bongusto_django/clientes/lib/services/session_service.dart)
+## Tiempo real y sincronización
 
-Responsabilidad:
-- menú digital
-- carrito
-- pedidos
-- música
-- chat/interacción
-- perfil
-- historial y experiencia del cliente
+Chat:
+- tiempo real por WebSocket
+- respaldo por API/historial si falla la conexión
 
-### App mesero
+Pedidos, música, llamados y mesas:
+- refresco periódico desde Flutter
+- el panel de `mesero` se actualiza cada pocos segundos
 
-Ruta:
-- [mesero](/c:/Users/sebas/Downloads/bongusto_django/mesero)
+Estado de mesas:
+- `disponible`: mesa libre
+- `con_pedidos` u ocupada: mesa asignada o con consumo activo
+- `pagada`: mesa marcada como pagada por el mesero
 
-Estructura `lib`:
+## Importación masiva por Excel
 
-```text
-mesero/lib/
-|-- main.dart
-|-- api_config.dart
-|-- screens/
-`-- services/
-```
+Helper compartido:
+- [shared/excel_import.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/excel_import.py)
 
-Archivos importantes:
-- [mesero/lib/main.dart](/c:/Users/sebas/Downloads/bongusto_django/mesero/lib/main.dart)
-- [mesero/lib/api_config.dart](/c:/Users/sebas/Downloads/bongusto_django/mesero/lib/api_config.dart)
-- [mesero/lib/services/bongusto_api.dart](/c:/Users/sebas/Downloads/bongusto_django/mesero/lib/services/bongusto_api.dart)
-- [mesero/lib/services/session_service.dart](/c:/Users/sebas/Downloads/bongusto_django/mesero/lib/services/session_service.dart)
+Módulos que usan importación:
+- [menus/views.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/menus/views.py)
+- [productos/views.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/productos/views.py)
+- [musica/views.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/musica/views.py)
 
-Responsabilidad:
-- pedidos
-- mesas
-- detalle de pedidos
-- interacción con clientes
-- música
-- vista operativa del mesero
+Reglas actuales:
+- solo acepta `.xlsx`
+- valida encabezados en la primera fila
+- omite filas vacías
+- normaliza encabezados antes de leer columnas
+- permite actualizar registros repetidos según el módulo
+- usa `openpyxl`
 
-## Conexión entre backend y Flutter
-
-Punto de unión principal:
-- las dos apps Flutter consumen las rutas del backend Django
+## Autenticación y recuperación
 
 Archivos clave:
-- [clientes/lib/services/bongusto_api.dart](/c:/Users/sebas/Downloads/bongusto_django/clientes/lib/services/bongusto_api.dart)
-- [mesero/lib/services/bongusto_api.dart](/c:/Users/sebas/Downloads/bongusto_django/mesero/lib/services/bongusto_api.dart)
-- [clientes/lib/api_config.dart](/c:/Users/sebas/Downloads/bongusto_django/clientes/lib/api_config.dart)
-- [mesero/lib/api_config.dart](/c:/Users/sebas/Downloads/bongusto_django/mesero/lib/api_config.dart)
+- [auth/views.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/auth/views.py)
+- [usuarios/views.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/usuarios/views.py)
+- [shared/api_auth.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/api_auth.py)
+- [shared/security.py](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/security.py)
+
+Qué cubre:
+- login web
+- logout web
+- login API para clientes
+- login API para meseros
+- refresh de sesión por token
+- recuperación por correo
+- cambio de contraseña con política de seguridad
 
 ## Variables de entorno
 
 Referencia:
-- [.env.example](/c:/Users/sebas/Downloads/bongusto_django/.env.example)
+- [../.env.example](c:/Users/sebas/Downloads/bongusto_django/.env.example)
 
 Variables importantes:
 - `DJANGO_ENV`
@@ -364,15 +290,11 @@ Variables importantes:
 - `DEFAULT_FROM_EMAIL`
 - `REDIS_URL`
 
-Comportamiento actual:
-- por defecto el entorno local arranca como desarrollo
-- en producción se exige `DJANGO_SECRET_KEY` si `DEBUG=false`
-
 ## Dependencias
 
 Archivos:
-- [pyproject.toml](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/pyproject.toml)
-- [requirements.txt](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/requirements.txt)
+- [pyproject.toml](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/pyproject.toml)
+- [requirements.txt](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/requirements.txt)
 
 Stack principal:
 - Python `>=3.11`
@@ -388,15 +310,13 @@ Stack principal:
 
 ## Arranque local
 
-Backend Django:
-
 ```powershell
 cd C:\Users\sebas\Downloads\bongusto_django\bongusto_django
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
 python -m pip install -e . --no-deps
 python manage.py check
-python manage.py runserver 127.0.0.1:8080
+python manage.py runserver 0.0.0.0:8080
 ```
 
 Panel web:
@@ -405,35 +325,21 @@ Panel web:
 Healthcheck:
 - `http://127.0.0.1:8080/healthz`
 
-## Scripts útiles
+## Scripts útiles del repo raíz
 
-En la raíz del repositorio:
-- [run_clientes.ps1](/c:/Users/sebas/Downloads/bongusto_django/run_clientes.ps1)
-- [run_mesero.ps1](/c:/Users/sebas/Downloads/bongusto_django/run_mesero.ps1)
-- [run_daily_backup.ps1](/c:/Users/sebas/Downloads/bongusto_django/run_daily_backup.ps1)
-- [run_resilient_server.ps1](/c:/Users/sebas/Downloads/bongusto_django/run_resilient_server.ps1)
-- [setup_daily_backup_task.ps1](/c:/Users/sebas/Downloads/bongusto_django/setup_daily_backup_task.ps1)
+- [run_clientes.ps1](c:/Users/sebas/Downloads/bongusto_django/run_clientes.ps1)
+- [run_mesero.ps1](c:/Users/sebas/Downloads/bongusto_django/run_mesero.ps1)
+- [run_daily_backup.ps1](c:/Users/sebas/Downloads/bongusto_django/run_daily_backup.ps1)
+- [run_resilient_server.ps1](c:/Users/sebas/Downloads/bongusto_django/run_resilient_server.ps1)
+- [setup_daily_backup_task.ps1](c:/Users/sebas/Downloads/bongusto_django/setup_daily_backup_task.ps1)
 
-## Documentos complementarios
+## Estado práctico actual
 
-- [GUIA_CODIGO.md](/c:/Users/sebas/Downloads/bongusto_django/GUIA_CODIGO.md)
-- [CUMPLIMIENTO_RNF.md](/c:/Users/sebas/Downloads/bongusto_django/CUMPLIMIENTO_RNF.md)
-- [CUMPLIMIENTO_SEGURIDAD.md](/c:/Users/sebas/Downloads/bongusto_django/CUMPLIMIENTO_SEGURIDAD.md)
-
-## Estado actual del proyecto
-
-Resumen práctico:
-- backend Django organizado por módulos
-- código simplificado en buena parte para nivel junior
-- HTML y CSS más uniformes desde el layout compartido
-- APIs principales disponibles para Flutter clientes y Flutter mesero
-- base de datos conectada por Django ORM con MySQL
-- frontend dividido en dos apps Flutter que consumen el backend
-
-Si necesitas ubicar algo rápido:
-- rutas: [urls.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/interfaces/urls.py)
-- configuración: [settings.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/infrastructure/settings.py)
-- modelos: [models.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/domain/models.py)
-- layout web: [base.html](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/templates/base.html)
-- CSS global: [common-table.css](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/modules/shared/static/css/common-table.css)
-- mapa de módulos: [main.py](/c:/Users/sebas/Downloads/bongusto_django/bongusto_django/src/bongusto/main.py)
+El proyecto hoy tiene:
+- backend Django modular
+- frontend web administrativo con HTML/CSS unificados
+- app `clientes` conectada a pedidos, música, mesa y llamado a mesero
+- app `mesero` conectada a pedidos, mesas, llamados, música y chat
+- simulación de cinco mesas compartidas entre cliente y mesero
+- importación masiva por Excel en menús, productos y música
+- recuperación de contraseña por código de correo cuando SMTP está configurado

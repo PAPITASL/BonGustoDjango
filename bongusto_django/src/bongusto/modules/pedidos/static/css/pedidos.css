@@ -1,4 +1,4 @@
-/* ---------- Estilos generales del modulo pedidos ---------- */
+/* Estilos generales del modulo pedidos */
 body {
     background: #fafbfc;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -7,19 +7,20 @@ body {
 }
 
 
-/* ---------- Layout principal ---------- */
+/* Parte principal donde se organiza todo */
 .main-container {
     display: flex;
     min-height: 100vh;
 }
 
+/* Contenido principal de la pagina */
 .content {
     flex: 1;
     padding: 40px 60px;
 }
 
 
-/* ---------- Contenedor de tabla ---------- */
+/* Caja donde va la tabla */
 .table-responsive {
     background: #fff;
     border-radius: 12px;
@@ -29,7 +30,7 @@ body {
 }
 
 
-/* ---------- Tabla ---------- */
+/* Estilo general de la tabla */
 .table {
     width: 100%;
     margin-bottom: 0;
@@ -37,6 +38,7 @@ body {
     border-spacing: 0;
 }
 
+/* Encabezados de la tabla */
 .table thead th {
     background: #f8f9fa;
     color: #495057;
@@ -48,22 +50,25 @@ body {
     border-bottom: 2px solid #e9ecef;
 }
 
+/* Celdas de la tabla */
 .table tbody td {
     padding: 15px;
     vertical-align: middle;
     border-bottom: 1px solid #f0f0f0;
 }
 
+/* Quita la linea de la ultima fila */
 .table tbody tr:last-child td {
     border-bottom: none;
 }
 
+/* Efecto cuando se pasa el mouse */
 .table tbody tr:hover {
     background-color: #f8f9fa;
 }
 
 
-/* ---------- Badges ---------- */
+/* Etiquetas de estado (badges) */
 .badge {
     padding: 6px 12px;
     border-radius: 20px;
@@ -71,23 +76,26 @@ body {
     font-weight: 500;
 }
 
+/* Estado tipo advertencia */
 .badge-warning {
     background-color: #fff3cd;
     color: #856404;
 }
 
+/* Estado correcto o exitoso */
 .badge-success {
     background-color: #d4edda;
     color: #155724;
 }
 
+/* Estado de error o cancelado */
 .badge-danger {
     background-color: #f8d7da;
     color: #721c24;
 }
 
 
-/* ---------- Botones ---------- */
+/* Botones en general */
 .btn {
     padding: 8px 16px;
     border-radius: 6px;
@@ -96,21 +104,25 @@ body {
     font-size: 0.9em;
 }
 
+/* Botones pequeños */
 .btn-sm {
     padding: 5px 10px;
     font-size: 0.85em;
 }
 
+/* Boton de exito */
 .btn-success {
     background-color: #28a745;
     color: white;
 }
 
+/* Boton de eliminar o peligro */
 .btn-danger {
     background-color: #dc3545;
     color: white;
 }
 
+/* Boton secundario */
 .btn-secondary {
     background-color: #d90416;
     color: white;

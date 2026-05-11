@@ -1,8 +1,8 @@
-<!-- Template principal del dashboard | Aqui se muestra toda la vista visual del panel principal -->
+<!-- Template principal del dashboard | Aquí se muestra toda la parte visual del panel principal -->
 
 {% extends "base.html" %}
 
-<!-- Titulo que se vera en la pestana del navegador -->
+<!-- Título que aparece en la pestaña del navegador -->
 {% block title %}Dashboard{% endblock %}
 
 {% block extra_css %}
@@ -18,7 +18,7 @@
     box-shadow: 0 22px 50px rgba(168, 138, 150, 0.10);
   }
 
-  /* Texto pequeño superior tipo seccion */
+  /* Texto pequeño superior tipo sección */
   .dashboard-kicker {
     color: #b85c74;
     font-size: 12px;
@@ -36,7 +36,7 @@
     gap: 18px;
   }
 
-  /* Tarjeta base que comparten todos los paneles */
+  /* Tarjeta base que comparten los diferentes paneles */
   .panel-card {
     background: #ffffff;
     border: 1px solid rgba(184, 92, 116, 0.10);
@@ -45,7 +45,7 @@
     box-shadow: 0 10px 30px rgba(92, 77, 84, 0.05);
   }
 
-  /* Clases para manejar el ancho de cada panel */
+  /* Clases para controlar cuánto espacio ocupa cada panel */
   .span-2 { grid-column: span 2; }
   .span-4 { grid-column: span 4; }
   .span-5 { grid-column: span 5; }
@@ -54,7 +54,7 @@
   .span-8 { grid-column: span 8; }
 
   /* =========================================================
-     TARJETAS DE METRICAS
+     TARJETAS DE MÉTRICAS
   ========================================================= */
   .metric-card {
     min-height: 220px;
@@ -65,7 +65,7 @@
     text-align: center;
   }
 
-  /* Circulo de progreso de cada metrica */
+  /* Círculo de progreso de cada métrica */
   .metric-ring {
     --ring-color-start: #d90416;
     --size: 110px;
@@ -81,7 +81,7 @@
     box-shadow: inset 0 0 0 10px color-mix(in srgb, var(--ring-color-start) 8%, white);
   }
 
-  /* Borde interior decorativo */
+  /* Borde interno decorativo del círculo */
   .metric-ring::before {
     content: "";
     position: absolute;
@@ -90,14 +90,14 @@
     border: 1px solid rgba(217, 4, 22, 0.08);
   }
 
-  /* Valor grande en el centro */
+  /* Número grande que aparece en el centro */
   .metric-value {
     font-size: 28px;
     font-weight: 700;
     line-height: 1;
   }
 
-  /* Nombre de la metrica */
+  /* Nombre de la métrica */
   .metric-title {
     margin-top: 14px;
     color: #9d6172;
@@ -106,7 +106,7 @@
     text-transform: uppercase;
   }
 
-  /* Texto pequeño debajo */
+  /* Texto pequeño que acompaña la métrica */
   .metric-copy {
     color: #707070;
     font-size: 12px;
@@ -139,7 +139,7 @@
   }
 
   /* =========================================================
-     BARRAS DE PROGRESO POR MODULO
+     BARRAS DE PROGRESO POR MÓDULO
   ========================================================= */
   .progress-stack {
     display: grid;
@@ -169,7 +169,7 @@
   }
 
   /* =========================================================
-     GRAFICA DE TENDENCIA
+     GRÁFICA DE TENDENCIA
   ========================================================= */
   .line-chart {
     position: relative;
@@ -217,7 +217,7 @@
   }
 
   /* =========================================================
-     DISTRIBUCION DE USUARIOS
+     DISTRIBUCIÓN DE USUARIOS
   ========================================================= */
   .activity-grid {
     display: grid;
@@ -344,7 +344,7 @@
   }
 
   /* =========================================================
-     ULTIMOS REGISTROS
+     ÚLTIMOS REGISTROS
   ========================================================= */
   .latest-grid {
     display: grid;
@@ -406,7 +406,7 @@
   <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px;">
     <div class="dashboard-kicker" style="margin-bottom:0;">Dashboard / Home</div>
 
-    <!-- Boton para descargar el PDF del dashboard -->
+    <!-- Botón para descargar el PDF del dashboard -->
     <a href="/dashboard/reporte" class="btn btn-secondary">
       <i class="fa fa-file-pdf me-1"></i> Descargar Reporte PDF
     </a>
@@ -418,7 +418,7 @@
   <div class="dashboard-grid">
 
     <!-- =========================================================
-         TARJETAS DE METRICAS
+         TARJETAS DE MÉTRICAS
     ========================================================= -->
     {% for metrica in metricas_resumen %}
     <div class="panel-card metric-card span-2">
@@ -445,13 +445,13 @@
       <div class="highlight-number">{{ resumen_general_porcentaje }}%</div>
 
       <div class="mini-copy">
-        Relacion entre usuarios y reservas activas del panel.
+        Relación entre usuarios y reservas activas del panel.
         Total visible: {{ resumen_general_total }} registros principales.
       </div>
     </div>
 
     <!-- =========================================================
-         CARGA POR MODULO
+         CARGA POR MÓDULO
     ========================================================= -->
     <div class="panel-card span-6">
       <div class="panel-title">Carga por modulo</div>
@@ -474,7 +474,7 @@
     </div>
 
     <!-- =========================================================
-         GRAFICA DE RESERVAS
+         GRÁFICA DE RESERVAS
     ========================================================= -->
     <div class="panel-card span-6 line-chart">
       <div class="panel-title">Tendencia de reservas</div>
@@ -487,10 +487,10 @@
           <line x1="0" y1="80" x2="100" y2="80"></line>
         </g>
 
-        <!-- Area inferior de relleno -->
+        <!-- Área inferior de relleno -->
         <polygon class="chart-area" points="{{ lineas_reserva.area }}"></polygon>
 
-        <!-- Linea principal -->
+        <!-- Línea principal -->
         <polyline class="chart-line" points="{{ lineas_reserva.polyline }}"></polyline>
 
         <!-- Puntos visibles de cada dato -->
@@ -499,7 +499,7 @@
         {% endfor %}
       </svg>
 
-      <!-- Etiquetas de abajo -->
+      <!-- Etiquetas inferiores -->
       <div class="chart-labels">
         {% for point in lineas_reserva.points %}
         <div>{{ point.label }}<br><strong>{{ point.value }}</strong></div>
@@ -508,7 +508,7 @@
     </div>
 
     <!-- =========================================================
-         DISTRIBUCION DE USUARIOS
+         DISTRIBUCIÓN DE USUARIOS
     ========================================================= -->
     <div class="panel-card span-6">
       <div class="panel-title">Distribucion de usuarios</div>
@@ -531,7 +531,7 @@
           </div>
           {% empty %}
           <div class="mini-copy">
-            Aun no hay tipos de usuario suficientes para mostrar distribucion.
+            Aún no hay tipos de usuario suficientes para mostrar distribución.
           </div>
           {% endfor %}
         </div>
@@ -593,7 +593,7 @@
     </div>
 
     <!-- =========================================================
-         ULTIMOS REGISTROS
+         ÚLTIMOS REGISTROS
     ========================================================= -->
     <div class="panel-card span-8">
       <div class="panel-title">Ultimos registros</div>

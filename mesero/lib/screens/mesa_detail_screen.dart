@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../services/bongusto_api.dart';
 import 'mesa_model.dart';
 
-// ===== Clase `MesaDetailScreen` | Recibe una mesa puntual y permite marcarla como pagada o disponible. =====
+// ===== Clase `MesaDetailScreen` | Recibe una mesa puntual y permite ajustar su estado operativo. =====
 class MesaDetailScreen extends StatefulWidget {
   const MesaDetailScreen({super.key, required this.mesa});
 
@@ -17,13 +17,16 @@ class MesaDetailScreen extends StatefulWidget {
 // ===== Estado `_MesaDetailScreenState` | Presenta el cliente actual, el pedido actual y las acciones de la mesa. =====
 class _MesaDetailScreenState extends State<MesaDetailScreen> {
   static const kBrandRed = Color(0xFFD90416);
-  static const kBg = Color(0xFFF2F1F4);
+  static const kBgLight = Color(0xFFF2F1F4);
+  static const kBgDark = Color(0xFF101218);
   static const kCard = Color(0xFFFFFFFF);
   static const kInk = Color(0xFF181818);
   static const kMuted = Color(0xFF73727A);
   static const kLine = Color(0xFFE8E6EB);
 
   bool _updating = false;
+  bool get _isDark => Theme.of(context).brightness == Brightness.dark;
+  Color get _bg => _isDark ? kBgDark : kBgLight;
 
   Mesa get mesa => widget.mesa;
 
@@ -39,25 +42,67 @@ class _MesaDetailScreenState extends State<MesaDetailScreen> {
 
   String _statusLabel() {
     switch (mesa.status) {
-      case TableStatus.disponible:
+      case TableStatus.libre:
         return 'Disponible';
-      case TableStatus.noPagado:
+      case TableStatus.ocupada:
         return 'Ocupada';
-      case TableStatus.pagado:
+      case TableStatus.esperandoPago:
+        return 'Pago solicitado';
+      case TableStatus.pagada:
         return 'Pagada';
+      case TableStatus.enLimpieza:
+        return 'En limpieza';
+      case TableStatus.bloqueada:
+        return 'Bloqueada';
     }
   }
 
-  Future<void> _actualizarEstado(String estado) async {
+  Future<void> _confirmarPago() async {
     setState(() => _updating = true);
     try {
-      await BongustoApi.actualizarEstadoMesa(mesaId: mesa.id, estado: estado);
+      await BongustoApi.confirmarPagoMesa(mesa.id);
       if (!mounted) return;
       Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No se pudo actualizar la mesa: $e')),
+        SnackBar(content: Text('No se pudo confirmar el pago: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _updating = false);
+      }
+    }
+  }
+
+  Future<void> _marcarEnLimpieza() async {
+    setState(() => _updating = true);
+    try {
+      await BongustoApi.marcarMesaEnLimpieza(mesa.id);
+      if (!mounted) return;
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No se pudo marcar la mesa en limpieza: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _updating = false);
+      }
+    }
+  }
+
+  Future<void> _liberarMesa() async {
+    setState(() => _updating = true);
+    try {
+      await BongustoApi.liberarMesa(mesaId: mesa.id);
+      if (!mounted) return;
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No se pudo liberar la mesa: $e')),
       );
     } finally {
       if (mounted) {
@@ -70,14 +115,15 @@ class _MesaDetailScreenState extends State<MesaDetailScreen> {
   Widget build(BuildContext context) {
     final pedidoActual = mesa.pedidos.isEmpty ? null : mesa.pedidos.first;
     final items = (pedidoActual?['items'] as List<dynamic>? ?? const <dynamic>[]);
+    final pago = mesa.pago;
 
     return Scaffold(
-      backgroundColor: kBg,
+      backgroundColor: _bg,
       appBar: AppBar(
-        backgroundColor: kBg,
-        foregroundColor: kInk,
+        backgroundColor: _bg,
+        foregroundColor: _isDark ? Colors.white : kInk,
         title: Text(
-          'Mesa ${mesa.id}',
+          mesa.etiqueta,
           style: const TextStyle(fontWeight: FontWeight.w800),
         ),
       ),
@@ -106,8 +152,8 @@ class _MesaDetailScreenState extends State<MesaDetailScreen> {
                 const SizedBox(height: 8),
                 Text(
                   mesa.clientes.isEmpty
-                      ? 'La mesa ${mesa.id} esta disponible'
-                      : 'Cliente actual de la mesa ${mesa.id}',
+                      ? '${mesa.etiqueta} esta disponible'
+                      : 'Cliente actual de ${mesa.etiqueta}',
                   style: const TextStyle(
                     color: kInk,
                     fontSize: 26,
@@ -137,6 +183,104 @@ class _MesaDetailScreenState extends State<MesaDetailScreen> {
               ],
             ),
           ),
+          const SizedBox(height: 18),
+          if (pago != null) ...[
+            const Text(
+              'Solicitud de pago',
+              style: TextStyle(
+                color: kInk,
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF8E4),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xFFFFE4A3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    pago['metodo_pago']?.toString() ?? 'Metodo no indicado',
+                    style: const TextStyle(
+                      color: kInk,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    pago['mensaje_operativo']?.toString() ??
+                        'Acercarse a la mesa para coordinar el cobro.',
+                    style: const TextStyle(
+                      color: kMuted,
+                      fontSize: 14,
+                      height: 1.45,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _metric(
+                          'Estado',
+                          pago['estado']?.toString() ?? 'pendiente',
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _metric(
+                          'Pedido',
+                          '#${pago['id_pedido'] ?? '-'}',
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: kBrandRed,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: const Text('Solicitud recibida'),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: SizedBox(
+                          height: 48,
+                          child: OutlinedButton(
+                            onPressed: _updating ? null : _confirmarPago,
+                            style: OutlinedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: const Text('Confirmar pago'),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+          ],
           const SizedBox(height: 18),
           if (pedidoActual != null) ...[
             const Text(
@@ -216,15 +360,13 @@ class _MesaDetailScreenState extends State<MesaDetailScreen> {
                 child: SizedBox(
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: _updating || mesa.clientes.isEmpty || mesa.status == TableStatus.pagado
-                        ? null
-                        : () => _actualizarEstado('pagada'),
+                    onPressed: null,
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: Text(_updating ? 'Actualizando' : 'Pagada'),
+                    child: Text(_updating ? 'Actualizando' : 'Estado controlado por pedido'),
                   ),
                 ),
               ),
@@ -233,9 +375,9 @@ class _MesaDetailScreenState extends State<MesaDetailScreen> {
                 child: SizedBox(
                   height: 48,
                   child: OutlinedButton(
-                    onPressed: _updating || mesa.status == TableStatus.disponible
+                    onPressed: _updating || mesa.status == TableStatus.libre
                         ? null
-                        : () => _actualizarEstado('disponible'),
+                        : _liberarMesa,
                     style: OutlinedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -246,6 +388,21 @@ class _MesaDetailScreenState extends State<MesaDetailScreen> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            height: 48,
+            child: OutlinedButton(
+              onPressed: _updating || mesa.status == TableStatus.enLimpieza
+                  ? null
+                  : _marcarEnLimpieza,
+              style: OutlinedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: const Text('Marcar en limpieza'),
+            ),
           ),
         ],
       ),

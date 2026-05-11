@@ -3,15 +3,22 @@
 {% block title %}{{ accion }} Evento{% endblock %}
 
 {% block content %}
+<!-- Titulo principal de la vista (crear, editar o ver evento) -->
 <h4 class="text-center mb-4">
   <strong>{{ accion }} Reserva / Evento</strong>
 </h4>
 
+<!-- Contenedor general del formulario -->
 <div class="form-container">
+
+  <!-- Mensaje de error si algo falla -->
   {% if error %}
   <div class="alert alert-danger">{{ error }}</div>
   {% endif %}
 
+  <!-- Formulario principal -->
+  <!-- Cambia la URL dependiendo si es crear o actualizar --> 
+  <!-- Estos atributos sirven para mostrar confirmaciones antes de guardar -->
   <form
     action="{% if evento.id_reser %}/eventos/{{ evento.id_reser }}/update{% else %}/eventos/store{% endif %}"
     method="post"
@@ -24,6 +31,8 @@
   >
     {% csrf_token %}
 
+    <!-- Selector de usuario -->
+    <!-- Permite asociar el evento a un usuario existente -->
     <div class="mb-3">
       <label class="form-label">Usuario registrado *</label>
       <select name="id_usuario" class="form-control" {% if readonly %}disabled{% else %}required{% endif %}>
@@ -36,6 +45,7 @@
       </select>
     </div>
 
+    <!-- Nombre del evento -->
     <div class="mb-3">
       <label class="form-label">Nombre del evento *</label>
       <input
@@ -48,6 +58,8 @@
       >
     </div>
 
+    <!-- Fecha del evento -->
+    <!-- Se limita con fecha mínima para evitar fechas pasadas -->
     <div class="mb-3">
       <label class="form-label">Fecha *</label>
       <input
@@ -60,6 +72,8 @@
       >
     </div>
 
+    <!-- Hora del evento -->
+    <!-- Se llena dinámicamente con horarios disponibles -->
     <div class="mb-3">
       <label class="form-label">Hora *</label>
       <select name="hora_reser" class="form-control" {% if readonly %}disabled{% else %}required{% endif %}>
@@ -73,6 +87,8 @@
       </small>
     </div>
 
+    <!-- Estado del evento -->
+    <!-- Define si la reserva está activa, cancelada o finalizada -->
     <div class="mb-3">
       <label class="form-label">Estado *</label>
       <select name="estado_reser" class="form-control" {% if readonly %}disabled{% else %}required{% endif %}>
@@ -82,6 +98,7 @@
       </select>
     </div>
 
+    <!-- Descripción o detalle del evento -->
     <div class="mb-3">
       <label class="form-label">Detalle del evento *</label>
       <textarea
@@ -93,22 +110,28 @@
       >{{ evento.detalle_evento|default:'' }}</textarea>
     </div>
 
+    <!-- Botones de acción -->
     <div class="d-flex gap-2">
+
+      <!-- Botón guardar (solo si no está en modo lectura) -->
       {% if not readonly %}
       <button type="submit" class="btn btn-success">
         <i class="fa fa-save"></i> Guardar
       </button>
       {% endif %}
 
+      <!-- Botón volver o cancelar -->
       <a href="/eventos" class="btn btn-secondary">
         <i class="fa fa-times"></i>
         {% if readonly %}Volver{% else %}Cancelar{% endif %}
       </a>
 
+      <!-- Botón editar (solo si está en modo lectura) -->
       {% if readonly %}
       <a href="/eventos/editar/{{ evento.id_reser }}" class="btn btn-primary">Editar</a>
       {% endif %}
     </div>
+
   </form>
 </div>
 {% endblock %}

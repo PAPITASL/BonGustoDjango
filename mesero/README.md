@@ -1,17 +1,12 @@
 # BonGusto Mesero
 
-Aplicacion Flutter para el flujo operativo de meseros de BonGusto. Se conecta al backend Django para login, consulta de pedidos, atencion de llamados, revision del menu, cola musical y chat interno con clientes.
-
-Referencia general del repo:
-- [GUIA_CODIGO.md](C:/Users/sebas/Downloads/bongusto_django/GUIA_CODIGO.md)
-
-## Stack
-
-- Flutter 3 / Dart 3
-- `http`
-- `flutter_secure_storage`
-- `web_socket_channel`
-- `stomp_dart_client`
+App Flutter para el flujo operativo del mesero. Se conecta al backend Django para:
+- iniciar sesión
+- ver pedidos de clientes
+- revisar y atender llamados
+- consultar la cola musical
+- administrar visualmente las mesas
+- chatear con administración
 
 ## Estructura
 
@@ -20,8 +15,8 @@ mesero/
 |-- lib/
 |   |-- main.dart
 |   |-- api_config.dart
-|   |-- services/
-|   `-- screens/
+|   |-- screens/
+|   `-- services/
 |-- assets/
 |-- android/
 |-- ios/
@@ -29,20 +24,15 @@ mesero/
 `-- pubspec.yaml
 ```
 
-Archivos clave:
-- [main.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/main.dart)
-- [api_config.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/api_config.dart)
-- [services/bongusto_api.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/services/bongusto_api.dart)
-- [services/session_service.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/services/session_service.dart)
-- [screens/home_screen.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/home_screen.dart)
-- [screens/pedidos_screen.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/pedidos_screen.dart)
-- [screens/notificaciones_admin_screen.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/notificaciones_admin_screen.dart)
-- [screens/interaccion_screen.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/interaccion_screen.dart)
+Archivos base:
+- [main.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/main.dart)
+- [api_config.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/api_config.dart)
+- [services/bongusto_api.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/services/bongusto_api.dart)
+- [services/session_service.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/services/session_service.dart)
 
-## Flujo actual
+## Rutas principales
 
-La app arranca en `'/start'` y expone estas rutas principales:
-
+- `'/start'`
 - `'/login'`
 - `'/home'`
 - `'/pedidos'`
@@ -52,80 +42,107 @@ La app arranca en `'/start'` y expone estas rutas principales:
 - `'/musica'`
 - `'/interaccion'`
 - `'/perfil'`
+- `'/reset'`
 
-Flujo operativo principal:
+## Flujo operativo actual
 
-1. Inicio de sesion de mesero.
-2. Persistencia local de sesion con `flutter_secure_storage`.
-3. Entrada al home con accesos rapidos al flujo operativo.
-4. Revision de pedidos registrados por clientes.
-5. Apertura del detalle de cada pedido.
-6. Atencion de llamados a mesero pendientes.
-7. Consulta del menu y de los productos por menu.
-8. Revision de la cola musical enviada por clientes.
-9. Chat en tiempo real con cliente o administrador.
-10. Gestion visual de mesas desde una grilla local de estados.
+1. el mesero inicia sesión
+2. la app guarda token y datos del perfil
+3. entra al panel principal
+4. consulta pedidos creados por clientes
+5. ve llamados a mesero
+6. revisa la cola de música
+7. entra a `Mesas` para ver quién ocupa cada mesa
+8. puede marcar la mesa como `Pagada`
+9. puede `Liberar` la mesa cuando ya se desocupó
+10. puede abrir el chat con administración
 
-Pantallas funcionales destacadas:
-- [login_screen.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/login_screen.dart)
-- [home_screen.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/home_screen.dart)
-- [pedidos_screen.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/pedidos_screen.dart)
-- [pedido_detalle_screen.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/pedido_detalle_screen.dart)
-- [notificaciones_admin_screen.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/notificaciones_admin_screen.dart)
-- [menu_screen.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/menu_screen.dart)
-- [musica_screen.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/musica_screen.dart)
-- [interaccion_screen.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/interaccion_screen.dart)
-- [gestion_mesas_screen.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/gestion_mesas_screen.dart)
-- [perfil_screen.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/perfil_screen.dart)
+## Pantallas importantes
 
-## Integracion con Django
+- [home_screen.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/home_screen.dart)
+- [pedidos_screen.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/pedidos_screen.dart)
+- [pedido_detalle_screen.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/pedido_detalle_screen.dart)
+- [notificaciones_admin_screen.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/notificaciones_admin_screen.dart)
+- [menu_screen.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/menu_screen.dart)
+- [musica_screen.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/musica_screen.dart)
+- [gestion_mesas_screen.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/gestion_mesas_screen.dart)
+- [mesa_detail_screen.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/mesa_detail_screen.dart)
+- [interaccion_screen.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/interaccion_screen.dart)
+- [perfil_screen.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/perfil_screen.dart)
+
+## Integración con Django
 
 Cliente HTTP principal:
-- [services/bongusto_api.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/services/bongusto_api.dart)
+- [services/bongusto_api.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/services/bongusto_api.dart)
 
-Endpoints usados desde la app:
-
+Endpoints usados:
 - `POST /api/meseros/login`
+- `GET /api/session/refresh`
 - `GET /api/pedidos`
+- `GET /api/pedidos/<id>`
 - `GET /api/mesero/llamados`
-- `POST /api/mesero/llamados/{id}/atender`
-- `GET /api/chat/historial`
+- `POST /api/mesero/llamados/<id>/atender`
 - `GET /api/menus`
-- `GET /api/productos?menu_id=...`
+- `GET /api/productos`
 - `GET /api/musicas/cola`
+- `GET /api/mesas`
+- `POST /api/mesas/<id>/estado`
+- `GET /api/chat/historial`
+- `POST /api/chat/enviar`
 
-La sesion autenticada usa token `Bearer` guardado por [session_service.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/services/session_service.dart).
+Tiempo real:
+- chat por WebSocket
+- respaldo por API/historial
+- pedidos, llamados, música y mesas usan refresco periódico
 
-## Configuracion del backend
+## Módulo de mesas
 
-La URL base se arma en [api_config.dart](C:/Users/sebas/Downloads/bongusto_django/mesero/lib/api_config.dart).
+Pantallas:
+- [gestion_mesas_screen.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/gestion_mesas_screen.dart)
+- [mesa_detail_screen.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/screens/mesa_detail_screen.dart)
 
-Valores por defecto:
+Estados visuales:
+- `Disponible`: gris
+- `Ocupada`: rojo suave
+- `Pagada`: verde
+
+Reglas actuales:
+- si la mesa se asigna a un cliente, se considera ocupada
+- si el cliente tiene pedidos, la mesa sigue ocupada
+- desde el detalle el mesero puede marcarla como pagada
+- luego puede liberarla para devolverla a disponible
+
+La vista de mesas busca mostrar:
+- cliente actual
+- conteo de pedidos
+- conteo de productos
+- producto resumen
+- estado operativo
+
+## Configuración del backend
+
+La URL base se arma en:
+- [api_config.dart](c:/Users/sebas/Downloads/bongusto_django/mesero/lib/api_config.dart)
+
+Valores típicos:
 - esquema: `http`
-- host local en web/desktop/android: `127.0.0.1`
-- host remoto de respaldo: `192.168.10.12`
+- host local: `127.0.0.1`
 - puerto: `8080`
 
-Overrides soportados con `--dart-define`:
+Overrides por `dart-define`:
 
 ```powershell
 flutter run --dart-define=API_HOST=192.168.1.50 --dart-define=API_PORT=8080
 ```
 
-Tambien puedes definir el esquema:
-
-```powershell
-flutter run --dart-define=API_SCHEME=https --dart-define=API_HOST=api.midominio.com
-```
-
-## Ejecucion local
+## Ejecución local
 
 Backend Django:
 
 ```powershell
 cd C:\Users\sebas\Downloads\bongusto_django\bongusto_django
 .\.venv\Scripts\Activate.ps1
-python manage.py runserver 127.0.0.1:8080
+python manage.py runserver 0.0.0.0:8080
 ```
 
 App Flutter:
@@ -136,59 +153,30 @@ flutter pub get
 flutter run
 ```
 
-En Android fisico, expone el puerto del backend con `adb reverse`:
+Android físico:
 
 ```powershell
 adb reverse tcp:8080 tcp:8080
 ```
 
-Si quieres fijar un dispositivo:
+También puedes usar el script del repo raíz:
+- [run_mesero.ps1](c:/Users/sebas/Downloads/bongusto_django/run_mesero.ps1)
 
-```powershell
-flutter devices
-flutter run -d DEVICE_ID
-```
+## Conexión con el sistema completo
 
-## Ejecucion junto a Clientes
+`mesero` trabaja junto con:
+- [bongusto_django/README.md](c:/Users/sebas/Downloads/bongusto_django/bongusto_django/README.md)
+- [clientes/README.md](c:/Users/sebas/Downloads/bongusto_django/clientes/README.md)
 
-Terminal 1. Django:
+Flujos compartidos:
+- `clientes` crea pedidos y `mesero` los ve
+- `clientes` llama al mesero y `mesero` atiende
+- `clientes` ocupa una mesa y `mesero` lo ve en la grilla
+- administración web y `mesero` se comunican por chat
 
-```powershell
-cd C:\Users\sebas\Downloads\bongusto_django\bongusto_django
-.\.venv\Scripts\Activate.ps1
-python manage.py runserver 127.0.0.1:8080
-```
+## Notas prácticas
 
-Terminal 2. `adb reverse`:
-
-```powershell
-adb -s DEVICE_ID reverse tcp:8080 tcp:8080
-```
-
-Terminal 3. Clientes:
-
-```powershell
-cd C:\Users\sebas\Downloads\bongusto_django\clientes
-flutter run -d DEVICE_ID
-```
-
-Terminal 4. Mesero:
-
-```powershell
-cd C:\Users\sebas\Downloads\bongusto_django\mesero
-flutter run -d SEGUNDO_DEVICE_ID
-```
-
-Si usas dos dispositivos, ejecuta tambien:
-
-```powershell
-adb -s SEGUNDO_DEVICE_ID reverse tcp:8080 tcp:8080
-```
-
-## Notas
-
-- El modulo correcto del repo es `mesero`, no `meseros`.
-- El chat usa `web_socket_channel` y agrega el token a la conexion.
-- `stomp_dart_client` figura en dependencias, pero la mensajeria activa del codigo revisado usa WebSocket directo.
-- La vista de mesas actual es local al cliente Flutter y no consume API propia para persistir estados.
-- Si Android no conecta al backend, casi siempre falta `adb reverse` o Django no esta corriendo en `127.0.0.1:8080`.
+- el módulo correcto se llama `mesero`, no `meseros`
+- el cierre de sesión está en `Perfil`
+- si cambias servicios, rutas o conexión, usa `full restart`
+- si Android no conecta, revisa `adb reverse` y el host efectivo del backend

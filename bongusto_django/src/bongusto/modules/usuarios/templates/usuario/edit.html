@@ -1,14 +1,15 @@
-<!-- Template `edit.html` del modulo `usuarios`. Aqui se usa para ver o actualizar la informacion de un usuario desde el panel. -->
+<!-- Template `edit.html` del modulo `usuarios`. 
+     Esta vista se usa tanto para ver como para editar la informacion de un usuario desde el panel. -->
 {% extends "base.html" %}
 
 {% block title %}{{ accion|default:"Ver" }} Usuario{% endblock %}
 
 {% block content %}
 
-<!-- ===== Titulo principal | Muestra la accion actual sobre el usuario. ===== -->
+<!-- ===== Titulo principal | Muestra si se esta viendo o editando el usuario. ===== -->
 <h4><strong>{{ accion|default:"Ver" }} Usuario</strong></h4>
 
-<!-- ===== Formulario principal | Permite visualizar o actualizar los datos del usuario. ===== -->
+<!-- ===== Formulario principal | Permite ver o actualizar los datos del usuario. ===== -->
 <form action="/usuarios/{{ usuario.id_usuario }}/update" method="post"
       {% if not readonly %}
       data-confirm-title="Confirmar actualizacion"
@@ -17,7 +18,7 @@
       {% endif %}>
   {% csrf_token %}
 
-  <!-- ===== Campo nombre ===== -->
+  <!-- ===== Campo nombre | Dato principal del usuario ===== -->
   <div class="mb-3">
     <label>Nombre</label>
     <input type="text"
@@ -28,7 +29,7 @@
            {% if readonly %}disabled{% else %}required{% endif %}>
   </div>
 
-  <!-- ===== Campo apellido ===== -->
+  <!-- ===== Campo apellido | Informacion complementaria ===== -->
   <div class="mb-3">
     <label>Apellido</label>
     <input type="text"
@@ -39,7 +40,7 @@
            {% if readonly %}disabled{% endif %}>
   </div>
 
-  <!-- ===== Campo correo ===== -->
+  <!-- ===== Campo correo | Identificador importante del usuario ===== -->
   <div class="mb-3">
     <label>Correo</label>
     <input type="email"
@@ -50,10 +51,12 @@
            {% if readonly %}disabled{% else %}required{% endif %}>
   </div>
 
-  <!-- ===== Campo contrasena | Solo se muestra cuando se permite editar ===== -->
+  <!-- ===== Campo contrasena | Solo aparece cuando se esta editando ===== -->
   {% if not readonly %}
   <div class="mb-3">
     <label>Contrasena <small>(dejar en blanco para mantener)</small></label>
+    
+    <!-- Este campo es opcional: solo cambia la contrasena si se escribe algo -->
     <input type="password"
            name="clave"
            maxlength="255"
@@ -62,7 +65,7 @@
   </div>
   {% endif %}
 
-  <!-- ===== Campo telefono ===== -->
+  <!-- ===== Campo telefono | Dato adicional del usuario ===== -->
   <div class="mb-3">
     <label>Telefono</label>
     <input type="text"
@@ -73,13 +76,15 @@
            {% if readonly %}disabled{% endif %}>
   </div>
 
-  <!-- ===== Campo rol visible | Solo muestra el rol o tipo actual ===== -->
+  <!-- ===== Campo rol visible | Solo informativo (no editable) ===== -->
   <div class="mb-3">
     <label>Rol de Usuario</label>
+    
+    <!-- Se muestra el rol o tipo, pero no se permite cambiar desde aqui -->
     <input type="text" class="form-control" value="{{ rol_o_tipo }}" disabled>
   </div>
 
-  <!-- ===== Campo estado ===== -->
+  <!-- ===== Campo estado | Permite activar o desactivar el usuario ===== -->
   <div class="mb-3">
     <label>Estado</label>
     <select name="estado" class="form-control" {% if readonly %}disabled{% endif %}>
@@ -88,7 +93,7 @@
     </select>
   </div>
 
-  <!-- ===== Boton volver ===== -->
+  <!-- ===== Boton volver | Regresa al listado sin hacer cambios ===== -->
   <a href="/usuarios" class="btn btn-secondary">Volver</a>
 </form>
 

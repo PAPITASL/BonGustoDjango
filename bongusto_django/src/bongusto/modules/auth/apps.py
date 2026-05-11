@@ -1,21 +1,21 @@
-"""Configuración Django del módulo auth.
-Aquí se define la configuración básica del módulo de autenticación.
+"""módulo auth.
+Configuración base del módulo de autenticación dentro del proyecto.
 """
 
-# Importamos AppConfig, que sirve para registrar y configurar una app en Django
+# Se importa AppConfig, que es la clase que Django usa para registrar una app
 from django.apps import AppConfig
 
-
-# Esta clase representa la configuración del módulo auth dentro del proyecto
+# Clase que representa la configuración del módulo auth
 class AuthConfig(AppConfig):
-    # Define el tipo de llave primaria automática que Django usará por defecto
+    
+    # Tipo de ID que Django usará automáticamente en los modelos (BigAutoField)
     default_auto_field = "django.db.models.BigAutoField"
-
-    # Nombre completo de la app dentro del proyecto
+    
+    # Ruta completa donde está ubicado el módulo dentro del proyecto
     name = "bongusto.modules.auth"
-
-    # Nombre interno corto para identificar esta app en Django
+    
+    # Nombre corto interno para identificar esta app dentro de Django
     label = "modules_auth"
-
-    # Nombre más amigable que puede mostrarse en paneles o configuraciones
+    
+    # Nombre más legible que se puede mostrar en el panel o configuraciones
     verbose_name = "Modulo Auth"

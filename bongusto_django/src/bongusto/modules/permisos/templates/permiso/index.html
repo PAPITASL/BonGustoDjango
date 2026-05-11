@@ -1,22 +1,22 @@
-<!-- Template `index.html` del modulo `permisos`. Listado principal de permisos registrados en el sistema. -->
+<!-- Vista principal donde se listan los permisos -->
 
 {% extends "base.html" %}
 
-<!-- Bloque de titulo de la pagina | Modulo `permisos` | Define el texto visible en la pestaña del navegador. -->
+<!-- Titulo que se muestra en la pestaña -->
 {% block title %}Gestion de Permisos{% endblock %}
 
-<!-- Bloque de contenido principal | Modulo `permisos` | Desde aqui inicia la interfaz de esta vista. -->
+<!-- Contenido principal de la pagina -->
 {% block content %}
 
-<!-- Titulo principal de la vista -->
+<!-- Titulo -->
 <h2 class="text-center mb-4"><strong>Gestion de Permisos</strong></h2>
 
 <div class="table-responsive">
 
-  <!-- Tabla principal | Modulo `permisos` | Muestra el listado de permisos disponibles -->
+  <!-- Tabla donde se muestran los permisos -->
   <table class="table table-hover">
 
-    <!-- Encabezado de la tabla -->
+    <!-- Encabezados de la tabla -->
     <thead>
       <tr>
         <th class="id-cell">ID</th>
@@ -25,14 +25,21 @@
       </tr>
     </thead>
 
-    <!-- Cuerpo de la tabla | Renderizado dinamico -->
+    <!-- Datos que vienen desde Django -->
     <tbody>
       {% for p in permisos %}
       <tr>
+        <!-- ID -->
         <td class="id-cell"><span class="id-value">{{ p.id_permiso }}</span></td>
+
+        <!-- Nombre del permiso -->
         <td><code>{{ p.nombre_permiso }}</code></td>
+
+        <!-- Descripcion -->
         <td>{{ p.descripcion|default:"—" }}</td>
       </tr>
+
+      <!-- Si no hay datos -->
       {% empty %}
       <tr>
         <td colspan="3" class="text-center">Sin permisos registrados</td>

@@ -1,9 +1,7 @@
-"""Modelos o aliases del modulo `perfil`. Este archivo representa las entidades relacionadas con el perfil del usuario autenticado."""
+"""Modelos o aliases del modulo `perfil`, aqui se maneja lo relacionado con el usuario."""
 
-# ===== Importaciones | Dependencias que este archivo necesita para funcionar dentro del modulo. =====
+# Se importa el modelo Usuario desde la capa de dominio
 from bongusto.domain.models import Usuario
 
-
-
-# ===== Exportaciones | Modulo `perfil` | Define los modelos expuestos hacia otras capas del sistema. =====
+# Aqui se define que modelo se usa en este modulo
 __all__ = ["Usuario"]

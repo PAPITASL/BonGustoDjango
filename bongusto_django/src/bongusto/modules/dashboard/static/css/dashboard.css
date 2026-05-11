@@ -1,62 +1,62 @@
 /* Hoja de estilos del dashboard principal.
-   Controla sidebar, tarjetas, header de usuario y responsive */
+   Aquí se maneja todo lo visual del panel: sidebar, tarjetas, header y responsive */
 
 /* ---------- Reset básico ---------- */
 *,
 *::before,
-/* Regla visual: `*::after` | Reinicia estilos base del navegador (margen, padding, etc.) */
+/* Reinicia estilos base del navegador (evita márgenes y paddings raros) */
 *::after {
-    box-sizing: border-box; /* Hace que el tamaño incluya padding y border */
+    box-sizing: border-box; /* Incluye padding y border dentro del tamaño */
     margin: 0;
     padding: 0;
 }
 
-/* Regla visual: `body` | Estilo general de toda la aplicación */
+/* Estilo general de toda la aplicación */
 body {
-    background: #fafbfc; /* Color de fondo suave */
+    background: #fafbfc; /* Fondo suave para no cansar la vista */
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    color: #222; /* Color de texto principal */
+    color: #222; /* Color base del texto */
 }
 
 /* ---------- Layout general ---------- */
-/* Regla visual: `.main-container` | Contenedor principal (sidebar + contenido) */
+/* Contenedor principal (sidebar + contenido) */
 .main-container {
-    display: flex; /* Divide en columnas */
+    display: flex; /* Divide en dos columnas */
     min-height: 100vh; /* Ocupa toda la pantalla */
 }
 
 /* ---------- Sidebar ---------- */
-/* Regla visual: `.sidebar` | Menú lateral izquierdo */
+/* Menú lateral izquierdo */
 .sidebar {
-    background: #d90416; /* Color principal (rojo Bongusto) */
+    background: #d90416; /* Rojo principal de Bongusto */
     color: #fff;
     width: 240px;
     padding: 32px 20px 20px 20px;
     border-radius: 28px;
     margin: 16px;
     display: flex;
-    flex-direction: column; /* Organiza en columna */
+    flex-direction: column; /* Organiza en vertical */
     justify-content: space-between; /* Separa contenido arriba y abajo */
 }
 
-/* Regla visual: `.sidebar h3` | Título del sidebar */
+/* Título del sidebar */
 .sidebar h3 {
     font-weight: bold;
     margin-bottom: 32px;
 }
 
-/* Regla visual: `.sidebar ul` | Lista del menú */
+/* Lista del menú */
 .sidebar ul {
     list-style: none;
     padding: 0;
 }
 
-/* Regla visual: `.sidebar ul li` | Cada opción del menú */
+/* Cada opción del menú */
 .sidebar ul li {
     margin-bottom: 18px;
 }
 
-/* Regla visual: `.sidebar ul li a` | Enlaces del menú */
+/* Links del menú */
 .sidebar ul li a {
     color: #fff;
     text-decoration: none;
@@ -65,12 +65,12 @@ body {
     align-items: center;
 }
 
-/* Regla visual: `.sidebar ul li a i` | Iconos del menú */
+/* Iconos del menú */
 .sidebar ul li a i {
     margin-right: 10px;
 }
 
-/* Regla visual: `.logout` | Botón de cerrar sesión */
+/* Botón de cerrar sesión */
 .logout {
     color: #fff;
     background: none;
@@ -83,20 +83,20 @@ body {
     padding: 8px 0;
 }
 
-/* Regla visual: `.logout i` | Icono del logout */
+/* Icono del logout */
 .logout i {
     margin-right: 8px;
 }
 
 /* ---------- Contenido ---------- */
-/* Regla visual: `.content` | Zona principal donde se muestra todo */
+/* Zona principal donde se renderiza todo */
 .content {
     flex: 1; /* Ocupa el espacio restante */
     padding: 40px 60px 40px 60px;
 }
 
 /* ---------- Header usuario ---------- */
-/* Regla visual: `.user-header` | Barra superior (usuario + notificaciones) */
+/* Barra superior donde está el usuario y notificaciones */
 .user-header {
     display: flex;
     align-items: center;
@@ -105,7 +105,7 @@ body {
     margin-bottom: 30px;
 }
 
-/* Regla visual: `.user-header a` | Enlaces del header */
+/* Links del header */
 .user-header a {
     text-decoration: none;
     color: inherit;
@@ -115,31 +115,31 @@ body {
     cursor: pointer;
 }
 
-/* Regla visual: `.user-header a:hover` | Efecto hover */
+/* Efecto hover en header */
 .user-header a:hover {
     background: rgba(217, 4, 22, 0.05);
     transform: translateY(-2px);
 }
 
-/* Regla visual: `.user-header a:hover strong` | Cambio de color al pasar el mouse */
+/* Cambio de color en texto al hacer hover */
 .user-header a:hover strong {
     color: #d90416;
 }
 
-/* Regla visual: `.avatar` | Imagen de usuario */
+/* Imagen del usuario */
 .avatar {
     border-radius: 50%;
     border: 2px solid #eee;
 }
 
 /* ---------- Notificaciones ---------- */
-/* Regla visual: `.bell` | Icono de campana */
+/* Icono de campana */
 .bell {
     font-size: 1.7em;
     color: #888;
 }
 
-/* Regla visual: `.bell-container` | Contenedor de la campana */
+/* Contenedor de la campana */
 .bell-container {
     position: relative;
     cursor: pointer;
@@ -148,17 +148,17 @@ body {
     transition: all 0.3s ease;
 }
 
-/* Regla visual: `.bell-container:hover` | Efecto hover */
+/* Hover sobre la campana */
 .bell-container:hover {
     background: rgba(217, 4, 22, 0.1);
 }
 
-/* Regla visual: `.bell-container:hover .bell` | Cambio de color */
+/* Cambio de color del icono */
 .bell-container:hover .bell {
     color: #d90416 !important;
 }
 
-/* Regla visual: `.notification-badge` | Número de notificaciones */
+/* Badge con número de notificaciones */
 .notification-badge {
     position: absolute;
     top: 2px;
@@ -176,7 +176,7 @@ body {
 }
 
 /* ---------- Tarjetas ---------- */
-/* Regla visual: `.dashboard-cards` | Contenedor de tarjetas */
+/* Contenedor de tarjetas del dashboard */
 .dashboard-cards {
     display: flex;
     flex-wrap: wrap;
@@ -184,7 +184,7 @@ body {
     margin-bottom: 32px;
 }
 
-/* Regla visual: `.card` | Tarjeta individual */
+/* Tarjeta individual */
 .card {
     flex: 1;
     min-width: 180px;
@@ -196,7 +196,7 @@ body {
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-/* Regla visual: `.card-number` | Número grande dentro de la tarjeta */
+/* Número destacado dentro de la tarjeta */
 .card-number {
     font-size: 2em;
     font-weight: bold;
@@ -210,13 +210,13 @@ body {
 .card-blue { background: #eaf3f7; }
 
 /* ---------- Gráfica ---------- */
-/* Regla visual: `.chart-section h5` | Título de gráfica */
+/* Título de la gráfica */
 .chart-section h5 {
     font-size: 1rem;
     margin-bottom: 8px;
 }
 
-/* Regla visual: `.chart-container` | Contenedor de gráfica */
+/* Contenedor de la gráfica */
 .chart-container {
     background: #f3fff3;
     border-radius: 28px;
@@ -224,7 +224,7 @@ body {
     margin-top: 16px;
 }
 
-/* Regla visual: `.chart-container img` | Imagen de la gráfica */
+/* Imagen de la gráfica */
 .chart-container img {
     width: 100%;
     border-radius: 28px;
@@ -234,12 +234,12 @@ body {
 /* ---------- Responsive ---------- */
 @media (max-width: 992px) {
 
-    /* Ajusta padding en pantallas medianas */
+    /* Reduce el padding en pantallas medianas */
     .content {
         padding: 24px 20px;
     }
 
-    /* Tarjetas en columna */
+    /* Tarjetas pasan a columna */
     .dashboard-cards {
         flex-direction: column;
     }
@@ -247,12 +247,12 @@ body {
 
 @media (max-width: 768px) {
 
-    /* Layout vertical en móvil */
+    /* Todo se vuelve vertical en móvil */
     .main-container {
         flex-direction: column;
     }
 
-    /* Sidebar adaptable */
+    /* Sidebar se adapta tipo scroll horizontal */
     .sidebar {
         width: auto;
         margin: 12px;

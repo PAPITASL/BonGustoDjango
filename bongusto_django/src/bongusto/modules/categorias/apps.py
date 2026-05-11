@@ -1,24 +1,24 @@
 """
 Configuración del módulo categorías.
 
-Aquí se registra la app que maneja la clasificación de productos y menús.
+Aquí se define cómo Django reconoce esta app dentro del proyecto.
+Este módulo organiza y clasifica productos y menús.
 """
-
-# Importamos AppConfig (sirve para registrar el módulo en Django)
+# Se importa AppConfig, que es la base para registrar una app en Django
 from django.apps import AppConfig
-
-
-# Configuración del módulo categorías
+# Clase de configuración del módulo categorías
 class CategoriasConfig(AppConfig):
 
-    # Tipo de ID automático (llave primaria)
+    # Tipo de ID automático que usarán los modelos (BigAutoField)
     default_auto_field = "django.db.models.BigAutoField"
 
-    # Ruta del módulo dentro del proyecto
+    # Ruta completa del módulo dentro del proyecto
+    # Django usa esto para ubicar correctamente la app
     name = "bongusto.modules.categorias"
 
-    # Nombre interno (para evitar conflictos)
+    # Nombre interno corto de la app
+    # Sirve para identificarla sin chocar con otras apps
     label = "modules_categorias"
 
-    # Nombre visible (más entendible)
+    # Nombre más claro que puede mostrarse en el admin u otras partes
     verbose_name = "Modulo Categorias"

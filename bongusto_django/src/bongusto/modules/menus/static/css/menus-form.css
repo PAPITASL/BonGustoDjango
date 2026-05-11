@@ -1,6 +1,7 @@
-/* ---------- Formularios de menu | Estilo general de creacion y edicion ---------- */
+/* ---------- Formularios de menu | Aqui se define todo el estilo visual para crear y editar menus ---------- */
 
 /* Reset basico */
+/* Esto limpia los estilos por defecto del navegador para trabajar desde cero */
 *,
 *::before,
 *::after {
@@ -10,6 +11,7 @@
 }
 
 /* Base del body */
+/* Aqui se define la tipografia general y el fondo de la vista */
 body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background: #fafbfc;
@@ -18,6 +20,7 @@ body {
 
 
 /* ---------- Contenedor principal ---------- */
+/* Tarjeta principal donde vive todo el formulario */
 .menu-form-wrapper {
     max-width: 600px;
     margin: 40px auto;
@@ -30,6 +33,7 @@ body {
 
 
 /* ---------- Titulos ---------- */
+/* Titulo principal del formulario */
 .menu-form-title {
     font-size: 1.5rem;
     font-weight: 700;
@@ -37,6 +41,7 @@ body {
     color: #111827;
 }
 
+/* Texto pequeño debajo del titulo */
 .menu-form-subtitle {
     font-size: 0.95rem;
     color: #6b7280;
@@ -45,10 +50,12 @@ body {
 
 
 /* ---------- Campos del formulario ---------- */
+/* Contenedor de cada campo (label + input) */
 .menu-form-group {
     margin-bottom: 16px;
 }
 
+/* Etiquetas de los campos */
 .menu-form-group label {
     display: block;
     font-size: 0.9rem;
@@ -57,6 +64,7 @@ body {
     color: #374151;
 }
 
+/* Inputs del formulario */
 .menu-form-group input[type="text"],
 .menu-form-group input[type="number"] {
     width: 100%;
@@ -69,6 +77,7 @@ body {
 }
 
 /* Focus de inputs */
+/* Este efecto aparece cuando el usuario hace clic en el campo */
 .menu-form-group input[type="text"]:focus,
 .menu-form-group input[type="number"]:focus {
     outline: none;
@@ -79,6 +88,7 @@ body {
 
 
 /* ---------- Mensajes de error ---------- */
+/* Texto que aparece cuando hay validaciones incorrectas */
 .menu-form-error {
     font-size: 0.8rem;
     color: #b91c1c;
@@ -87,12 +97,14 @@ body {
 
 
 /* ---------- Botones ---------- */
+/* Contenedor de botones */
 .menu-form-actions {
     display: flex;
     gap: 10px;
     margin-top: 18px;
 }
 
+/* Estilo base de botones */
 .btn-menu-primary,
 .btn-menu-secondary {
     border-radius: 999px;
@@ -109,6 +121,7 @@ body {
 }
 
 /* Boton principal */
+/* Es el boton mas importante (guardar, crear, etc) */
 .btn-menu-primary {
     background: #d90416;
     color: #ffffff;
@@ -122,6 +135,7 @@ body {
 }
 
 /* Boton secundario */
+/* Se usa para cancelar o volver */
 .btn-menu-secondary {
     background: #e5e7eb;
     color: #374151;
@@ -133,6 +147,7 @@ body {
 
 
 /* ---------- Chip de contexto ---------- */
+/* Pequeña etiqueta visual que da contexto (ej: editar, crear, etc) */
 .menu-form-chip {
     display: inline-flex;
     align-items: center;
@@ -147,18 +162,22 @@ body {
 
 
 /* ---------- Responsive ---------- */
+/* Ajustes cuando la pantalla es pequeña (celulares) */
 @media (max-width: 640px) {
 
+    /* Ajusta la tarjeta para que no quede tan grande */
     .menu-form-wrapper {
         margin: 16px;
         padding: 20px 18px 18px;
         border-radius: 16px;
     }
 
+    /* Botones en columna */
     .menu-form-actions {
         flex-direction: column;
     }
 
+    /* Botones ocupan todo el ancho */
     .btn-menu-primary,
     .btn-menu-secondary {
         width: 100%;

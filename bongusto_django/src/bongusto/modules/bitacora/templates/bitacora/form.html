@@ -1,11 +1,15 @@
 {% extends "base.html" %}
-
 {% block title %}{{ accion }} Registro{% endblock %}
-
 {% block content %}
+<!-- Título principal -->
+<!-- Se reutiliza la variable accion (Crear / Editar / Ver) -->
 <h4 class="titulo-seccion text-center mb-4">{{ accion }} Registro</h4>
-
+<!-- Card contenedora del formulario -->
 <div class="card p-3" style="max-width:760px;margin:0 auto;">
+
+  <!-- Formulario principal -->
+  <!-- Si existe id_log es edición, si no es creación -->
+       <!-- Solo si NO es readonly se activan confirmaciones -->
   <form
     method="post"
     action="{% if bitacora.id_log %}/bitacora/{{ bitacora.id_log }}/update{% else %}/bitacora/store{% endif %}"
@@ -15,30 +19,43 @@
     data-confirm-button="{% if bitacora.id_log %}Si, actualizar{% else %}Si, crear{% endif %}"
     {% endif %}
   >
+    <!-- Seguridad Django -->
     {% csrf_token %}
-
+    <!-- Campo usuario -->
     <div class="mb-3">
       <label class="form-label">Usuario</label>
+      <!-- Select de usuarios -->
       <select name="usuario_id" class="form-control" {% if readonly %}disabled{% endif %}>
         <option value="">Seleccionar</option>
+        <!-- Se recorren los usuarios -->
         {% for u in usuarios %}
+        <!-- Si coincide con el registro actual, se marca seleccionado -->
         <option value="{{ u.id_usuario }}" {% if bitacora.id_usuario_id == u.id_usuario %}selected{% endif %}>
           {{ u.nombre }} {{ u.apellido }}
         </option>
         {% endfor %}
       </select>
     </div>
-
+    <!-- Campo acción -->
     <div class="mb-4">
       <label class="form-label">Accion</label>
-      <textarea name="accion" class="form-control" rows="3" {% if readonly %}disabled{% endif %}>{{ bitacora.accion|default:'' }}</textarea>
+      <!-- Texto de la acción registrada -->
+      <textarea 
+        name="accion" 
+        class="form-control" 
+        rows="3" 
+        {% if readonly %}disabled{% endif %}
+      >
+        {{ bitacora.accion|default:'' }}
+      </textarea>
     </div>
-
+    <!-- Botones -->
     <div class="d-flex gap-2">
+      <!-- Solo aparece si no es modo lectura -->
       {% if not readonly %}
       <button type="submit" class="btn btn-primary">Guardar</button>
       {% endif %}
-
+      <!-- Botón de volver o cancelar -->
       <a href="/bitacora" class="btn btn-secondary">
         {% if readonly %}Volver{% else %}Cancelar{% endif %}
       </a>

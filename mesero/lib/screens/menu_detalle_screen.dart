@@ -12,7 +12,8 @@ class MenuDetalleScreen extends StatelessWidget {
   final Map<String, dynamic> menu;
   final List<Map<String, dynamic>> productos;
 
-  static const _bg = Color(0xFFF2F1F4);
+  static const _bgLight = Color(0xFFF2F1F4);
+  static const _bgDark = Color(0xFF101218);
   static const _card = Color(0xFFFFFFFF);
   static const _ink = Color(0xFF181818);
   static const _muted = Color(0xFF73727A);
@@ -21,16 +22,18 @@ class MenuDetalleScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? _bgDark : _bgLight;
     final menuData = MenuDetailData.fromDynamic(menu);
     final productosData = productos
         .map((item) => MenuProductDetailData.fromDynamic(item))
         .toList();
 
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: bg,
       appBar: AppBar(
-        backgroundColor: _bg,
-        foregroundColor: _ink,
+        backgroundColor: bg,
+        foregroundColor: isDark ? Colors.white : _ink,
         title: Text(
           menuData.nombre,
           style: const TextStyle(fontWeight: FontWeight.w900),

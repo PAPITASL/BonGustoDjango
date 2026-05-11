@@ -7,7 +7,8 @@ class PedidoDetalleScreen extends StatelessWidget {
 
   final Map<String, dynamic> pedido;
 
-  static const _bg = Color(0xFFF2F1F4);
+  static const _bgLight = Color(0xFFF2F1F4);
+  static const _bgDark = Color(0xFF101218);
   static const _card = Color(0xFFFFFFFF);
   static const _ink = Color(0xFF181818);
   static const _muted = Color(0xFF73727A);
@@ -16,13 +17,15 @@ class PedidoDetalleScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? _bgDark : _bgLight;
     final pedidoData = PedidoDetailData.fromDynamic(pedido);
 
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: bg,
       appBar: AppBar(
-        backgroundColor: _bg,
-        foregroundColor: _ink,
+        backgroundColor: bg,
+        foregroundColor: isDark ? Colors.white : _ink,
         title: Text(
           'Pedido #${pedidoData.id}',
           style: const TextStyle(fontWeight: FontWeight.w900),

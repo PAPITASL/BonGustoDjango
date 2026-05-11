@@ -1,4 +1,4 @@
-<!-- Template base del modulo shared | Aqui se define la estructura general que comparten las demas vistas del sistema -->
+<!-- Plantilla base que usan las demas vistas del sistema -->
 
 <!DOCTYPE html>
 <html lang="es">
@@ -12,14 +12,14 @@
   <!-- Titulo dinamico de la pagina -->
   <title>{% block title %}BonGusto{% endblock %} - BonGusto</title>
 
-  <!-- Fuentes y estilos globales -->
+  <!-- Fuentes y estilos generales -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/css/common-table.css?v=20260331b">
+  <link rel="stylesheet" href="/static/css/common-table.css?v=20260411-dark">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-  <!-- Libreria para confirmaciones y alertas -->
+  <!-- Libreria para alertas y confirmaciones -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   {% block extra_css %}{% endblock %}
@@ -27,12 +27,12 @@
 
 <body class="app-shell">
 
-<!-- Fondo oscuro para cerrar sidebar en responsive -->
+<!-- Fondo oscuro cuando se abre el sidebar en responsive -->
 <div class="sidebar-backdrop" onclick="closeSidebar()"></div>
 
 <div class="main-container">
 
-  <!-- ===== Sidebar principal | Navegacion general del sistema ===== -->
+  <!-- Sidebar principal -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-top">
       <img src="/static/img/logobongusto.png?v=20260322a" alt="BonGusto" class="brand-logo-image" width="54" height="54">
@@ -52,12 +52,14 @@
         <li><a href="/productos" class="{% if '/productos' in request.path %}active{% endif %}"><i class="fa fa-burger"></i><span>Productos</span></a></li>
         <li><a href="/musicas" class="{% if '/musicas' in request.path %}active{% endif %}"><i class="fa fa-music"></i><span>Música</span></a></li>
         <li><a href="/eventos" class="{% if '/eventos' in request.path %}active{% endif %}"><i class="fa fa-calendar"></i><span>Eventos</span></a></li>
+        <li><a href="/notificaciones" class="{% if '/notificaciones' in request.path %}active{% endif %}"><i class="fa fa-bell"></i><span>Notificaciones</span></a></li>
+        <li><a href="/mesas" class="{% if '/mesas' in request.path %}active{% endif %}"><i class="fa fa-table-cells-large"></i><span>Mesas</span></a></li>
         <li><a href="/calificaciones" class="{% if '/calificaciones' in request.path %}active{% endif %}"><i class="fa fa-star"></i><span>Calificaciones</span></a></li>
         <li><a href="/bitacora" class="{% if '/bitacora' in request.path %}active{% endif %}"><i class="fa fa-file-alt"></i><span>Bitácora</span></a></li>
       </ul>
     </nav>
 
-    <!-- Formulario de cierre de sesion -->
+    <!-- Formulario para cerrar sesion -->
     <form action="/logout" method="post" class="logout-form" data-skip-confirm="true">
       {% csrf_token %}
       <button type="submit" class="logout">
@@ -67,13 +69,13 @@
   </aside>
 
 
-  <!-- ===== Contenido principal ===== -->
+  <!-- Contenido principal -->
   <section class="content">
 
     <!-- Barra superior -->
     <div class="topbar-card">
 
-      <!-- Boton para abrir sidebar en responsive -->
+      <!-- Boton para abrir el sidebar en responsive -->
       <button type="button" class="sidebar-toggle" aria-label="Abrir menu" aria-controls="sidebar" aria-expanded="false" onclick="toggleSidebar()">
         <i class="fa fa-bars"></i>
       </button>
@@ -97,10 +99,20 @@
           <i class="fa fa-comments bell"></i>
           <span class="notification-badge">3</span>
         </div>
+
+        <button type="button" class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Cambiar modo claro u oscuro">
+          <i class="fa fa-moon"></i>
+          <span>Oscuro</span>
+        </button>
+
+        <button type="button" class="theme-toggle language-toggle" id="languageToggle" onclick="toggleLanguage()" aria-label="Change language">
+          <i class="fa fa-language"></i>
+          <span>EN</span>
+        </button>
       </div>
     </div>
 
-    <!-- Superficie principal donde se renderiza cada modulo -->
+    <!-- Espacio donde carga cada modulo -->
     <div class="page-surface">
       {% block content %}{% endblock %}
     </div>
@@ -109,7 +121,7 @@
 </div>
 
 
-<!-- ===== Panel lateral de chat ===== -->
+<!-- Panel lateral del chat -->
 <div id="chatPanel">
   <div class="chat-header">
     <h3><i class="fa fa-comments"></i> Chat Administrador</h3>
@@ -130,7 +142,7 @@
 
 
 <style>
-  /* ===== Estilos de confirmacion global con SweetAlert ===== */
+  /* Estilos de las alertas de confirmacion */
   .swal2-popup.bongusto-confirm {
     width: min(520px, calc(100vw - 32px));
     border-radius: 28px;
@@ -188,7 +200,34 @@
     backdrop-filter: blur(6px);
   }
 
-  /* ===== Estilos del panel lateral de chat ===== */
+  .theme-toggle {
+    height: 46px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--surface-strong);
+    color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: transform .18s ease, background .18s ease, color .18s ease;
+  }
+
+  .theme-toggle:hover {
+    transform: translateY(-1px);
+  }
+
+  body[data-theme="dark"] .theme-toggle {
+    background: #252837;
+    color: #f7f8ff;
+    border-color: #343849;
+  }
+
+  /* Estilos del chat lateral */
   #chatPanel {
     position: fixed;
     right: -400px;
@@ -330,7 +369,7 @@
   }
 
   @media (max-width: 640px) {
-    /* Ajustes del chat para pantallas pequenas */
+    /* Ajustes del chat en celular */
     #chatPanel {
       right: -100vw;
       width: 100vw;
@@ -353,7 +392,7 @@
 
 
 <script>
-  // Busca formularios POST y les agrega confirmacion visual antes de enviar.
+  // Busca formularios POST y les pone confirmacion antes de enviar.
   function bindCrudConfirmations() {
     const forms = document.querySelectorAll('form[method="post"]:not([data-skip-confirm="true"])');
 
@@ -402,12 +441,12 @@
     });
   }
 
-  // Controla la apertura y cierre del panel de chat lateral.
+  // Abre o cierra el panel lateral del chat.
   function toggleChat() {
     document.getElementById('chatPanel').classList.toggle('active');
   }
 
-  // Abre o cierra el menu lateral cuando la pantalla es pequena.
+  // Abre o cierra el sidebar en pantallas pequeñas.
   function toggleSidebar() {
     const body = document.body;
     const nextState = !body.classList.contains('sidebar-open');
@@ -419,7 +458,7 @@
     }
   }
 
-  // Cierra el menu lateral y actualiza el estado del boton.
+  // Cierra el sidebar.
   function closeSidebar() {
     document.body.classList.remove('sidebar-open');
 
@@ -429,20 +468,322 @@
     }
   }
 
-  // Si la pantalla vuelve a escritorio, el sidebar responsive se limpia.
+  function applyTheme(theme) {
+    const dark = theme === 'dark';
+    document.body.dataset.theme = dark ? 'dark' : 'light';
+    const toggle = document.getElementById('themeToggle');
+    if (toggle) {
+      toggle.innerHTML = dark
+        ? '<i class="fa fa-sun"></i><span>Claro</span>'
+        : '<i class="fa fa-moon"></i><span>Oscuro</span>';
+      toggle.setAttribute('aria-label', dark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+    }
+  }
+
+  function toggleTheme() {
+    const nextTheme = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('bongusto-theme', nextTheme);
+    applyTheme(nextTheme);
+    if (typeof applyLanguage === 'function') {
+      applyLanguage(document.body.dataset.language || localStorage.getItem('bongusto-language') || 'es');
+    }
+  }
+
+  applyTheme(localStorage.getItem('bongusto-theme') || 'light');
+
+  const i18n = {
+    es: {
+      nav: {
+        '/dashboard': 'Dashboard',
+        '/usuarios': 'Usuarios',
+        '/menus': 'Menús',
+        '/productos': 'Productos',
+        '/musicas': 'Música',
+        '/eventos': 'Eventos',
+        '/notificaciones': 'Notificaciones',
+        '/calificaciones': 'Calificaciones',
+        '/bitacora': 'Bitácora',
+      },
+      brandSubtitle: 'Sabor, control y servicio',
+      topbarKicker: 'Experiencia gastronómica',
+      logout: 'Cerrar Sesión',
+      themeDark: 'Oscuro',
+      themeLight: 'Claro',
+      languageButton: 'EN',
+      chatTitle: 'Chat Administrador',
+      chatPlaceholder: 'Escribe un mensaje...',
+      phrases: {},
+    },
+    en: {
+      nav: {
+        '/dashboard': 'Dashboard',
+        '/usuarios': 'Users',
+        '/menus': 'Menus',
+        '/productos': 'Products',
+        '/musicas': 'Music',
+        '/eventos': 'Events',
+        '/notificaciones': 'Notifications',
+        '/calificaciones': 'Ratings',
+        '/bitacora': 'Audit log',
+      },
+      brandSubtitle: 'Flavor, control and service',
+      topbarKicker: 'Restaurant experience',
+      logout: 'Sign out',
+      themeDark: 'Dark',
+      themeLight: 'Light',
+      languageButton: 'ES',
+      chatTitle: 'Admin Chat',
+      chatPlaceholder: 'Write a message...',
+      phrases: {
+        'Gestión BonGusto': 'BonGusto Management',
+        'Gestion BonGusto': 'BonGusto Management',
+        'Crear': 'Create',
+        'Nuevo': 'New',
+        'Nueva': 'New',
+        'Editar': 'Edit',
+        'Eliminar': 'Delete',
+        'Guardar': 'Save',
+        'Actualizar': 'Update',
+        'Cancelar': 'Cancel',
+        'Buscar': 'Search',
+        'Filtrar': 'Filter',
+        'Limpiar': 'Clear',
+        'Reintentar': 'Retry',
+        'Volver': 'Back',
+        'Ver': 'View',
+        'Detalle': 'Detail',
+        'Detalles': 'Details',
+        'Acciones': 'Actions',
+        'Nombre': 'Name',
+        'Descripción': 'Description',
+        'Descripcion': 'Description',
+        'Estado': 'Status',
+        'Activo': 'Active',
+        'Inactivo': 'Inactive',
+        'Fecha': 'Date',
+        'Hora': 'Time',
+        'Precio': 'Price',
+        'Cantidad': 'Quantity',
+        'Total': 'Total',
+        'Rol': 'Role',
+        'Correo': 'Email',
+        'Correo electrónico': 'Email',
+        'Correo electronico': 'Email',
+        'Contraseña': 'Password',
+        'Contrasena': 'Password',
+        'Teléfono': 'Phone',
+        'Telefono': 'Phone',
+        'Dirección': 'Address',
+        'Direccion': 'Address',
+        'Usuario': 'User',
+        'Usuarios': 'Users',
+        'Menús': 'Menus',
+        'Menus': 'Menus',
+        'Productos': 'Products',
+        'Música': 'Music',
+        'Musica': 'Music',
+        'Eventos': 'Events',
+        'Notificaciones': 'Notifications',
+        'Calificaciones': 'Ratings',
+        'Bitácora': 'Audit log',
+        'Bitacora': 'Audit log',
+        'Categoría': 'Category',
+        'Categoria': 'Category',
+        'Categorías': 'Categories',
+        'Categorias': 'Categories',
+        'Pedidos': 'Orders',
+        'Pedido': 'Order',
+        'Mesas': 'Tables',
+        'Mesa': 'Table',
+        'Cliente': 'Customer',
+        'Clientes': 'Customers',
+        'Mesero': 'Waiter',
+        'Meseros': 'Waiters',
+        'Administrador': 'Administrator',
+        'Iniciar sesión': 'Sign in',
+        'Iniciar sesion': 'Sign in',
+        'Cerrar Sesión': 'Sign out',
+        'Cerrar Sesion': 'Sign out',
+        'Confirmar accion': 'Confirm action',
+        'Seguro que deseas continuar con este cambio?': 'Are you sure you want to continue with this change?',
+        'Si, continuar': 'Yes, continue',
+        'No hay datos para mostrar': 'No data to display',
+        'Sin datos': 'No data',
+        'Disponible': 'Available',
+        'Ocupada': 'Occupied',
+        'Ocupado': 'Occupied',
+        'Pagada': 'Paid',
+        'Pendiente': 'Pending',
+        'Completado': 'Completed',
+        'Completada': 'Completed',
+        'Cancelado': 'Canceled',
+        'Cancelada': 'Canceled',
+        'Enviado': 'Sent',
+        'Enviada': 'Sent',
+        'Leído': 'Read',
+        'Leido': 'Read',
+        'No leído': 'Unread',
+        'No leido': 'Unread',
+        'Título': 'Title',
+        'Titulo': 'Title',
+        'Mensaje': 'Message',
+        'Plantilla': 'Template',
+        'Plantillas': 'Templates',
+        'Enviar': 'Send',
+        'Enviar notificación': 'Send notification',
+        'Enviar notificacion': 'Send notification',
+        'Feliz cumpleaños': 'Happy birthday',
+        'Descuento': 'Discount',
+        'Promoción': 'Promotion',
+        'Promocion': 'Promotion',
+        'Evento especial': 'Special event',
+        'Invitación': 'Invitation',
+        'Invitacion': 'Invitation',
+        'Reporte': 'Report',
+        'Reportes': 'Reports',
+        'Exportar PDF': 'Export PDF',
+      },
+    },
+  };
+
+  function setText(selector, value) {
+    const element = document.querySelector(selector);
+    if (element) element.textContent = value;
+  }
+
+  function applyLanguage(language) {
+    const lang = language === 'en' ? 'en' : 'es';
+    const copy = i18n[lang];
+    document.documentElement.lang = lang;
+    document.body.dataset.language = lang;
+
+    Object.entries(copy.nav).forEach(([href, label]) => {
+      const item = document.querySelector(`.sidebar-nav a[href="${href}"] span`);
+      if (item) item.textContent = label;
+    });
+
+    setText('.brand-copy p', copy.brandSubtitle);
+    setText('.topbar-kicker', copy.topbarKicker);
+    const logout = document.querySelector('.logout');
+    if (logout) logout.innerHTML = `<i class="fa fa-sign-out-alt"></i> ${copy.logout}`;
+
+    const chatTitle = document.querySelector('.chat-header h3');
+    if (chatTitle) chatTitle.innerHTML = `<i class="fa fa-comments"></i> ${copy.chatTitle}`;
+
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) chatInput.placeholder = copy.chatPlaceholder;
+
+    const languageToggle = document.getElementById('languageToggle');
+    if (languageToggle) {
+      languageToggle.querySelector('span').textContent = copy.languageButton;
+      languageToggle.setAttribute('aria-label', lang === 'en' ? 'Cambiar a español' : 'Change to English');
+    }
+
+    const isDark = document.body.dataset.theme === 'dark';
+    const themeText = document.querySelector('#themeToggle span');
+    if (themeText) themeText.textContent = isDark ? copy.themeLight : copy.themeDark;
+
+    translatePageText(lang);
+    translatePlaceholders(lang);
+  }
+
+  function normalizeText(value) {
+    return value.replace(/\s+/g, ' ').trim();
+  }
+
+  function translateExact(value, lang) {
+    const original = normalizeText(value);
+    if (!original) return value;
+    if (lang === 'es') return original;
+    return i18n.en.phrases[original] || original;
+  }
+
+  function translatePageText(lang) {
+    const root = document.querySelector('.page-surface');
+    if (!root) return;
+
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        const parent = node.parentElement;
+        if (!parent) return NodeFilter.FILTER_REJECT;
+        if (['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT', 'OPTION'].includes(parent.tagName)) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        if (!normalizeText(node.nodeValue)) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      },
+    });
+
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach((node) => {
+      if (!node.parentElement.dataset.originalText) {
+        node.parentElement.dataset.originalText = normalizeText(node.nodeValue);
+      }
+      const original = node.parentElement.dataset.originalText;
+      node.nodeValue = node.nodeValue.replace(normalizeText(node.nodeValue), translateExact(original, lang));
+    });
+  }
+
+  function translatePlaceholders(lang) {
+    document.querySelectorAll('.page-surface input[placeholder], .page-surface textarea[placeholder]').forEach((field) => {
+      if (!field.dataset.originalPlaceholder) {
+        field.dataset.originalPlaceholder = field.placeholder;
+      }
+      field.placeholder = translateExact(field.dataset.originalPlaceholder, lang);
+    });
+
+    document.querySelectorAll('.page-surface input[value][type="submit"], .page-surface button').forEach((field) => {
+      if (field.tagName === 'INPUT') {
+        if (!field.dataset.originalValue) field.dataset.originalValue = field.value;
+        field.value = translateExact(field.dataset.originalValue, lang);
+      }
+    });
+
+    document.querySelectorAll('.page-surface option').forEach((option) => {
+      if (!option.dataset.originalText) {
+        option.dataset.originalText = normalizeText(option.textContent);
+      }
+      option.textContent = translateExact(option.dataset.originalText, lang);
+    });
+  }
+
+  async function persistLanguage(language) {
+    try {
+      await fetch('/api/language', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({language}),
+      });
+    } catch (error) {
+      console.log('No fue posible sincronizar el idioma');
+    }
+  }
+
+  function toggleLanguage() {
+    const nextLanguage = document.body.dataset.language === 'en' ? 'es' : 'en';
+    localStorage.setItem('bongusto-language', nextLanguage);
+    applyLanguage(nextLanguage);
+    persistLanguage(nextLanguage);
+  }
+
+  applyLanguage(localStorage.getItem('bongusto-language') || '{{ request.session.language|default:"es" }}');
+
+  // Si vuelve a tamaño escritorio, limpia el sidebar responsive.
   window.addEventListener('resize', function() {
     if (window.innerWidth > 1320) {
       closeSidebar();
     }
   });
 
-  // Variables base para abrir el WebSocket del chat administrativo.
+  // Variables base para el chat por WebSocket.
   const usuarioNombre = "administrador";
   const wsProto = location.protocol === "https:" ? "wss" : "ws";
   let socket;
 
   try {
-    // Conexion en tiempo real para recibir mensajes en la interfaz web.
+    // Conexion en tiempo real para recibir mensajes.
     socket = new WebSocket(`${wsProto}://${location.host}/ws/chat/${usuarioNombre}/`);
 
     socket.onmessage = function(e) {
@@ -477,12 +818,12 @@
     input.value = '';
   }
 
-  // Permite enviar el mensaje al presionar la tecla Enter.
+  // Permite enviar con la tecla Enter.
   document.getElementById('chatInput').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') sendChatMsg();
   });
 
-  // Evita que el navegador vuelva a una sesion anterior usando atras.
+  // Evita volver atras a una sesion anterior.
   (function() {
     if (window.history && window.history.pushState) {
       window.history.pushState(null, null, window.location.href);

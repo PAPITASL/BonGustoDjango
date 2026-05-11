@@ -1,6 +1,6 @@
-/* Hoja de estilos `eventos.css` del modulo `eventos`. Este archivo CSS controla la presentacion visual de eventos. */
+/* Hoja de estilos `eventos.css` del modulo `eventos`. Aquí se maneja toda la parte visual de eventos. */
 
-/* Regla visual: `body` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Estilo general de la página */
 body {
     background: #fafbfc;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -8,14 +8,14 @@ body {
     padding: 0;
 }
 
-/* Regla visual: `.main-container` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Contenedor principal que organiza sidebar y contenido */
 .main-container {
     display: flex;
     min-height: 100vh;
 }
 
 /* Sidebar */
-/* Regla visual: `.sidebar` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Menú lateral izquierdo del módulo */
 .sidebar {
     background: #d90416;
     color: #fff;
@@ -32,37 +32,37 @@ body {
     align-self: flex-start;
 }
 
-/* Regla visual: `.sidebar h3` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Título principal del sidebar */
 .sidebar h3 {
     font-weight: bold;
     margin-bottom: 32px;
 }
 
-/* Regla visual: `.sidebar ul` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Lista de opciones del sidebar */
 .sidebar ul {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-/* Regla visual: `.sidebar ul li` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Cada opción del menú lateral */
 .sidebar ul li {
     margin-bottom: 18px;
 }
 
-/* Regla visual: `.sidebar ul li a` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Links del menú lateral */
 .sidebar ul li a {
     color: #fff;
     text-decoration: none;
     font-size: 1.08em;
 }
 
-/* Regla visual: `.sidebar ul li a i` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Iconos de los links del menú */
 .sidebar ul li a i {
     margin-right: 10px;
 }
 
-/* Regla visual: `.logout` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Botón o enlace de cerrar sesión */
 .logout {
     color: #fff;
     text-decoration: none;
@@ -75,14 +75,14 @@ body {
 }
 
 /* Contenido */
-/* Regla visual: `.content` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Zona principal donde se muestra la información del módulo */
 .content {
     flex: 1;
     padding: 40px 60px 40px 60px;
 }
 
 /* Header usuario */
-/* Regla visual: `.user-header` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Barra superior donde normalmente va usuario y notificaciones */
 .user-header {
     display: flex;
     align-items: center;
@@ -91,25 +91,25 @@ body {
     margin-bottom: 30px;
 }
 
-/* Regla visual: `.avatar` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Imagen o avatar del usuario */
 .avatar {
     border-radius: 50%;
     border: 2px solid #eee;
 }
 
-/* Regla visual: `.bell-container` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Contenedor del icono de notificaciones */
 .bell-container {
     cursor: pointer;
 }
 
-/* Regla visual: `.bell` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Icono de campana */
 .bell {
     font-size: 1.7em;
     color: #888;
 }
 
 /* Tabla mejorada */
-/* Regla visual: `.table-responsive` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Caja que envuelve la tabla */
 .table-responsive {
     background: #fff;
     border-radius: 12px;
@@ -118,7 +118,7 @@ body {
     margin-top: 20px;
 }
 
-/* Regla visual: `.table` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Tabla principal */
 .table {
     width: 100%;
     margin-bottom: 0;
@@ -126,7 +126,7 @@ body {
     border-spacing: 0;
 }
 
-/* Regla visual: `.table thead th` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Encabezados de la tabla */
 .table thead th {
     background: #f8f9fa;
     color: #495057;
@@ -139,25 +139,25 @@ body {
     text-align: left;
 }
 
-/* Regla visual: `.table tbody td` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Celdas del cuerpo de la tabla */
 .table tbody td {
     padding: 15px;
     vertical-align: middle;
     border-bottom: 1px solid #f0f0f0;
 }
 
-/* Regla visual: `.table tbody tr:last-child td` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Última fila sin borde inferior */
 .table tbody tr:last-child td {
     border-bottom: none;
 }
 
-/* Regla visual: `.table tbody tr:hover` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Efecto hover sobre las filas */
 .table tbody tr:hover {
     background-color: #f8f9fa;
 }
 
 /* Botones */
-/* Regla visual: `.btn` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Estilo base de los botones */
 .btn {
     padding: 8px 16px;
     border-radius: 6px;
@@ -169,52 +169,52 @@ body {
     display: inline-block;
 }
 
-/* Regla visual: `.btn-success` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Botón verde */
 .btn-success {
     background: #28a745;
     color: white;
 }
 
-/* Regla visual: `.btn-success:hover` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Hover del botón verde */
 .btn-success:hover {
     background: #218838;
 }
 
-/* Regla visual: `.btn-danger` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Botón rojo */
 .btn-danger {
     background: #e74c3c;
     color: white;
 }
 
-/* Regla visual: `.btn-danger:hover` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Hover del botón rojo */
 .btn-danger:hover {
     background: #c0392b;
 }
 
-/* Regla visual: `.btn-primary` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Botón azul */
 .btn-primary {
     background: #007bff;
     color: white;
 }
 
-/* Regla visual: `.btn-primary:hover` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Hover del botón azul */
 .btn-primary:hover {
     background: #0069d9;
 }
 
-/* Regla visual: `.btn-light` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Botón claro */
 .btn-light {
     background: #eaf3f7;
 }
 
-/* Regla visual: `.btn-sm` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Versión pequeña del botón */
 .btn-sm {
     padding: 5px 10px;
     font-size: 0.85em;
 }
 
 /* Formularios */
-/* Regla visual: `.row` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Fila general de inputs o bloques */
 .row {
     display: flex;
     flex-wrap: wrap;
@@ -222,33 +222,33 @@ body {
     margin-bottom: 20px;
 }
 
-/* Regla visual: `.col-md-4` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Columna mediana */
 .col-md-4 {
     flex: 1;
     min-width: 200px;
 }
 
-/* Regla visual: `.col-12` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Columna de ancho completo */
 .col-12 {
     width: 100%;
 }
 
-/* Regla visual: `.g-3` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Separación entre elementos */
 .g-3 {
     gap: 15px;
 }
 
-/* Regla visual: `.mb-3` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Margen inferior mediano */
 .mb-3 {
     margin-bottom: 1rem;
 }
 
-/* Regla visual: `.mb-4` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Margen inferior más amplio */
 .mb-4 {
     margin-bottom: 1.5rem;
 }
 
-/* Regla visual: `.form-control` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Input base del formulario */
 .form-control {
     width: 100%;
     padding: 10px 15px;
@@ -258,14 +258,14 @@ body {
     box-sizing: border-box;
 }
 
-/* Regla visual: `.form-control:focus` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Efecto al activar el input */
 .form-control:focus {
     outline: none;
     border-color: #d90416;
     box-shadow: 0 0 0 3px rgba(217, 4, 22, 0.1);
 }
 
-/* Regla visual: `label` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Labels de formularios */
 label {
     display: block;
     margin-bottom: 5px;
@@ -273,43 +273,44 @@ label {
     color: #495057;
 }
 
-/* Regla visual: `h4` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Títulos secundarios */
 h4 {
     color: #333;
     font-weight: 600;
 }
 
-/* Regla visual: `.text-center` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Centrado de texto */
 .text-center {
     text-align: center;
 }
 
 /* Responsive */
 @media (max-width: 991px) {
-/* Regla visual: `.main-container` | Este bloque define estilos para esta parte concreta de la interfaz. */
+
+/* En pantallas pequeñas el layout pasa a vertical */
     .main-container {
         flex-direction: column;
     }
 
-/* Regla visual: `.sidebar` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* El sidebar se adapta al ancho disponible */
     .sidebar {
         width: auto;
         margin: 8px;
     }
 
-/* Regla visual: `.content` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Reduce el padding del contenido en móvil */
     .content {
         padding: 24px 16px;
     }
     
-/* Regla visual: `.table-responsive` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Permite scroll horizontal en la tabla si hace falta */
     .table-responsive {
         overflow-x: auto;
     }
 }
 
 /* Formulario de crear/editar evento */
-/* Regla visual: `.evento-form` | Este bloque define estilos para esta parte concreta de la interfaz. */
+/* Caja principal del formulario de eventos */
 .evento-form {
     max-width: 500px;
     background: #fff;

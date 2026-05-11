@@ -17,7 +17,8 @@ class NotificacionesAdminScreen extends StatefulWidget {
 // ===== Estado `_NotificacionesAdminScreenState` | Controla la carga de llamados y las acciones para atenderlos. =====
 class _NotificacionesAdminScreenState
     extends State<NotificacionesAdminScreen> {
-  static const _bg = Color(0xFFF2F1F4);
+  static const _bgLight = Color(0xFFF2F1F4);
+  static const _bgDark = Color(0xFF101218);
   static const _card = Color(0xFFFFFFFF);
   static const _ink = Color(0xFF181818);
   static const _muted = Color(0xFF73727A);
@@ -28,6 +29,8 @@ class _NotificacionesAdminScreenState
   String _error = '';
   List<Map<String, dynamic>> _llamados = [];
   Timer? _refreshTimer;
+  bool get _isDark => Theme.of(context).brightness == Brightness.dark;
+  Color get _bg => _isDark ? _bgDark : _bgLight;
 
   @override
   void initState() {
@@ -141,7 +144,11 @@ class _NotificacionesAdminScreenState
         children: [
           Icon(icon, size: 48, color: _accent),
           const SizedBox(height: 12),
-          Text(text, textAlign: TextAlign.center),
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: _ink),
+          ),
           if (retry) ...[
             const SizedBox(height: 16),
             ElevatedButton(
@@ -252,7 +259,7 @@ class _NotificacionesAdminScreenState
       backgroundColor: _bg,
       appBar: AppBar(
         backgroundColor: _bg,
-        foregroundColor: _ink,
+        foregroundColor: _isDark ? Colors.white : _ink,
         title: const Text(
           'Llamados',
           style: TextStyle(fontWeight: FontWeight.w800),

@@ -1,25 +1,19 @@
 """
 Configuración del módulo chat.
-
-Aquí se registra la app que maneja el chat interno y el soporte en tiempo real.
+Aquí se define cómo Django reconoce esta app dentro del proyecto.
+Este módulo es el encargado del chat interno y la comunicación en tiempo real.
 """
-
-# Importamos AppConfig
-# Esto sirve para registrar el módulo en Django
+# Se importa AppConfig, que es la base para registrar una app en Django
 from django.apps import AppConfig
-
-
-# Configuración del módulo chat
+# Clase de configuración del módulo chat
 class ChatConfig(AppConfig):
-
-    # Tipo de ID automático que usarán los modelos
+    # Tipo de ID automático que usarán los modelos (BigAutoField)
     default_auto_field = "django.db.models.BigAutoField"
-
-    # Ruta real del módulo dentro del proyecto
+    # Ruta completa del módulo dentro del proyecto
+    # Django usa esto para ubicar correctamente la app
     name = "bongusto.modules.chat"
-
-    # Nombre interno del módulo
+    # Nombre interno corto de la app
+    # Sirve para identificarla sin chocar con otras apps
     label = "modules_chat"
-
-    # Nombre más visual o más entendible
+    # Nombre más claro que puede mostrarse en el admin u otras partes
     verbose_name = "Modulo Chat"

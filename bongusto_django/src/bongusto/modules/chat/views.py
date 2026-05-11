@@ -1,4 +1,4 @@
-"""Vistas del modulo chat con una estructura simple."""
+"""Vistas del módulo chat con una estructura sencilla y clara."""
 
 import json
 from types import SimpleNamespace
@@ -14,20 +14,24 @@ from bongusto.modules.chat.consumers import _group_name
 from bongusto.modules.shared.api_auth import participante_permitido, resolver_usuario_api
 
 
+# Instancia del servicio para reutilizar la lógica del chat
 _service = ChatService()
 
 
 class ChatPageHelper:
-    """Agrupa pasos basicos del chat."""
+    """Aquí se agrupan varias ayudas del chat para dejar las vistas más limpias."""
 
+    # Lee quién participa en el chat y con quién quiere hablar
     def leer_participantes(self, request):
         participante = (request.GET.get("participante") or "administrador").strip()
         conversacion_con = (request.GET.get("con") or "").strip()
         return participante, conversacion_con
 
+    # Trae los mensajes de la conversación actual
     def obtener_mensajes(self, participante, conversacion_con):
         return _service.obtener_conversacion(participante, conversacion_con)
 
+    # Convierte los mensajes a formato JSON para responder desde la API
     def mensajes_json(self, mensajes):
         return [
             {
@@ -40,6 +44,7 @@ class ChatPageHelper:
             for msg in mensajes
         ]
 
+    # Valida si el destinatario sí está permitido según el tipo de usuario
     def destinatario_permitido(self, usuario, destinatario):
         destinatario = (destinatario or "").strip().lower()
         tipo_usuario = (usuario.tipo_usuario or "").strip().lower()
@@ -52,6 +57,7 @@ class ChatPageHelper:
             return destinatario == "mesero" or destinatario.startswith("cliente_")
         return False
 
+    # Envía el mensaje en tiempo real a remitente y destinatario
     def emitir_tiempo_real(self, remitente, destinatario, mensaje):
         channel_layer = get_channel_layer()
         if not channel_layer:
@@ -64,9 +70,12 @@ class ChatPageHelper:
             "destinatario": destinatario,
             "mensaje": mensaje,
         }
+
         async_to_sync(channel_layer.group_send)(_group_name(remitente), payload)
         async_to_sync(channel_layer.group_send)(_group_name(destinatario), payload)
 
+    # Intenta leer el body como JSON
+    # Si algo falla, devuelve un diccionario vacío
     def leer_payload_json(self, request):
         try:
             raw_body = (request.body or b"").decode("utf-8").strip()
@@ -80,20 +89,26 @@ class ChatPageHelper:
         return {}
 
 
+# Instancia del helper para reutilizar esta lógica
 _helper = ChatPageHelper()
 
 
+# Usuario temporal para pruebas en desarrollo
 def _usuario_chat_desarrollo(participante):
     participante = (participante or "").strip().lower()
+
     if settings.DEBUG and participante == "mesero":
         return SimpleNamespace(
             id_usuario=0,
             tipo_usuario="mesero",
             estado="Activo",
         )
+
     return None
 
 
+# Intenta resolver el usuario real del chat
+# Si no puede y está en modo desarrollo, usa uno temporal
 def _resolver_usuario_chat(request, participante):
     usuario, _, error_response = resolver_usuario_api(request)
     if usuario:
@@ -106,6 +121,7 @@ def _resolver_usuario_chat(request, participante):
     return None, error_response
 
 
+# Vista principal del chat
 def index(request):
     participante, conversacion_con = _helper.leer_participantes(request)
     mensajes = _helper.obtener_mensajes(participante, conversacion_con)
@@ -123,6 +139,7 @@ def index(request):
     )
 
 
+# API para traer el historial de una conversación
 def api_historial(request):
     participante = (request.GET.get("participante") or "").strip()
     conversacion_con = (request.GET.get("con") or "").strip()
@@ -141,20 +158,24 @@ def api_historial(request):
     return JsonResponse(_helper.mensajes_json(mensajes), safe=False)
 
 
+# API para enviar un mensaje
 def api_enviar(request):
     body_data = _helper.leer_payload_json(request)
+
     remitente = (
         body_data.get("participante")
         or request.POST.get("participante")
         or request.GET.get("participante")
         or ""
     ).strip().lower()
+
     destinatario = (
         body_data.get("destinatario")
         or request.POST.get("destinatario")
         or request.GET.get("destinatario")
         or ""
     ).strip().lower()
+
     mensaje = (
         body_data.get("mensaje")
         or request.POST.get("mensaje")
@@ -164,8 +185,10 @@ def api_enviar(request):
 
     if not remitente:
         return JsonResponse({"error": "participante es obligatorio"}, status=400)
+
     if not destinatario:
         return JsonResponse({"error": "destinatario es obligatorio"}, status=400)
+
     if not mensaje:
         return JsonResponse({"error": "mensaje es obligatorio"}, status=400)
 
@@ -175,11 +198,14 @@ def api_enviar(request):
 
     if not participante_permitido(usuario, remitente):
         return JsonResponse({"error": "No autorizado para usar este participante"}, status=403)
+
     if not _helper.destinatario_permitido(usuario, destinatario):
         return JsonResponse({"error": "Destinatario no permitido"}, status=403)
 
+    # Guarda el mensaje y luego lo emite en tiempo real
     registro = _service.guardar_mensaje(remitente, destinatario, mensaje)
     _helper.emitir_tiempo_real(remitente, destinatario, mensaje)
+
     return JsonResponse(
         {
             "ok": True,

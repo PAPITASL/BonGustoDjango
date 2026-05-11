@@ -20,7 +20,7 @@ class SessionService {
 
   static String get correo => (_usuarioActual?['correo'] ?? '').toString();
 
-  static String get apiToken => (_usuarioActual?['api_token'] ?? '').toString();
+  static String get apiToken => _sanitizeToken(_usuarioActual?['api_token']);
 
   static Future<void> init() async {
     final rawSession = await _storage.read(key: _sessionKey);
@@ -78,7 +78,13 @@ class SessionService {
           .toString(),
       'correo': (usuario['correo'] ?? '').toString(),
       'tipo_usuario': (usuario['tipo_usuario'] ?? 'mesero').toString(),
-      'api_token': (usuario['api_token'] ?? '').toString(),
+      'api_token': _sanitizeToken(usuario['api_token']),
     };
+  }
+
+  static String _sanitizeToken(dynamic token) {
+    final value = (token ?? '').toString().trim();
+    final cleaned = value.replaceAll(' ', '').replaceAll('#', '');
+    return cleaned.replaceAll('"', '').replaceAll("'", '');
   }
 }

@@ -1,19 +1,45 @@
-<!-- Template `create.html` del modulo `usuarios`. Permite crear usuarios tipo mesero desde el panel administrativo. -->
+<!-- Template `create.html` del modulo `usuarios`. 
+     Esta vista permite crear usuarios tipo mesero desde el panel administrativo. -->
 {% extends "base.html" %}
 
 {% block title %}Nuevo Mesero{% endblock %}
 
 {% block content %}
 
-<!-- ===== Titulo principal | Indica la accion que se esta realizando. ===== -->
+<style>
+  /* Contenedor del campo de contrasena con icono */
+  .password-field {
+    position: relative; /* Permite posicionar el icono encima del input */
+  }
+
+  /* Espacio adicional para que no se encime el icono */
+  .password-field .form-control {
+    padding-right: 48px;
+  }
+
+  /* Boton (icono) para mostrar u ocultar la contrasena */
+  .password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    border: 0;
+    background: transparent;
+    color: #73727A;
+    padding: 0;
+    cursor: pointer; /* Indica que es interactivo */
+  }
+</style>
+
+<!-- ===== Titulo principal | Indica claramente la accion que se esta realizando. ===== -->
 <h4><strong>Nuevo Mesero</strong></h4>
 
-<!-- ===== Mensaje de error | Se muestra si algo falla en la validacion. ===== -->
+<!-- ===== Mensaje de error | Solo aparece si hay errores de validacion desde backend. ===== -->
 {% if error %}
 <div class="alert alert-danger mb-3">{{ error }}</div>
 {% endif %}
 
-<!-- ===== Formulario principal | Envia los datos para crear el mesero. ===== -->
+<!-- ===== Formulario principal | Aqui se envian los datos para crear el usuario. ===== -->
 <form action="/usuarios/store" method="post"
       data-confirm-title="Confirmar creacion"
       data-confirm-text="Seguro que deseas crear este mesero?"
@@ -21,48 +47,59 @@
 
   {% csrf_token %}
 
-  <!-- ===== Campo nombre ===== -->
+  <!-- ===== Campo nombre | Dato obligatorio del usuario ===== -->
   <div class="mb-3">
     <label>Nombre</label>
     <input type="text" name="nombre" maxlength="50" class="form-control" value="{{ usuario.nombre|default:'' }}" required>
   </div>
 
-  <!-- ===== Campo apellido ===== -->
+  <!-- ===== Campo apellido | Opcional pero recomendado ===== -->
   <div class="mb-3">
     <label>Apellido</label>
     <input type="text" name="apellido" maxlength="50" class="form-control" value="{{ usuario.apellido|default:'' }}">
   </div>
 
-  <!-- ===== Campo correo ===== -->
+  <!-- ===== Campo correo | Se usa como identificador principal ===== -->
   <div class="mb-3">
     <label>Correo</label>
     <input type="email" name="correo" maxlength="100" class="form-control" value="{{ usuario.correo|default:'' }}" required>
   </div>
 
-  <!-- ===== Campo contrasena | Usa la politica de seguridad del sistema ===== -->
+  <!-- ===== Campo contrasena | Aplica la politica de seguridad definida en el sistema ===== -->
   <div class="mb-3">
     <label>Contrasena</label>
-    <input type="password"
-           name="clave"
-           maxlength="255"
-           class="form-control"
-           required
-           pattern="^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&.\-_#]).{8,}$"
-           title="{{ password_policy_help }}">
+    <div class="password-field">
+      <input type="password"
+             id="clave"
+             name="clave"
+             maxlength="255"
+             class="form-control"
+             required
+             pattern="^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&.\-_#]).{8,}$"
+             title="{{ password_policy_help }}">
+      
+      <!-- Boton para mostrar u ocultar la contrasena -->
+      <button type="button" class="password-toggle" data-password-target="clave" aria-label="Mostrar u ocultar contrasena">
+        <i class="fa-regular fa-eye"></i>
+      </button>
+    </div>
+
+    <!-- Mensaje de ayuda con las reglas de seguridad -->
     <small class="field-help">{{ password_policy_help }}</small>
   </div>
 
-  <!-- ===== Campo telefono ===== -->
+  <!-- ===== Campo telefono | Informacion adicional del usuario ===== -->
   <div class="mb-3">
     <label>Telefono</label>
     <input type="text" name="telefono" maxlength="20" class="form-control" value="{{ usuario.telefono|default:'' }}">
   </div>
 
-  <!-- ===== Campo rol | Solo roles tipo mesero ===== -->
+  <!-- ===== Campo rol | Solo muestra roles relacionados con mesero ===== -->
   <div class="mb-3">
     <label>Rol</label>
 
     {% if roles %}
+    <!-- Si existen roles, se listan en un select -->
     <select name="id_rol" class="form-control">
       {% for r in roles %}
       <option value="{{ r.id_rol }}"
@@ -82,10 +119,10 @@
     {% endif %}
   </div>
 
-  <!-- ===== Campo oculto | Tipo de usuario fijo como mesero ===== -->
+  <!-- ===== Campo oculto | Define automaticamente el tipo de usuario ===== -->
   <input type="hidden" name="tipo_usuario" value="mesero">
 
-  <!-- ===== Estado por defecto ===== -->
+  <!-- ===== Estado por defecto | Todos los nuevos usuarios se crean activos ===== -->
   <div class="mb-3">
     <label>Estado</label>
     <input type="text" class="form-control" value="Activo" disabled>
@@ -93,10 +130,27 @@
     <small class="field-help">Los nuevos meseros se crean activos por defecto.</small>
   </div>
 
-  <!-- ===== Botones de accion ===== -->
+  <!-- ===== Botones de accion | Guardar o cancelar ===== -->
   <button type="submit" class="btn btn-success">Guardar</button>
   <a href="/usuarios" class="btn btn-secondary">Cancelar</a>
 
 </form>
+
+<script>
+  // Script para mostrar u ocultar la contrasena al hacer clic en el icono
+  document.querySelectorAll('[data-password-target]').forEach(function(toggle) {
+    toggle.addEventListener('click', function() {
+      const input = document.getElementById(toggle.dataset.passwordTarget);
+      const icon = toggle.querySelector('i');
+
+      // Se cambia entre tipo password y text
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+
+      // Se cambia el icono segun el estado
+      icon.className = isPassword ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+    });
+  });
+</script>
 
 {% endblock %}

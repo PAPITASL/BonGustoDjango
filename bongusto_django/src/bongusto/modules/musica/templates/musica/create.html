@@ -3,27 +3,30 @@
 {% block title %}{{ accion|default:"Agregar" }} Cancion{% endblock %}
 
 {% block content %}
+<!-- Titulo principal de la vista -->
 <h4 class="text-center mb-4">
   <strong>{{ accion|default:"Agregar" }} Cancion</strong>
 </h4>
 
 <div class="form-container">
+  <!-- Si hay error se muestra aqui -->
   {% if error %}
   <div class="alert alert-danger">{{ error }}</div>
   {% endif %}
 
+  <!-- Formulario para guardar la cancion -->
   <form
-    action="/musicas/store"
+    action="{% url 'musica_store' %}"
     method="post"
     class="modern-form"
     {% if not readonly %}
-    data-confirm-title="Confirmar creacion"
-    data-confirm-text="Seguro que deseas agregar esta cancion?"
-    data-confirm-button="Si, agregar"
+    data-skip-confirm="true"
     {% endif %}
   >
+    <!-- Token de seguridad de Django -->
     {% csrf_token %}
 
+    <!-- Campo nombre de la cancion -->
     <div class="mb-3">
       <label class="form-label">Nombre de la cancion</label>
       <input
@@ -36,6 +39,7 @@
       >
     </div>
 
+    <!-- Campo artista -->
     <div class="mb-3">
       <label class="form-label">Artista</label>
       <input
@@ -48,6 +52,7 @@
       >
     </div>
 
+    <!-- Campo duracion de la cancion -->
     <div class="mb-3">
       <label class="form-label">Duracion (min, ej: 3.45)</label>
       <input
@@ -61,17 +66,125 @@
       >
     </div>
 
+    <input type="hidden" name="forzar_cola_duplicada" id="forzarColaDuplicada" value="">
+
+    <!-- Botones del formulario -->
     <div class="d-flex gap-2">
       {% if not readonly %}
+      <!-- Boton para guardar -->
       <button type="submit" class="btn btn-success">
         <i class="fa fa-save"></i> Guardar
       </button>
       {% endif %}
 
+      <!-- Boton para volver o cancelar -->
       <a href="/musicas" class="btn btn-secondary">
         {% if readonly %}Volver{% else %}Cancelar{% endif %}
       </a>
     </div>
   </form>
 </div>
+
+{{ musicas_catalogo|json_script:"musicas-catalogo-data" }}
+
+<script>
+  (function () {
+    const form = document.querySelector('.modern-form');
+    if (!form || form.dataset.readonly === 'true') return;
+
+    const catalogoRaw = document.getElementById('musicas-catalogo-data');
+    const catalogo = catalogoRaw ? JSON.parse(catalogoRaw.textContent || '[]') : [];
+    const hiddenForzar = document.getElementById('forzarColaDuplicada');
+
+    async function verificarDuplicado() {
+      const nombre = (form.querySelector('[name="nombre_musica"]')?.value || '').trim();
+      const artista = (form.querySelector('[name="artista_musica"]')?.value || '').trim();
+      const normalizar = (value) => (value || '').toString().trim().toLowerCase();
+      const duplicada = catalogo.find((item) =>
+        normalizar(item.nombre_musica) === normalizar(nombre) &&
+        normalizar(item.artista_musica) === normalizar(artista)
+      );
+      return {
+        duplicate: Boolean(duplicada),
+        existing: duplicada || null,
+        message: 'Esta cancion ya esta en la lista. ¿Estás seguro de que deseas agregarla nuevamente?',
+      };
+    }
+
+    async function confirmarEnvio() {
+      const result = await Swal.fire({
+        title: 'Confirmar creacion',
+        text: 'Seguro que deseas agregar esta cancion?',
+        showCancelButton: true,
+        confirmButtonText: 'Si, agregar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        focusCancel: true,
+        background: '#ffffff',
+        color: '#1f1f1f',
+        buttonsStyling: false,
+        customClass: {
+          popup: 'bongusto-confirm',
+          title: 'bongusto-confirm-title',
+          htmlContainer: 'bongusto-confirm-text',
+          actions: 'bongusto-confirm-actions',
+          confirmButton: 'bongusto-confirm-button',
+          cancelButton: 'bongusto-cancel-button',
+        },
+      });
+      return Boolean(result.isConfirmed);
+    }
+
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      if (form.dataset.busy === 'true') return;
+      form.dataset.busy = 'true';
+
+      try {
+        const duplicado = await verificarDuplicado();
+        if (duplicado.duplicate) {
+          const warning = await Swal.fire({
+            title: 'Cancion duplicada',
+            text: duplicado.message || 'Esta cancion ya esta en la lista. ¿Estás seguro de que deseas agregarla nuevamente?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Agregar de todos modos',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true,
+            focusCancel: true,
+            background: '#ffffff',
+            color: '#1f1f1f',
+            buttonsStyling: false,
+            customClass: {
+              popup: 'bongusto-confirm',
+              title: 'bongusto-confirm-title',
+              htmlContainer: 'bongusto-confirm-text',
+              actions: 'bongusto-confirm-actions',
+              confirmButton: 'bongusto-confirm-button',
+              cancelButton: 'bongusto-cancel-button',
+            },
+          });
+          if (!warning.isConfirmed) {
+            form.dataset.busy = 'false';
+            return;
+          }
+          hiddenForzar.value = '1';
+        } else {
+          hiddenForzar.value = '';
+        }
+
+        const confirmed = await confirmarEnvio();
+        if (!confirmed) {
+          form.dataset.busy = 'false';
+          return;
+        }
+
+        form.submit();
+      } catch (error) {
+        window.alert(error.message || 'No fue posible validar la cancion.');
+        form.dataset.busy = 'false';
+      }
+    });
+  })();
+</script>
 {% endblock %}

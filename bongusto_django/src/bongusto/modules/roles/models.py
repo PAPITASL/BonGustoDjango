@@ -1,11 +1,7 @@
-"""Modelos o aliases del modulo `roles`. 
-Este archivo expone las entidades principales relacionadas con los roles del sistema y su gestion."""
+"""Modelos o aliases del modulo `roles`, aqui se maneja lo relacionado con roles y permisos."""
 
-
-# ===== Importaciones | Dependencias que este archivo necesita para funcionar dentro del modulo. =====
+# Se importan los modelos desde la capa de dominio
 from bongusto.domain.models import Permiso, Rol
 
-
-# ===== Exportaciones | Define que entidades se pueden usar desde este modulo. =====
+# Aqui se definen los modelos que se usan en este modulo
 __all__ = ["Rol", "Permiso"]
-

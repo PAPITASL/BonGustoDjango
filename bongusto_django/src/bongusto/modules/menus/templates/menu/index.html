@@ -3,50 +3,70 @@
 {% block title %}Gestion de Menu{% endblock %}
 
 {% block content %}
+
+<!-- Titulo principal de la vista -->
 <h2 class="text-center mb-4">
   <strong>Gestion de Menu</strong>
 </h2>
 
+<!-- Mensaje de error | Aparece si algo salio mal en el proceso -->
 {% if error %}
 <div class="alert alert-danger">
   <i class="fa fa-exclamation-triangle"></i> {{ error }}
 </div>
 {% endif %}
 
+<!-- Mensaje de exito | Aparece cuando una accion se realizo correctamente -->
 {% if mensaje %}
 <div class="alert alert-success">
   <i class="fa fa-check-circle"></i> {{ mensaje }}
 </div>
 {% endif %}
 
+<!-- Barra superior de acciones -->
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div></div>
+
+  <!-- Botones principales del modulo -->
   <div class="d-flex gap-2">
+
+    <!-- Boton para abrir el modal de importacion desde Excel -->
     <button type="button" class="btn btn-outline-dark" onclick="openImportModal('importMenuModal')">
       <i class="fa fa-file-excel"></i> Importar Excel
     </button>
+
+    <!-- Boton para crear un nuevo item del menu -->
     <a href="/menus/create" class="btn btn-secondary">+ Nuevo Item</a>
   </div>
 </div>
 
+<!-- Formulario de filtros -->
 <form method="get" action="/menus" class="mb-4">
   <div class="row g-2">
+
+    <!-- Filtro por nombre del item -->
     <div class="col-md-4">
       <input type="text" name="nombre" class="form-control" placeholder="Item" value="{{ filtros.nombre }}">
     </div>
+
+    <!-- Filtro por descripcion -->
     <div class="col-md-6">
       <input type="text" name="descripcion" class="form-control" placeholder="Descripcion" value="{{ filtros.descripcion }}">
     </div>
+
+    <!-- Boton para aplicar filtros -->
     <div class="col-md-2">
       <button type="submit" class="btn btn-primary w-100">Filtrar</button>
     </div>
   </div>
 </form>
 
+<!-- Boton para descargar el reporte PDF manteniendo los filtros actuales -->
 <a href="/menus/pdf?nombre={{ filtros.nombre }}&descripcion={{ filtros.descripcion }}" class="btn btn-danger mb-3">
   <i class="fa fa-file-pdf"></i> Descargar Reporte PDF
 </a>
 
+<!-- Tabla principal de menus -->
 <div class="table-responsive">
   <table class="table table-hover">
     <thead>
@@ -58,15 +78,31 @@
       </tr>
     </thead>
     <tbody>
+
+      <!-- Recorre todos los menus disponibles -->
       {% for m in menus %}
       <tr>
+
+        <!-- Checkbox visual de seleccion -->
         <td><input type="checkbox"></td>
+
+        <!-- Nombre del item -->
         <td>{{ m.nombre_menu }}</td>
+
+        <!-- Descripcion del item -->
         <td>{{ m.descripcion_menu }}</td>
+
+        <!-- Acciones disponibles -->
         <td>
           <div class="action-stack">
+
+            <!-- Boton para ver detalle -->
             <a href="/menus/{{ m.id_menu }}" class="btn btn-view btn-sm">Ver</a>
+
+            <!-- Boton para editar -->
             <a href="/menus/{{ m.id_menu }}/edit" class="btn btn-success btn-sm">Editar</a>
+
+            <!-- Formulario para eliminar el item -->
             <form
               action="/menus/{{ m.id_menu }}/delete"
               method="post"
@@ -81,6 +117,8 @@
           </div>
         </td>
       </tr>
+
+      <!-- Mensaje cuando no hay datos -->
       {% empty %}
       <tr>
         <td colspan="4" class="text-center">No hay menus registrados</td>
@@ -90,19 +128,30 @@
   </table>
 </div>
 
+<!-- Modal para importar menus desde Excel -->
 <div id="importMenuModal" class="import-modal-overlay" style="display:none;">
   <div class="import-modal-card">
     <h4>Importar menus desde Excel</h4>
+
+    <!-- Texto de ayuda para el usuario -->
     <p>Selecciona un archivo <strong>.xlsx</strong> con columnas como <code>nombre_menu</code> y <code>descripcion_menu</code>.</p>
 
+    <!-- Formulario de carga de archivo -->
     <form action="/menus/importar" method="post" enctype="multipart/form-data">
       {% csrf_token %}
+
+      <!-- Input para seleccionar el Excel -->
       <input type="file" name="archivo_excel" accept=".xlsx" class="form-control mb-3" required>
 
+      <!-- Botones del modal -->
       <div class="d-flex gap-2 justify-content-end">
+
+        <!-- Cierra el modal sin subir nada -->
         <button type="button" class="btn btn-outline-secondary" onclick="closeImportModal('importMenuModal')">
           Cancelar
         </button>
+
+        <!-- Envia el archivo al backend -->
         <button type="submit" class="btn btn-danger">Subir archivo</button>
       </div>
     </form>
@@ -112,16 +161,19 @@
 
 {% block extra_js %}
 <script>
+  // Abre el modal de importacion
   function openImportModal(id) {
     document.getElementById(id).style.display = 'flex';
   }
 
+  // Cierra el modal de importacion
   function closeImportModal(id) {
     document.getElementById(id).style.display = 'none';
   }
 </script>
 
 <style>
+  /* Fondo oscuro del modal */
   .import-modal-overlay {
     position: fixed;
     inset: 0;
@@ -134,6 +186,7 @@
     overflow-y: auto;
   }
 
+  /* Tarjeta blanca del modal */
   .import-modal-card {
     width: min(520px, 100%);
     background: #fff;

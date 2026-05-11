@@ -1,0 +1,230 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BonGusto | Plataforma para restaurantes y gastrobares</title>
+  <meta name="description" content="BonGusto conecta clientes, meseros y administradores en un solo sistema para pedidos, mesas, musica y reportes.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/landing.css' %}?v=20260428c">
+</head>
+<body>
+  <header class="site-header" aria-label="Navegacion principal">
+    <a class="brand" href="#inicio" aria-label="BonGusto inicio">
+      <span class="brand__mark" aria-hidden="true">
+        <img src="{% static 'img/logobongusto.png' %}" alt="" class="brand__logo">
+      </span>
+      <span class="brand__copy">
+        <strong>BonGusto</strong>
+        <small>Gestion para restaurantes</small>
+      </span>
+    </a>
+
+    <nav class="main-nav" aria-label="Secciones de BonGusto">
+      <a href="#ecosistema">Ecosistema</a>
+      <a href="#modulos">Módulos</a>
+      <a href="#musica">Rocola</a>
+      <a href="#beneficios">Beneficios</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+
+    <a class="header-login" href="{% url 'login' %}">Iniciar sesión</a>
+  </header>
+
+  <main id="inicio">
+    <section class="hero section-shell">
+      <div class="hero__content">
+        <div class="hero-badge">
+          <div>
+            <span>BonGusto</span>
+            <strong>Restaurantes conectados</strong>
+          </div>
+        </div>
+        <p class="eyebrow">Plataforma para gastrobares y restaurantes</p>
+        <h1>Control total para tu restaurante.</h1>
+        <p class="hero__lead">Pedidos, mesas y música en un solo sistema.</p>
+        <div class="hero__actions" aria-label="Acciones principales">
+          <a class="btn btn--primary" href="#ecosistema">Ver cómo funciona</a>
+          <a class="btn btn--secondary" href="#modulos">Ver módulos</a>
+        </div>
+      </div>
+
+      <aside class="hero__system" aria-label="Resumen visual de BonGusto">
+        <div class="system-card system-card--admin">
+          <span>01</span>
+          <strong>Panel web</strong>
+          <small>Usuarios, reportes y operación.</small>
+          </div>
+          <div class="system-card">
+            <span>02</span>
+            <strong>App de clientes</strong>
+            <small>Menú, pedidos y música.</small>
+          </div>
+          <div class="system-card">
+            <span>03</span>
+            <strong>App de meseros</strong>
+            <small>Mesas y solicitudes en vivo.</small>
+          </div>
+        </aside>
+      </section>
+
+    <section id="ecosistema" class="ecosystem section-shell">
+      <div class="section-heading">
+        <p class="eyebrow">Un sistema, tres formas de operar</p>
+        <h2>BonGusto conecta la experiencia del cliente, el trabajo del mesero y el control administrativo.</h2>
+      </div>
+      <div class="three-columns">
+        <article class="feature-panel">
+          <span class="feature-panel__tag">Clientes</span>
+          <h3>Piden y califican desde su celular.</h3>
+          <p>Acceden al menú, solicitan canciones y viven una visita más simple.</p>
+        </article>
+        <article class="feature-panel">
+          <span class="feature-panel__tag">Meseros</span>
+          <h3>Gestionan mesas y pedidos al instante.</h3>
+          <p>Reciben solicitudes, revisan estados y actúan sin perder tiempo.</p>
+        </article>
+        <article class="feature-panel feature-panel--dark">
+          <span class="feature-panel__tag">Administradores</span>
+          <h3>Controlan la operación desde un panel web.</h3>
+          <p>Organizan usuarios, productos, reportes y decisiones del negocio.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section-shell compact-split">
+      <div class="section-heading">
+        <p class="eyebrow">Problema y solución</p>
+        <h2>Menos caos, más control.</h2>
+      </div>
+      <div class="compare-grid">
+        <article class="compare-card compare-card--soft">
+          <h3>Antes</h3>
+          <ul>
+            <li>Pedidos desordenados</li>
+            <li>Comunicación lenta</li>
+            <li>Procesos manuales</li>
+            <li>Poco control de mesas</li>
+          </ul>
+        </article>
+        <article class="compare-card compare-card--dark">
+          <h3>Con BonGusto</h3>
+          <ul>
+            <li>Pedidos centralizados</li>
+            <li>Información en tiempo real</li>
+            <li>Mesas organizadas</li>
+            <li>Reportes para decidir mejor</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="modulos" class="modules">
+      <div class="section-shell">
+        <div class="section-heading section-heading--split">
+          <div>
+            <p class="eyebrow">Módulos principales</p>
+            <h2>Módulos clave.</h2>
+          </div>
+          <p>Lo esencial para operar sin saturar la página.</p>
+        </div>
+
+        <div class="module-grid">
+          <article class="module-card"><h3>Pedidos y mesas</h3><p>Seguimiento de solicitudes y estado operativo.</p></article>
+          <article class="module-card"><h3>Productos y menú</h3><p>Control de carta, precios y disponibilidad.</p></article>
+          <article class="module-card"><h3>Usuarios y roles</h3><p>Accesos, permisos y perfiles del sistema.</p></article>
+          <article class="module-card"><h3>Rocola musical</h3><p>Cola musical para la experiencia en sala.</p></article>
+          <article class="module-card"><h3>Reportes</h3><p>Indicadores y documentos.</p></article>
+          <article class="module-card"><h3>Reservas</h3><p>Agenda y control de eventos.</p></article>
+        </div>
+        <div class="section-actions">
+          <a class="btn btn--secondary" href="{% url 'login' %}">Ver todos los módulos</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="musica" class="music section-shell">
+      <div class="music__content">
+        <p class="eyebrow">Diferencial</p>
+        <h2>La experiencia también se escucha.</h2>
+        <p>Los clientes solicitan canciones y el restaurante controla la cola musical.</p>
+      </div>
+      <div class="music__visual" aria-label="Rocola BonGusto">
+        <span>Cliente solicita</span>
+        <strong>Cola musical</strong>
+        <span>Reproducción controlada</span>
+      </div>
+    </section>
+
+    <section id="beneficios" class="benefits section-shell">
+      <div class="section-heading">
+        <p class="eyebrow">Beneficios</p>
+        <h2>Beneficios para operar mejor.</h2>
+      </div>
+      <div class="benefit-list">
+        <article>
+          <strong>Menos errores</strong>
+          <p>Reduce confusiones entre clientes, meseros y administración.</p>
+        </article>
+        <article>
+          <strong>Más control</strong>
+          <p>Centraliza pedidos, mesas, usuarios y reportes.</p>
+        </article>
+        <article>
+          <strong>Mejor experiencia</strong>
+          <p>Hace que la visita sea más moderna y organizada.</p>
+        </article>
+        <article>
+          <strong>Operación más rápida</strong>
+          <p>Permite que el equipo trabaje con información actualizada.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="final-cta section-shell">
+      <p class="eyebrow">Empieza hoy</p>
+      <h2>Empieza a transformar tu restaurante.</h2>
+      <p>BonGusto reúne operación y servicio en una sola plataforma.</p>
+      <a class="btn btn--primary" href="{% url 'login' %}">Ingresar al panel</a>
+    </section>
+
+    <section id="contacto" class="contact section-shell">
+      <div class="contact-card">
+        <div class="contact-card__header">
+          <div>
+            <p class="contact-card__eyebrow">Contáctanos</p>
+            <h2 class="contact-card__title">Contáctanos</h2>
+          </div>
+        </div>
+        <div class="contact-card__list">
+          <div class="contact-card__item">
+            <div class="contact-card__icon contact-card__icon--red">@</div>
+            <div>
+              <p class="contact-card__label">Correo</p>
+              <p class="contact-card__value">soporte@bongusto.com</p>
+            </div>
+          </div>
+          <div class="contact-card__item">
+            <div class="contact-card__icon contact-card__icon--gold">#</div>
+            <div>
+              <p class="contact-card__label">Teléfono</p>
+              <p class="contact-card__value">+57 300 123 4567</p>
+            </div>
+          </div>
+          <div class="contact-card__item">
+            <div class="contact-card__icon contact-card__icon--charcoal">⌂</div>
+            <div>
+              <p class="contact-card__label">Ubicación</p>
+              <p class="contact-card__value">Bogotá, Colombia</p>
+            </div>
+          </div>
+        </div>
+        <a class="contact-card__cta" href="mailto:soporte@bongusto.com">Enviar mensaje</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

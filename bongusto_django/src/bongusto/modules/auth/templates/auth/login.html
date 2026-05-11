@@ -1,73 +1,88 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Configuración básica del documento -->
   <meta charset="UTF-8">
   <title>BonGusto | Iniciar sesion</title>
+  <!-- Estas meta ayudan a evitar que el navegador guarde esta página en caché -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
+  <!-- Responsive para móviles -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Conexión previa para cargar fuentes más rápido -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Fuente principal de la interfaz -->
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Hoja de estilos del módulo auth -->
   <link rel="stylesheet" href="/static/css/auth-login.css?v=20260322b">
+  <!-- Librería de íconos -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
+  <!-- Contenedor principal: divide imagen y formulario -->
   <div class="auth-row">
+    <!-- Lado izquierdo visual con imagen y logo -->
     <div class="auth-image-section">
       <div class="auth-image-overlay">
         <img src="/static/img/logobongusto.png?v=20260322a" alt="BonGusto" class="auth-image-logo" width="124" height="124">
       </div>
     </div>
-
+    <!-- Lado derecho donde va el formulario -->
     <div class="auth-form-section">
       <form action="/login" method="post" class="auth-card">
+        <!-- Token de seguridad de Django -->
         {% csrf_token %}
-
+        <!-- Título principal -->
         <h2 class="auth-title">Iniciar sesion</h2>
-
+        <!-- Si existe un error, se muestra aquí -->
         {% if error %}
         <div class="auth-error">
           <i class="fas fa-exclamation-circle"></i> {{ error }}
         </div>
         {% endif %}
-
+        <!-- Campo del correo -->
         <div class="form-group">
           <label for="email">Correo electronico</label>
           <input id="email" type="email" name="username" maxlength="100" placeholder="ejemplo@gmail.com" required>
         </div>
-
+        <!-- Campo de contraseña -->
         <div class="form-group">
           <label for="password">Contrasena</label>
           <div class="password-field">
+            <!-- Input de contraseña -->
             <input id="password" type="password" name="password" maxlength="255" placeholder="Ingresar contrasena" required>
+            <!-- Botón para mostrar u ocultar la contraseña -->
             <button type="button" class="password-toggle" data-password-target="password" aria-label="Mostrar u ocultar contrasena">
               <i class="fa-regular fa-eye"></i>
             </button>
           </div>
         </div>
-
+        <!-- Link para recuperación de contraseña -->
         <div class="form-footer">
           <a href="/password/email" class="link-small">Olvidaste tu contrasena?</a>
         </div>
-
+        <!-- Botón principal de inicio de sesión -->
         <button type="submit" class="btn-primary">Iniciar sesion</button>
       </form>
     </div>
   </div>
-
   <script>
+    // Este script permite mostrar u ocultar la contraseña
     document.querySelectorAll('[data-password-target]').forEach(function(toggle) {
       toggle.addEventListener('click', function() {
         const input = document.getElementById(toggle.dataset.passwordTarget);
         const icon = toggle.querySelector('i');
         const isPassword = input.type === 'password';
+        // Si está oculta, la muestra. Si está visible, la vuelve a ocultar.
         input.type = isPassword ? 'text' : 'password';
+        // También cambia el ícono según el estado.
         icon.className = isPassword ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
       });
     });
-
+    // Este bloque intenta evitar que el usuario vuelva atrás en el navegador
+    // después de iniciar sesión o al quedarse en esta vista.
     (function() {
       if (window.history && window.history.pushState) {
         window.history.pushState(null, null, window.location.href);

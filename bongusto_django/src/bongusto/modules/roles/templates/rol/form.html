@@ -3,13 +3,16 @@
 {% block title %}{{ accion }} Rol{% endblock %}
 
 {% block content %}
+<!-- Titulo principal -->
 <h4 class="titulo-seccion text-center mb-4">{{ accion }} Rol</h4>
 
 <div class="card p-3">
+  <!-- Si hay error se muestra aqui -->
   {% if error %}
   <div class="alert alert-danger">{{ error }}</div>
   {% endif %}
 
+  <!-- Formulario para crear o actualizar rol -->
   <form
     action="{% if rol.id_rol %}/roles/{{ rol.id_rol }}/update{% else %}/roles/store{% endif %}"
     method="post"
@@ -19,8 +22,10 @@
     data-confirm-button="{% if rol.id_rol %}Si, actualizar{% else %}Si, crear{% endif %}"
     {% endif %}
   >
+    <!-- Token de seguridad -->
     {% csrf_token %}
 
+    <!-- Campo nombre del rol -->
     <div class="form-group">
       <label>Nombre del Rol</label>
       <input
@@ -33,11 +38,14 @@
       >
     </div>
 
+    <!-- Botones -->
     <div class="d-flex justify-content-between mt-3">
+      <!-- Volver o cancelar -->
       <a href="/roles" class="btn btn-secondary">
         {% if readonly %}Volver{% else %}Cancelar{% endif %}
       </a>
 
+      <!-- Editar o guardar -->
       {% if readonly %}
       <a href="/roles/{{ rol.id_rol }}/edit" class="btn btn-success">Editar</a>
       {% else %}

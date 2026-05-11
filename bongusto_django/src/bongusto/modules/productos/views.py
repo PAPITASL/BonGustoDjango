@@ -1,39 +1,60 @@
 """Vistas del modulo productos en un estilo simple."""
 
+# Se usan estas librerias para agrupar datos y manejar precios
 from collections import defaultdict
 from decimal import Decimal, InvalidOperation
 
+# Importaciones de Django
+from django.core.exceptions import ValidationError
 from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Avg
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 
+# Servicios del sistema
 from bongusto.application.services import CategoriaService, MenuService, ProductoService
+
+# Modelos que se usan en este modulo
 from bongusto.domain.models import PedidoDetalle, Producto
+
+# Herramienta para crear PDF
 from bongusto.infrastructure.pdf_generator import crear_pdf_compuesto
+
+# Registro de movimientos
 from bongusto.modules.shared.audit import registrar_movimiento
+
+# Funciones para importar desde Excel
 from bongusto.modules.shared.excel_import import leer_filas_excel, texto_limpio
 
 
+# Instancias de servicios
 _service = ProductoService()
 _menu_service = MenuService()
 _cat_service = CategoriaService()
 
 
+def _invalidar_cache_menu_producto():
+    # Mantiene sincronizado lo que ve Flutter con lo que cambia el admin.
+    cache.clear()
+
+
 class ProductoPageHelper:
+    # Lista todos los menus
     def listar_menus(self):
         try:
             return _menu_service.listar_todos()
         except Exception:
             return []
 
+    # Lista todas las categorias
     def listar_categorias(self):
         try:
             return _cat_service.listar_todas()
         except Exception:
             return []
 
+    # Lista productos aplicando filtros
     def listar_filtrado(self, filtros=None):
         filtros = filtros or {"nombre": "", "categoria": "", "menu": "", "precio_min": "", "precio_max": ""}
         try:
@@ -41,18 +62,21 @@ class ProductoPageHelper:
         except Exception:
             return []
 
+    # Lista todos los productos
     def listar_todos(self):
         try:
             return _service.listar_todos()
         except Exception:
             return []
 
+    # Busca un producto por id
     def buscar(self, pk):
         try:
             return _service.buscar_por_id(pk)
         except Exception:
             return None
 
+    # Lee los filtros que llegan por la URL
     def leer_filtros(self, request):
         return {
             "nombre": request.GET.get("nombre", ""),
@@ -64,6 +88,7 @@ class ProductoPageHelper:
             "repetidos": request.GET.get("repetidos", ""),
         }
 
+    # Renderiza el formulario
     def render_form(self, request, producto, accion, error=""):
         return render(
             request,
@@ -78,6 +103,7 @@ class ProductoPageHelper:
             },
         )
 
+    # Renderiza la vista principal
     def render_index(self, request, productos, filtros, error=""):
         mensaje = ""
         if filtros.get("creados") or filtros.get("repetidos"):
@@ -101,6 +127,7 @@ class ProductoPageHelper:
             },
         )
 
+    # Convierte el precio y valida que sea correcto
     def parse_precio(self, valor):
         try:
             precio = Decimal(str(valor).strip())
@@ -110,17 +137,20 @@ class ProductoPageHelper:
             return None
         return precio
 
+    # Carga datos del formulario al producto
     def cargar_desde_post(self, request, producto):
         producto.nombre_producto = (request.POST.get("nombre_producto", "") or "").strip()
         producto.descripcion_producto = (request.POST.get("descripcion_producto", "") or "").strip()
         producto.estado = (request.POST.get("estado", "activo") or "").strip()
         return producto
 
+    # Asigna menu y categoria al producto
     def asignar_relaciones(self, menu_id, cat_id, producto):
         producto.id_menu = _menu_service.buscar_por_id(menu_id) if menu_id else None
         producto.id_cate = _cat_service.buscar_por_id(cat_id) if cat_id else None
         return producto
 
+    # Valida datos obligatorios
     def validar(self, request, producto, accion, menu_id, cat_id, precio):
         if not producto.nombre_producto:
             return None, self.render_form(request, producto, accion, "Debes ingresar el nombre del producto.")
@@ -134,16 +164,19 @@ class ProductoPageHelper:
             return None, self.render_form(request, producto, accion, "Debes seleccionar una categoria.")
         return producto, None
 
+    # Da formato de dinero
     def money(self, value):
         if value in (None, ""):
             return "$0.00"
         return f"${value}"
 
+    # Construye la informacion del reporte PDF
     def construir_reporte(self, productos):
         productos = list(productos)
         producto_ids = [p.id_producto for p in productos]
         detalles = list(PedidoDetalle.objects.filter(id_producto__in=producto_ids).only("id_producto", "cantidad", "precio"))
 
+        # Contadores para ventas e ingresos
         ventas_por_producto = defaultdict(int)
         ingresos_por_producto = defaultdict(float)
         for detalle in detalles:
@@ -161,6 +194,7 @@ class ProductoPageHelper:
         ingresos_rows = []
         agotados_rows = []
 
+        # Arma todas las tablas del reporte
         for producto in productos:
             categoria = producto.id_cate.nombre_cate if producto.id_cate else "Sin categoria"
             menu_nombre = producto.id_menu.nombre_menu if producto.id_menu else "-"
@@ -176,11 +210,13 @@ class ProductoPageHelper:
             if (estado or "").lower() != "activo" or vendidos == 0:
                 agotados_rows.append([producto.nombre_producto or f"Producto {producto.id_producto}", estado, str(vendidos), "Revisar disponibilidad"])
 
+        # Ordena resultados
         ranking_vendidos.sort(key=lambda row: (int(row[1]), row[0]), reverse=True)
         ranking_menos.sort(key=lambda row: (int(row[1]), row[0]))
         ingresos_rows.sort(key=lambda row: float(row[1].replace("$", "")), reverse=True)
         agotados_rows.sort(key=lambda row: (row[1] != "inactivo", int(row[2])))
 
+        # Promedio de precios por categoria
         promedio_categoria_rows = [
             [item["id_cate__nombre_cate"] or "Sin categoria", self.money(item["promedio"] or 0)]
             for item in (
@@ -228,6 +264,7 @@ class ProductoPageHelper:
             },
         ]
 
+    # Convierte el producto a diccionario para API
     def producto_to_dict(self, producto):
         return {
             "id_producto": producto.id_producto,
@@ -242,18 +279,22 @@ class ProductoPageHelper:
         }
 
 
+# Instancia del helper
 _helper = ProductoPageHelper()
 
 
+# Vista principal
 def index(request):
     filtros = _helper.leer_filtros(request)
     return _helper.render_index(request, _helper.listar_filtrado(filtros), filtros)
 
 
+# Vista para crear
 def create(request):
     return _helper.render_form(request, Producto(), "Crear")
 
 
+# Vista para ver detalle
 def ver(request, pk):
     producto = _helper.buscar(pk)
     if not producto:
@@ -261,6 +302,7 @@ def ver(request, pk):
     return _helper.render_form(request, producto, "Ver")
 
 
+# Guarda un nuevo producto
 def store(request):
     if request.method != "POST":
         return redirect("/productos")
@@ -278,12 +320,19 @@ def store(request):
 
     try:
         _service.guardar(producto)
+        _invalidar_cache_menu_producto()
         registrar_movimiento(request, f"Creacion de producto {producto.nombre_producto or producto.id_producto}.")
         return redirect("/productos")
+    except ValidationError as exc:
+        mensaje_error = "Ya existe un producto con ese nombre."
+        if hasattr(exc, "message_dict") and exc.message_dict.get("nombre_producto"):
+            mensaje_error = exc.message_dict["nombre_producto"][0]
+        return _helper.render_form(request, producto, "Crear", mensaje_error)
     except Exception:
         return _helper.render_form(request, producto, "Crear", "No fue posible guardar el producto.")
 
 
+# Vista para editar
 def edit(request, pk):
     producto = _helper.buscar(pk)
     if not producto:
@@ -291,6 +340,7 @@ def edit(request, pk):
     return _helper.render_form(request, producto, "Editar")
 
 
+# Actualiza un producto
 def update(request, pk):
     if request.method != "POST":
         return redirect("/productos")
@@ -312,16 +362,24 @@ def update(request, pk):
 
     try:
         _service.guardar(producto)
+        _invalidar_cache_menu_producto()
         registrar_movimiento(request, f"Actualizacion de producto {producto.nombre_producto or producto.id_producto}.")
         return redirect("/productos")
+    except ValidationError as exc:
+        mensaje_error = "Ya existe un producto con ese nombre."
+        if hasattr(exc, "message_dict") and exc.message_dict.get("nombre_producto"):
+            mensaje_error = exc.message_dict["nombre_producto"][0]
+        return _helper.render_form(request, producto, "Editar", mensaje_error)
     except Exception:
         return _helper.render_form(request, producto, "Editar", "No fue posible actualizar el producto.")
 
 
+# Elimina un producto
 def delete(request, pk):
     try:
         producto = _helper.buscar(pk)
         _service.eliminar(pk)
+        _invalidar_cache_menu_producto()
         if producto:
             registrar_movimiento(request, f"Eliminacion de producto {producto.nombre_producto or producto.id_producto}.")
     except Exception:
@@ -329,6 +387,7 @@ def delete(request, pk):
     return redirect("/productos")
 
 
+# Importa productos desde Excel
 def importar_excel(request):
     if request.method != "POST":
         return redirect("/productos")
@@ -373,6 +432,8 @@ def importar_excel(request):
                 producto_existente = Producto.objects.filter(nombre_producto__iexact=nombre).first()
                 if producto_existente:
                     total_repetidos += 1
+                    errores.append(f"Fila {indice}: el producto '{nombre}' ya existe.")
+                    continue
 
                 producto = producto_existente or Producto()
                 producto.nombre_producto = nombre
@@ -382,6 +443,7 @@ def importar_excel(request):
                 producto.id_cate = categoria_obj
                 producto.estado = estado if estado in {"activo", "inactivo"} else "activo"
                 _service.guardar(producto)
+                _invalidar_cache_menu_producto()
                 total_importados += 1
 
         if total_importados == 0:
@@ -396,6 +458,7 @@ def importar_excel(request):
         return _helper.render_index(request, _helper.listar_filtrado(), filtros, error=str(exc))
 
 
+# Genera el reporte PDF
 def reporte(request):
     try:
         filtros = _helper.leer_filtros(request)
@@ -408,6 +471,7 @@ def reporte(request):
         return HttpResponse("No fue posible generar el reporte de productos.", status=500)
 
 
+# API para listar productos
 def api_listar(request):
     if request.method != "GET":
         return JsonResponse({"error": "Metodo no permitido"}, status=405)
@@ -417,12 +481,14 @@ def api_listar(request):
     solo_destacados = request.GET.get("destacados") == "1"
     cache_key = f"api:productos:listar:v1:categoria={categoria_id or '-'}:menu={menu_id or '-'}:destacados={1 if solo_destacados else 0}"
     cached = cache.get(cache_key)
+
+    # Si ya esta en cache, devuelve eso
     if cached is not None:
         response = JsonResponse(cached, safe=False)
         response["X-Cache-Hit"] = "1"
         return response
 
-    productos = _helper.listar_todos().filter(estado="activo")
+    productos = _helper.listar_todos().filter(estado="activo", id_menu__isnull=False)
     if categoria_id:
         productos = productos.filter(id_cate_id=categoria_id)
     if menu_id:
@@ -432,6 +498,8 @@ def api_listar(request):
 
     data = [_helper.producto_to_dict(producto) for producto in productos]
     cache.set(cache_key, data, timeout=300)
+
     response = JsonResponse(data, safe=False)
     response["X-Cache-Hit"] = "0"
+    response["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     return response

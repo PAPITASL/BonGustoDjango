@@ -1,15 +1,16 @@
-"""Modelos o aliases del modulo `usuarios`. Este archivo define las entidades relacionadas con usuarios del sistema y clientes API."""
-
-
-# ===== Importaciones | Modelos del dominio que este modulo utiliza o expone. =====
+"""Modelos o aliases del modulo `usuarios`.
+Este archivo funciona como un punto central donde se agrupan
+y se exponen las entidades relacionadas con usuarios del sistema
+y clientes que interactuan con la API.
+"""
+# ===== Importaciones | Aqui se traen los modelos del dominio que usa este modulo. =====
 from bongusto.domain.models import Bitacora, PedidoEncabezado, Reserva, Rol, Usuario
 
-
-# ===== Exportaciones | Define que modelos se exponen cuando se importa este modulo. =====
+# ===== Exportaciones | Define que modelos estaran disponibles cuando otro archivo importe este modulo. =====
 __all__ = [
-    "Usuario",           # Entidad principal del sistema (usuarios y clientes)
-    "Rol",               # Define permisos y tipos de usuario
-    "PedidoEncabezado",  # Relacion de pedidos realizados por el usuario
-    "Reserva",           # Reservas hechas por el usuario
-    "Bitacora",          # Historial de acciones del usuario en el sistema
+    "Usuario",           # Entidad principal: representa tanto usuarios internos como clientes
+    "Rol",               # Define el tipo de usuario y sus permisos dentro del sistema
+    "PedidoEncabezado",  # Relaciona los pedidos que ha realizado un usuario
+    "Reserva",           # Guarda las reservas hechas por el usuario en el sistema
+    "Bitacora",          # Registro historico de acciones realizadas por el usuario
 ]

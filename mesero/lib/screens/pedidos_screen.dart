@@ -16,7 +16,8 @@ class PedidosScreen extends StatefulWidget {
 
 // ===== Estado `_PedidosScreenState` | Administra la consulta de pedidos y la interfaz del listado. =====
 class _PedidosScreenState extends State<PedidosScreen> {
-  static const _bg = Color(0xFFF2F1F4);
+  static const _bgLight = Color(0xFFF2F1F4);
+  static const _bgDark = Color(0xFF101218);
   static const _card = Color(0xFFFFFFFF);
   static const _ink = Color(0xFF181818);
   static const _muted = Color(0xFF73727A);
@@ -27,23 +28,36 @@ class _PedidosScreenState extends State<PedidosScreen> {
   String _error = '';
   List<PedidoData> _pedidos = [];
   Timer? _refreshTimer;
+  bool _requestInFlight = false;
+  late final _PedidosLifecycleObserver _lifecycleObserver;
+  bool get _isDark => Theme.of(context).brightness == Brightness.dark;
+  Color get _bg => _isDark ? _bgDark : _bgLight;
 
   @override
   void initState() {
     super.initState();
+    _lifecycleObserver = _PedidosLifecycleObserver(onResume: _onResume);
+    WidgetsBinding.instance.addObserver(_lifecycleObserver);
     _cargarPedidos();
-    _refreshTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 2), (_) {
       _cargarPedidos(silent: true);
     });
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(_lifecycleObserver);
     _refreshTimer?.cancel();
     super.dispose();
   }
 
+  void _onResume() {
+    _cargarPedidos(silent: true);
+  }
+
   Future<void> _cargarPedidos({bool silent = false}) async {
+    if (_requestInFlight) return;
+    _requestInFlight = true;
     if (!silent) {
       setState(() {
         _loading = true;
@@ -53,18 +67,45 @@ class _PedidosScreenState extends State<PedidosScreen> {
     try {
       final pedidos = await BongustoApi.obtenerPedidos();
       if (!mounted) return;
+      final nuevosPedidos = _contarPedidosNuevos(pedidos);
       setState(() {
         _pedidos = pedidos.map(PedidoData.fromMap).toList();
         _loading = false;
         _error = '';
       });
+      if (silent && nuevosPedidos > 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              nuevosPedidos == 1
+                  ? 'Llego 1 pedido nuevo.'
+                  : 'Llegaron $nuevosPedidos pedidos nuevos.',
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _error = '$e';
         _loading = false;
       });
+    } finally {
+      _requestInFlight = false;
     }
+  }
+
+  int _contarPedidosNuevos(List<Map<String, dynamic>> pedidos) {
+    final actuales = _pedidos.map((pedido) => pedido.id).whereType<int>().toSet();
+    var nuevos = 0;
+    for (final pedido in pedidos) {
+      final id = PedidoItemData.asInt(pedido['id_pedido']);
+      if (!actuales.contains(id)) {
+        nuevos++;
+      }
+    }
+    return nuevos;
   }
 
   Widget _hero() {
@@ -123,7 +164,11 @@ class _PedidosScreenState extends State<PedidosScreen> {
         children: [
           Icon(icon, size: 48, color: _accent),
           const SizedBox(height: 12),
-          Text(text, textAlign: TextAlign.center),
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: _ink),
+          ),
           if (_error.isNotEmpty) ...[
             const SizedBox(height: 16),
             ElevatedButton(
@@ -286,7 +331,7 @@ class _PedidosScreenState extends State<PedidosScreen> {
       backgroundColor: _bg,
       appBar: AppBar(
         backgroundColor: _bg,
-        foregroundColor: _ink,
+        foregroundColor: _isDark ? Colors.white : _ink,
         title: const Text(
           'Pedidos',
           style: TextStyle(fontWeight: FontWeight.w800),
@@ -321,6 +366,18 @@ class _PedidosScreenState extends State<PedidosScreen> {
         ),
       ),
     );
+  }
+}
+
+class _PedidosLifecycleObserver with WidgetsBindingObserver {
+  _PedidosLifecycleObserver({required this.onResume});
+  final VoidCallback onResume;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      onResume();
+    }
   }
 }
 

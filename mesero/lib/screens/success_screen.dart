@@ -7,8 +7,9 @@ class SuccessScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: isDark ? const Color(0xFF101218) : const Color(0xFFF5F5F5),
       body: SafeArea(
         child: Center(
           child: Padding(

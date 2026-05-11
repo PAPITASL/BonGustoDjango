@@ -1,4 +1,5 @@
-/* Reset básico */
+/* Reinicio general */
+/* Esto ayuda a que todos los elementos arranquen desde una base limpia */
 *,
 *::before,
 *::after {
@@ -7,20 +8,23 @@
     padding: 0;
 }
 
-/* Estilos generales */
+/* Estilos base de la página */
+/* Aquí se define la apariencia general antes de entrar al login */
 body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background-color: #f7f7f7;
     color: #222;
 }
 
-/* Layout principal */
+/* Contenedor principal */
+/* Organiza la pantalla en dos secciones: imagen y formulario */
 .auth-row {
     display: flex;
     min-height: 100vh;
 }
 
-/* Sección izquierda con imagen */
+/* Bloque izquierdo con imagen */
+/* Esta parte funciona como apoyo visual del diseño */
 .auth-image-section {
     flex: 1;
     background-image: url("https://i.pinimg.com/1200x/ac/4c/be/ac4cbe1faf6947c0d781d894aa7f7379.jpg");
@@ -29,7 +33,8 @@ body {
     background-repeat: no-repeat;
 }
 
-/* Sección derecha con formulario */
+/* Bloque derecho del login */
+/* Aquí se centra todo el contenido del formulario */
 .auth-form-section {
     flex: 1;
     display: flex;
@@ -39,14 +44,16 @@ body {
     background-color: #ffffff;
 }
 
-/* Tarjeta del formulario */
+/* Tarjeta principal */
+/* Este contenedor guarda todo el formulario */
 .auth-card {
     width: 100%;
     max-width: 360px;
     background-color: #ffffff;
 }
 
-/* Títulos y texto */
+/* Títulos y textos */
+/* Título principal que ve el usuario al entrar */
 .auth-title {
     font-size: 1.8rem;
     font-weight: 700;
@@ -54,6 +61,7 @@ body {
     color: #222;
 }
 
+/* Texto de apoyo debajo del título */
 .auth-subtitle {
     font-size: 0.9rem;
     color: #555;
@@ -61,11 +69,14 @@ body {
     line-height: 1.4;
 }
 
-/* Formulario */
+/* Estructura del formulario */
+/* Separación entre cada grupo de campos */
 .form-group {
     margin-bottom: 1rem;
 }
 
+/* Etiquetas de los inputs */
+/* Sirven para indicar qué debe escribir el usuario */
 .form-group label {
     display: block;
     font-size: 0.9rem;
@@ -74,6 +85,8 @@ body {
     color: #333;
 }
 
+/* Campos de entrada */
+/* Apariencia general de los inputs del formulario */
 .form-group input {
     width: 100%;
     padding: 0.55rem 0.75rem;
@@ -81,15 +94,20 @@ body {
     border: 1px solid #d4d4d4;
     font-size: 0.95rem;
     outline: none;
+
+    /* Transición suave para que el cambio visual no se vea brusco */
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Estado focus del input */
+/* Cambia el borde y agrega sombra cuando el usuario selecciona el campo */
 .form-group input:focus {
     border-color: #b71c1c;
     box-shadow: 0 0 0 2px rgba(183, 28, 28, 0.12);
 }
 
 /* Botón principal */
+/* Botón que envía el formulario para iniciar sesión */
 .btn-primary {
     width: 100%;
     margin-top: 0.3rem;
@@ -101,43 +119,59 @@ body {
     font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
+
+    /* Efectos suaves para interacción */
     transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
+/* Efecto al pasar el mouse */
+/* Cambia un poco el tono para dar respuesta visual */
 .btn-primary:hover {
     background-color: #a51212;
 }
 
+/* Efecto al presionar */
+/* Hace que el botón se vea un poco más compacto al hacer click */
 .btn-primary:active {
     transform: scale(0.98);
 }
 
-/* Enlace para volver */
+/* Zona del enlace inferior */
+/* Se usa para mostrar la opción de volver */
 .back-login {
     margin-top: 1rem;
     text-align: center;
 }
 
+/* Enlace pequeño */
+/* Estilo del link secundario */
 .link-small {
     font-size: 0.85rem;
     color: #b71c1c;
     text-decoration: none;
 }
 
+/* Hover del enlace */
+/* Al pasar el mouse se subraya */
 .link-small:hover {
     text-decoration: underline;
 }
 
-/* Responsive */
+/* Adaptación responsive */
+/* Ajustes para que el login funcione mejor en pantallas pequeñas */
 @media (max-width: 768px) {
+
+    /* La estructura pasa de horizontal a vertical */
     .auth-row {
         flex-direction: column;
     }
 
+    /* En móvil se oculta la imagen para dar prioridad al formulario */
     .auth-image-section {
         display: none;
     }
 
+    /* El formulario toma todo el espacio disponible */
     .auth-form-section {
         flex: none;
         min-height: 100vh;

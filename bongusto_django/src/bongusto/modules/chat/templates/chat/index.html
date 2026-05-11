@@ -6,11 +6,11 @@ Chat
 
 {% block extra_css %}
 
-<!-- CSS del módulo -->
+<!-- CSS propio del módulo chat -->
 <link rel="stylesheet" href="/static/css/chat.css">
 
 <style>
-  /* Contenedor principal del chat */
+  /* Contenedor principal de toda la interfaz del chat */
   .chat-container {
     max-width: 900px;
     margin: 0 auto;
@@ -20,7 +20,7 @@ Chat
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
 
-  /* Caja donde salen los mensajes */
+  /* Caja donde se cargan y muestran los mensajes */
   #chat-box {
     height: 400px;
     overflow-y: auto;
@@ -39,14 +39,14 @@ Chat
     max-width: 70%;
   }
 
-  /* Mensaje del mismo usuario */
+  /* Mensaje del usuario actual */
   .msg.mine {
     background: #d90416;
     color: white;
     margin-left: auto;
   }
 
-  /* Mensaje del otro usuario */
+  /* Mensaje del otro participante */
   .msg.other {
     background: #f0f0f0;
     color: #333;
@@ -69,7 +69,7 @@ Chat
     opacity: 0.8;
   }
 
-  /* Puntico de estado */
+  /* Punto visual para el estado de conexión */
   .status-dot {
     width: 8px;
     height: 8px;
@@ -78,12 +78,12 @@ Chat
     margin-right: 5px;
   }
 
-  /* Conectado */
+  /* Estado conectado */
   .connected {
     background: #28a745;
   }
 
-  /* Desconectado */
+  /* Estado desconectado */
   .disconnected {
     background: #dc3545;
   }
@@ -92,41 +92,41 @@ Chat
 
 {% block content %}
 
-<!-- Título -->
+<!-- Título principal de la vista -->
 <h2 class="text-center mb-4">
   <strong>Chat Interno</strong>
 </h2>
 
 <div class="chat-container">
 
-  <!-- Encabezado del chat -->
+  <!-- Encabezado superior del chat -->
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 style="margin:0;">Chat en Tiempo Real</h5>
 
-    <!-- Estado de conexión -->
+    <!-- Estado actual de la conexión -->
     <span id="status-label" style="font-size:.8rem;">
       <span class="status-dot disconnected" id="status-dot"></span>
       <span id="status-text" style="color:#999;">Conectando...</span>
     </span>
   </div>
 
-  <!-- Datos de la conversación -->
+  <!-- Datos principales de la conversación -->
   <div class="row g-2 mb-3">
 
-    <!-- Usuario actual -->
+    <!-- Usuario que está usando el chat -->
     <div class="col-md-6">
       <label for="chat-participante" class="form-label">Participante actual</label>
       <input id="chat-participante" class="form-control" value="{{ participante }}" />
     </div>
 
-    <!-- Usuario con el que va a hablar -->
+    <!-- Usuario con el que se quiere hablar -->
     <div class="col-md-6">
       <label for="chat-destino" class="form-label">Hablar con</label>
       <input id="chat-destino" class="form-control" value="{{ conversacion_con|default:'mesero' }}" />
     </div>
   </div>
 
-  <!-- Caja de mensajes -->
+  <!-- Caja donde aparecen los mensajes -->
   <div id="chat-box">
 
     {% for msg in mensajes %}
@@ -142,7 +142,7 @@ Chat
 
   </div>
 
-  <!-- Zona para escribir -->
+  <!-- Zona para escribir y enviar mensajes -->
   <div class="d-flex gap-2">
     <textarea
       id="chat-input"
@@ -162,23 +162,22 @@ Chat
 
 {% block extra_js %}
 <script>
-  // Este es el nombre del usuario actual
+  // Guarda el nombre del usuario actual
   let usuarioNombre = "{{ participante|escapejs }}";
 
-  // Elementos del DOM
+  // Elementos principales del DOM
   const chatBox = document.getElementById("chat-box");
   const inputEl = document.getElementById("chat-input");
   const btnSend = document.getElementById("btn-send");
   const participanteEl = document.getElementById("chat-participante");
   const destinoEl = document.getElementById("chat-destino");
 
-  // Si la página usa https, el socket usa wss
+  // Si la página trabaja con https, usa wss
   // Si no, usa ws normal
   const wsProto = location.protocol === "https:" ? "wss" : "ws";
 
   // Aquí se guardará la conexión WebSocket
   let socket = null;
-
 
   // Cambia el estado visual de conexión
   function setStatus(on) {
@@ -189,50 +188,48 @@ Chat
       on ? "Conectado" : "Desconectado";
   }
 
-
-  // Agrega un mensaje al chat en pantalla
+  // Agrega un mensaje nuevo al chat en pantalla
   function appendMsg(sender, text, tipo) {
     const div = document.createElement("div");
 
-    // Si es mensaje del sistema
+    // Si es un mensaje del sistema
     if (tipo === "system") {
       div.className = "msg system";
       div.textContent = text;
     } else {
-      // Si es mensaje normal
+      // Si es un mensaje normal entre usuarios
       div.className = "msg " + (sender === usuarioNombre ? "mine" : "other");
 
-      // Aquí se arma el HTML del mensaje
-      // replace("<", "&lt;") ayuda a evitar que se inyecte HTML raro
+      // Aquí se arma el contenido HTML del mensaje
+      // replace("<", "&lt;") ayuda a evitar inyecciones raras en pantalla
       div.innerHTML =
         `<div class="sender">${sender}</div>${String(text || "").replace(/</g, "&lt;")}`;
     }
 
-    // Lo agrega al contenedor
+    // Se agrega al contenedor del chat
     chatBox.appendChild(div);
 
-    // Baja automáticamente al final
+    // Baja automáticamente hasta el final
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-
-  // Crea la conexión WebSocket
+  // Crea la conexión con el WebSocket
   function connectSocket() {
     usuarioNombre = participanteEl.value.trim() || "administrador";
 
-    // Ruta del socket
+    // Ruta del socket según el usuario actual
     socket = new WebSocket(`${wsProto}://${location.host}/ws/chat/${usuarioNombre}/`);
 
-    // Cuando conecta
+    // Cuando conecta correctamente
     socket.onopen = () => setStatus(true);
 
-    // Cuando se cierra
+    // Cuando se cierra la conexión
     socket.onclose = () => setStatus(false);
 
-    // Si ocurre error
+    // Si ocurre un error
     socket.onerror = () => setStatus(false);
 
-    // Cuando llega un mensaje nuevo
+    // Cuando llega un mensaje nuevo desde el servidor
     socket.onmessage = (e) => {
       const d = JSON.parse(e.data);
       const destino = destinoEl.value.trim();
@@ -244,8 +241,7 @@ Chat
     };
   }
 
-
-  // Carga el historial anterior del chat
+  // Carga el historial anterior de la conversación
   async function loadHistory() {
     chatBox.innerHTML = "";
 
@@ -254,30 +250,29 @@ Chat
 
     if (!participante || !destino) return;
 
-    // Consulta al backend el historial
+    // Consulta al backend los mensajes anteriores
     const resp = await fetch(
       `/api/chat/historial?participante=${encodeURIComponent(participante)}&con=${encodeURIComponent(destino)}`
     );
 
     const data = await resp.json();
 
-    // Si no hay mensajes, muestra mensaje del sistema
+    // Si no hay mensajes, muestra aviso del sistema
     if (!Array.isArray(data) || !data.length) {
       appendMsg("Sistema", "Sin mensajes anteriores en esta conversacion.", "system");
       return;
     }
 
-    // Agrega todos los mensajes
+    // Agrega todos los mensajes encontrados
     data.forEach((msg) => appendMsg(msg.remitente, msg.mensaje, "mensaje"));
   }
 
-
-  // Envía un mensaje
+  // Envía un mensaje nuevo
   function sendMsg() {
     const txt = inputEl.value.trim();
     const destino = destinoEl.value.trim();
 
-    // Si falta algo o no está conectado, no hace nada
+    // Si falta texto, destino o conexión, no envía nada
     if (!txt || !destino || !socket || socket.readyState !== WebSocket.OPEN) return;
 
     // Envía el mensaje al servidor
@@ -288,15 +283,15 @@ Chat
       mensaje: txt
     }));
 
-    // Limpia el textarea
+    // Limpia el textarea después de enviar
     inputEl.value = "";
   }
 
-
-  // Click en el botón enviar
+  // Click en el botón de enviar
   btnSend.addEventListener("click", sendMsg);
 
-  // Enter envía, Shift + Enter hace salto de línea
+  // Enter envía el mensaje
+  // Shift + Enter permite salto de línea
   inputEl.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -304,17 +299,17 @@ Chat
     }
   });
 
-  // Si cambia el participante, se reconecta el socket y recarga historial
+  // Si cambia el participante, se vuelve a conectar y recarga historial
   participanteEl.addEventListener("change", () => {
     if (socket) socket.close();
     connectSocket();
     loadHistory();
   });
 
-  // Si cambia el destino, solo recarga historial
+  // Si cambia el destino, solo vuelve a cargar el historial
   destinoEl.addEventListener("change", loadHistory);
 
-  // Al cargar la página
+  // Al abrir la página, conecta el socket y carga mensajes anteriores
   connectSocket();
   loadHistory();
 </script>

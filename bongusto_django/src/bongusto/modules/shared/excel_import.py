@@ -1,10 +1,11 @@
-"""Utilidades compartidas para importacion masiva desde Excel."""
+"""Funciones compartidas para manejar la importacion masiva de datos desde archivos Excel."""
 
 import unicodedata
 from zipfile import BadZipFile
 
 
 def normalizar_encabezado(valor):
+    """Limpia y transforma los encabezados del Excel a un formato estandar."""
     texto = str(valor or "").strip().lower()
     texto = unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode("ascii")
 
@@ -18,12 +19,14 @@ def normalizar_encabezado(valor):
 
 
 def texto_limpio(valor):
+    """Convierte cualquier valor en texto limpio, evitando errores con nulos."""
     if valor is None:
         return ""
     return str(valor).strip()
 
 
 def obtener_load_workbook():
+    """Importa la funcion necesaria de openpyxl para trabajar con archivos Excel."""
     try:
         from openpyxl import load_workbook
     except ImportError:
@@ -32,6 +35,7 @@ def obtener_load_workbook():
 
 
 def leer_filas_excel(archivo_excel):
+    """Lee un archivo Excel y devuelve sus filas organizadas como lista de diccionarios."""
     if not archivo_excel:
         raise ValueError("Debes seleccionar un archivo Excel para importar.")
 

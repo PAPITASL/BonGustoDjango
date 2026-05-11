@@ -1,8 +1,6 @@
-// ===== Pantalla `confirm_code_screen.dart` | En esta vista se valida el codigo OTP antes de cambiar la contrasena. =====
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-// ===== Clase `ConfirmCodeScreen` | Define la pantalla donde se ingresan los digitos del codigo recibido. =====
 class ConfirmCodeScreen extends StatefulWidget {
   const ConfirmCodeScreen({super.key});
 
@@ -10,25 +8,22 @@ class ConfirmCodeScreen extends StatefulWidget {
   State<ConfirmCodeScreen> createState() => _ConfirmCodeScreenState();
 }
 
-// ===== Estado `_ConfirmCodeScreenState` | Maneja controladores, foco y validacion del codigo OTP. =====
 class _ConfirmCodeScreenState extends State<ConfirmCodeScreen> {
-  final List<TextEditingController> _otpCtrls = List.generate(
-    5,
-    (_) => TextEditingController(),
-  ); // Controla dígitos
-  final List<FocusNode> _otpNodes = List.generate(
-    5,
-    (_) => FocusNode(),
-  ); // Controla foco
+  final List<TextEditingController> _otpCtrls =
+      List.generate(6, (_) => TextEditingController());
+  final List<FocusNode> _otpNodes = List.generate(6, (_) => FocusNode());
 
   @override
   void dispose() {
-    for (final c in _otpCtrls) c.dispose();
-    for (final f in _otpNodes) f.dispose();
+    for (final c in _otpCtrls) {
+      c.dispose();
+    }
+    for (final f in _otpNodes) {
+      f.dispose();
+    }
     super.dispose();
   }
 
-  // Cambio de foco automático
   void _onOtpChanged(int index, String value) {
     if (value.isNotEmpty && index < _otpNodes.length - 1) {
       _otpNodes[index + 1].requestFocus();
@@ -39,24 +34,36 @@ class _ConfirmCodeScreenState extends State<ConfirmCodeScreen> {
     setState(() {});
   }
 
-  // Obtiene el codigo completo
   String get _code => _otpCtrls.map((c) => c.text).join();
 
-  // Confirmar
   void _confirm() {
-    if (_code.length == 5) {
-      Navigator.pushNamed(context, '/reset');
-    } else {
-      ScaffoldMessenger.of(
+    final args =
+        (ModalRoute.of(context)?.settings.arguments as Map?) ?? const {};
+    final correo = (args['correo'] ?? '').toString();
+
+    if (correo.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Primero solicita el código por correo')),
+      );
+      return;
+    }
+
+    if (_code.length == 6) {
+      Navigator.pushNamed(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Ingresa los 5 dígitos')));
+        '/reset',
+        arguments: {'correo': correo, 'codigo': _code},
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ingresa los 6 dígitos')),
+      );
     }
   }
 
-  // Widget burbuja
   Widget _otpBubble(int index) {
     return Container(
-      width: 58,
+      width: 48,
       height: 58,
       decoration: BoxDecoration(
         color: const Color(0xFFF1DADA),
@@ -82,8 +89,14 @@ class _ConfirmCodeScreenState extends State<ConfirmCodeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const cardText = Color(0xFF181818);
+    final args =
+        (ModalRoute.of(context)?.settings.arguments as Map?) ?? const {};
+    final correo = (args['correo'] ?? '').toString();
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: isDark ? const Color(0xFF101218) : const Color(0xFFF5F5F5),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -108,14 +121,20 @@ class _ConfirmCodeScreenState extends State<ConfirmCodeScreen> {
                       const Text(
                         'Código de verificación',
                         style: TextStyle(
+                          color: cardText,
                           fontSize: 26,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
+                      const SizedBox(height: 10),
+                      Text(
+                        correo,
+                        style: const TextStyle(color: Colors.black54),
+                      ),
                       const SizedBox(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: List.generate(5, _otpBubble),
+                        children: List.generate(6, _otpBubble),
                       ),
                       const SizedBox(height: 28),
                       ElevatedButton(
@@ -133,3 +152,4 @@ class _ConfirmCodeScreenState extends State<ConfirmCodeScreen> {
     );
   }
 }
+

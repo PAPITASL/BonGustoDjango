@@ -1,12 +1,11 @@
-"""Modelos o aliases del modulo `dashboard`. Este archivo identifica las entidades que pertenecen a resumen general y metricas del panel."""
+"""Modelos o aliases del modulo `dashboard`. Aquí se agrupan las entidades que usa el panel para mostrar la información general."""
 
-# Importamos los modelos principales desde la capa domain
-# (estos son los que realmente usa el dashboard para mostrar datos)
+# Se importan los modelos desde la capa de dominio
+# Estos son los que el dashboard necesita para mostrar datos reales del sistema
 from bongusto.domain.models import Categoria, Menu, Musica, Producto, Reserva, Usuario
 
-# __all__ sirve para definir que modelos se exportan cuando alguien hace:
-# from modulo import *
-# Es como decir: "estos son los modelos importantes de este modulo"
+# __all__ define qué modelos se pueden usar cuando otro archivo importa este módulo
+# Básicamente indica cuáles son los más importantes dentro del dashboard
 __all__ = [
     "Usuario",
     "Menu",

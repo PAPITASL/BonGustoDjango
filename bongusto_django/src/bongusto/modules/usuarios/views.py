@@ -1,10 +1,8 @@
 """
-Vistas simples del modulo usuarios.
-
-Se dejo en un estilo mas directo y facil de seguir para estudiantes que apenas
-estan empezando con Python, POO y Django.
+Vistas del modulo usuarios.
+En este archivo se manejan las vistas principales del modulo, tanto
+las del panel web como algunas funciones de apoyo para la API.
 """
-
 import json
 from collections import defaultdict
 
@@ -26,7 +24,7 @@ from bongusto.modules.shared.security import (
 
 
 class UsuarioPageHelper:
-    """Ayuda a preparar datos de pantalla y del reporte."""
+    """Apoya la construccion de contextos, etiquetas y reportes del modulo usuarios."""
 
     TIPO_CHOICES = [
         ("cliente", "Cliente"),
@@ -36,19 +34,20 @@ class UsuarioPageHelper:
     ]
 
     def __init__(self):
+        # Se inicializan los servicios que apoyan la logica del modulo.
         self.usuario_service = UsuarioService()
         self.rol_service = RolService()
 
     def roles_mesero(self):
-        """Devuelve solo roles relacionados con mesero."""
+        """Devuelve solo los roles que tengan relacion con mesero."""
         return list(Rol.objects.filter(nombre_rol__icontains="mesero").order_by("nombre_rol"))
 
     def rol_mesero_por_defecto(self):
-        """Busca el primer rol de mesero disponible."""
+        """Busca el primer rol de mesero disponible para usarlo por defecto."""
         return Rol.objects.filter(nombre_rol__icontains="mesero").order_by("nombre_rol").first()
 
     def tipo_usuario_desde_rol(self, rol):
-        """Convierte el rol en un tipo de usuario simple."""
+        """Convierte el nombre del rol en un tipo de usuario mas simple."""
         nombre_rol = ""
         if rol:
             nombre_rol = (rol.nombre_rol or "").strip().lower()
@@ -64,7 +63,7 @@ class UsuarioPageHelper:
         return "mesero"
 
     def label_rol_o_tipo(self, usuario):
-        """Devuelve el texto visible del rol o tipo."""
+        """Devuelve el texto visible que se mostrara como rol o tipo del usuario."""
         if usuario and usuario.id_rol:
             return usuario.id_rol.nombre_rol
 
@@ -83,7 +82,7 @@ class UsuarioPageHelper:
         return "Sin rol definido"
 
     def segmento_usuario(self, usuario):
-        """Clasifica usuarios para el reporte."""
+        """Clasifica al usuario en un segmento simple para usarlo en reportes."""
         tipo = (usuario.tipo_usuario or "").strip().lower()
 
         if tipo == "administrador":
@@ -101,7 +100,7 @@ class UsuarioPageHelper:
         return "Cliente"
 
     def contexto_form_crear(self, usuario=None, error=None):
-        """Contexto del formulario para crear mesero."""
+        """Arma el contexto que necesita el formulario para crear un mesero."""
         if usuario is None:
             usuario = Usuario()
 
@@ -124,7 +123,7 @@ class UsuarioPageHelper:
         }
 
     def contexto_form_ver(self, usuario):
-        """Contexto del formulario de lectura."""
+        """Arma el contexto para mostrar un usuario en modo solo lectura."""
         try:
             roles = self.roles_mesero()
         except Exception:
@@ -141,7 +140,7 @@ class UsuarioPageHelper:
         }
 
     def construir_reporte(self, usuarios):
-        """Arma los bloques del PDF de usuarios."""
+        """Construye todos los bloques necesarios para el PDF de usuarios."""
         usuarios = list(usuarios)
         resumen = self._resumen_actividad_por_usuario(usuarios)
 
@@ -154,6 +153,7 @@ class UsuarioPageHelper:
         activos = 0
         inactivos = 0
 
+        # Se recorre cada usuario para resumir su estado, actividad y clasificacion.
         for usuario in usuarios:
             segmento = self.segmento_usuario(usuario)
             roles[segmento] = roles.get(segmento, 0) + 1
@@ -199,10 +199,12 @@ class UsuarioPageHelper:
                 ]
             )
 
+        # Se organiza el ranking para dejar arriba a los clientes con mas pedidos.
         ranking_clientes.sort(key=lambda fila: int(fila[2]), reverse=True)
         if not ranking_clientes:
             ranking_clientes.append(["Sin clientes", "-", "0", "-"])
 
+        # Se arma el crecimiento por mes para mostrarlo en tabla.
         crecimiento_rows = []
         for (year, month), total in sorted(crecimiento_por_mes.items()):
             crecimiento_rows.append([f"{month:02d}/{year}", str(total)])
@@ -256,7 +258,7 @@ class UsuarioPageHelper:
         ]
 
     def _resumen_actividad_por_usuario(self, usuarios):
-        """Cuenta pedidos, reservas, bitacora y primera actividad por usuario."""
+        """Cuenta la actividad general de cada usuario para usarla en el reporte."""
         usuario_ids = [usuario.id_usuario for usuario in usuarios]
         datos = defaultdict(
             lambda: {
@@ -274,6 +276,7 @@ class UsuarioPageHelper:
         return {"por_usuario": datos}
 
     def _sumar_pedidos(self, usuario_ids, datos):
+        """Suma los pedidos hechos por cada usuario."""
         pedidos = PedidoEncabezado.objects.filter(id_usuario_id__in=usuario_ids).only(
             "id_usuario_id",
             "fecha_pedido",
@@ -286,6 +289,7 @@ class UsuarioPageHelper:
                 self._guardar_primera_fecha(datos[pedido.id_usuario_id], pedido.fecha_pedido)
 
     def _sumar_reservas(self, usuario_ids, datos):
+        """Suma las reservas hechas por cada usuario."""
         reservas = Reserva.objects.filter(id_usuario_id__in=usuario_ids).only(
             "id_usuario_id",
             "fecha_reser",
@@ -298,6 +302,7 @@ class UsuarioPageHelper:
                 self._guardar_primera_fecha(datos[reserva.id_usuario_id], reserva.fecha_reser)
 
     def _sumar_logs(self, usuario_ids, datos):
+        """Suma los movimientos registrados en bitacora por usuario."""
         logs = Bitacora.objects.filter(id_usuario_id__in=usuario_ids).only(
             "id_usuario_id",
             "fecha_accion",
@@ -310,18 +315,20 @@ class UsuarioPageHelper:
                 self._guardar_primera_fecha(datos[log.id_usuario_id], log.fecha_accion.date())
 
     def _guardar_primera_fecha(self, resumen_usuario, fecha):
+        """Guarda la fecha mas antigua detectada como primera actividad del usuario."""
         actual = resumen_usuario["primera_fecha"]
         if actual is None or fecha < actual:
             resumen_usuario["primera_fecha"] = fecha
 
 
+# Helper principal del modulo para no repetir logica en las vistas.
 helper = UsuarioPageHelper()
 usuario_service = helper.usuario_service
 mesa_service = MesaStateService()
 
 
 def index(request):
-    """Muestra el listado principal de usuarios."""
+    """Muestra el listado principal de usuarios con filtros basicos."""
     nombre = request.GET.get("nombre", "")
     correo = request.GET.get("correo", "")
     rol = request.GET.get("rol", "")
@@ -345,12 +352,12 @@ def index(request):
 
 
 def create(request):
-    """Muestra el formulario para crear mesero."""
+    """Muestra el formulario para registrar un nuevo mesero."""
     return render(request, "usuario/create.html", helper.contexto_form_crear())
 
 
 def ver(request, pk):
-    """Muestra el detalle del usuario."""
+    """Muestra el detalle de un usuario en modo lectura."""
     try:
         usuario = usuario_service.buscar_por_id(pk)
     except Exception:
@@ -363,13 +370,15 @@ def ver(request, pk):
 
 
 def store(request):
-    """Guarda un nuevo usuario tipo mesero."""
+    """Guarda un nuevo usuario tipo mesero desde el formulario web."""
     if request.method != "POST":
         return redirect("/usuarios")
 
+    # Se toma la clave enviada y se valida con la politica de seguridad.
     clave = request.POST.get("clave", "")
     clave_valida, error_clave = validar_contrasena_segura(clave)
 
+    # Este objeto sirve para devolver la informacion escrita si algo falla.
     usuario_preview = Usuario(
         nombre=request.POST.get("nombre", ""),
         apellido=request.POST.get("apellido", ""),
@@ -393,6 +402,7 @@ def store(request):
         usuario.estado = "Activo"
         usuario.tipo_usuario = "mesero"
 
+        # Si llega un rol, se valida que realmente sea de tipo mesero.
         rol_id = request.POST.get("id_rol")
         rol_mesero = None
         if rol_id:
@@ -401,11 +411,13 @@ def store(request):
                 nombre_rol__icontains="mesero",
             ).first()
 
+        # Si no llega un rol valido, se intenta usar uno por defecto.
         usuario.id_rol = rol_mesero or helper.rol_mesero_por_defecto()
         usuario.tipo_usuario = helper.tipo_usuario_desde_rol(usuario.id_rol)
 
         usuario_service.guardar(usuario)
 
+        # Se registra el movimiento en bitacora para dejar trazabilidad.
         registrar_movimiento(
             request,
             f"Creacion de usuario tipo mesero {usuario.nombre_completo() or usuario.correo or usuario.id_usuario}.",
@@ -420,17 +432,17 @@ def store(request):
 
 
 def edit(request, pk):
-    """No edita desde esta pantalla. Redirige al detalle."""
+    """Por ahora esta vista no edita directamente. Redirige al detalle del usuario."""
     return redirect(f"/usuarios/{pk}")
 
 
 def update(request, pk):
-    """No actualiza desde esta pantalla. Redirige al detalle."""
+    """Por ahora esta vista no actualiza desde esta pantalla. Redirige al detalle."""
     return redirect(f"/usuarios/{pk}")
 
 
 def toggle_estado(request, pk):
-    """Activa o desactiva un usuario."""
+    """Activa o desactiva un usuario segun su estado actual."""
     if request.method != "POST":
         return redirect("/usuarios")
 
@@ -454,12 +466,12 @@ def toggle_estado(request, pk):
 
 
 def delete(request, pk):
-    """No elimina usuarios desde esta vista."""
+    """No se permite eliminar usuarios desde esta vista."""
     return redirect("/usuarios")
 
 
 def reporte(request):
-    """Genera el PDF del listado de usuarios."""
+    """Genera el PDF del listado de usuarios usando los filtros actuales."""
     try:
         nombre = request.GET.get("nombre", "")
         correo = request.GET.get("correo", "")
@@ -478,7 +490,7 @@ def reporte(request):
 
 
 def _usuario_to_dict(usuario):
-    """Convierte un usuario a formato JSON simple."""
+    """Convierte un usuario a un diccionario simple para responder por JSON."""
     return {
         "id_usuario": usuario.id_usuario,
         "nombre": usuario.nombre or "",
@@ -492,17 +504,19 @@ def _usuario_to_dict(usuario):
 
 
 def _usuario_api_payload(usuario):
-    """Agrega token API a la respuesta del usuario."""
+    """Arma el payload final del usuario para la API, incluyendo token y mesa."""
     payload = _usuario_to_dict(usuario)
     mesa = mesa_service.mesa_por_usuario(usuario.id_usuario)
     payload["mesa_id"] = mesa.get("id") if mesa else None
-    payload["mesa_label"] = f"Mesa {mesa.get('id')}" if mesa and mesa.get("id") else ""
+    payload["mesa_numero"] = mesa.get("numero_mesa") if mesa else None
+    payload["mesa_label"] = mesa.get("etiqueta") if mesa else ""
+    payload["mesa_estado"] = mesa.get("estado") if mesa else ""
     payload["api_token"] = emitir_api_token(usuario)
     return payload
 
 
 def _leer_json_request(request):
-    """Lee JSON del body de la peticion."""
+    """Lee el body JSON de la peticion y devuelve error si viene mal formado."""
     try:
         return json.loads(request.body or "{}"), None
     except json.JSONDecodeError:
@@ -524,6 +538,7 @@ def api_registro_cliente(request):
     clave = data.get("clave") or ""
     telefono = (data.get("telefono") or "").strip()
 
+    # Se validan los datos minimos necesarios para registrar al cliente.
     if not nombre_completo or not correo or not clave:
         return JsonResponse(
             {"error": "Nombre, correo y clave son obligatorios"},
@@ -537,6 +552,7 @@ def api_registro_cliente(request):
     if usuario_service.buscar_por_correo(correo):
         return JsonResponse({"error": "El correo ya esta registrado"}, status=400)
 
+    # Se divide el nombre completo en nombre y apellido de forma basica.
     partes = nombre_completo.split()
     nombre = partes[0]
     apellido = " ".join(partes[1:]) if len(partes) > 1 else ""
@@ -556,7 +572,7 @@ def api_registro_cliente(request):
 
 @csrf_exempt
 def api_login_cliente(request):
-    """Permite login de clientes por API."""
+    """Permite el inicio de sesion de clientes desde la API."""
     if request.method != "POST":
         return JsonResponse({"error": "Metodo no permitido"}, status=405)
 
@@ -569,6 +585,12 @@ def api_login_cliente(request):
     usuario = usuario_service.autenticar(correo, clave)
 
     if not usuario:
+        usuario_existente = usuario_service.buscar_por_correo(correo)
+        if usuario_existente and (usuario_existente.estado or "").strip().lower() != "activo":
+            return JsonResponse(
+                {"error": "Esta cuenta esta desactivada. Contacta al administrador."},
+                status=403,
+            )
         return JsonResponse({"error": "Correo o clave incorrectos"}, status=401)
 
     return JsonResponse(_usuario_api_payload(usuario))
@@ -576,7 +598,7 @@ def api_login_cliente(request):
 
 @csrf_exempt
 def api_login_mesero(request):
-    """Permite login de usuarios tipo mesero por API."""
+    """Permite el inicio de sesion de meseros desde la API."""
     if request.method != "POST":
         return JsonResponse({"error": "Metodo no permitido"}, status=405)
 
@@ -589,28 +611,33 @@ def api_login_mesero(request):
     usuario = usuario_service.autenticar(correo, clave)
 
     if not usuario:
+        usuario_existente = usuario_service.buscar_por_correo(correo)
+        if usuario_existente and (usuario_existente.estado or "").strip().lower() != "activo":
+            return JsonResponse(
+                {"error": "Esta cuenta esta desactivada. Contacta al administrador."},
+                status=403,
+            )
         return JsonResponse({"error": "Correo o clave incorrectos"}, status=401)
 
     es_mesero = (usuario.tipo_usuario or "").strip().lower() == "mesero"
     rol_nombre = (usuario.get_rol_nombre() or "").strip().lower()
 
+    # Se valida que realmente sea un usuario de tipo mesero.
     if not es_mesero and "mesero" not in rol_nombre:
         return JsonResponse(
             {"error": "Solo usuarios tipo mesero pueden ingresar aqui"},
             status=403,
         )
-
     return JsonResponse(_usuario_api_payload(usuario))
-
-
 @csrf_exempt
 def api_refresh_session(request):
-    """Entrega un token nuevo para la sesion actual."""
+    """Entrega un token nuevo para mantener activa la sesion actual."""
     from bongusto.modules.shared.api_auth import resolver_usuario_api
 
     if request.method != "GET":
         return JsonResponse({"error": "Metodo no permitido"}, status=405)
 
+    # Se intenta resolver el usuario actual a partir del token enviado.
     usuario, _, error = resolver_usuario_api(request)
     if error:
         return error

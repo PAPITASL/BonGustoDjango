@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Notificaciones{% endblock %}
+{% block page_heading %}Centro de notificaciones{% endblock %}
+
+{% block content %}
+<style>
+  .notif-shell { display:grid; gap:20px; }
+  .notif-hero {
+    display:grid;
+    grid-template-columns: 1.3fr .9fr;
+    gap:20px;
+    padding:28px;
+    border-radius:28px;
+    background: linear-gradient(135deg, #fff6ef 0%, #fff 60%, #fff4f5 100%);
+    border:1px solid #f1e5e8;
+    box-shadow: 0 18px 40px rgba(24, 24, 24, .06);
+  }
+  .notif-hero h2 { margin:0; font-size:30px; color:#181818; font-weight:900; }
+  .notif-hero p { margin:10px 0 0; color:#73727a; line-height:1.6; }
+  .notif-cta {
+    display:inline-flex; align-items:center; gap:10px; margin-top:20px; padding:14px 20px;
+    border-radius:18px; background:#d90416; color:#fff; font-weight:800; text-decoration:none;
+    box-shadow:0 16px 24px rgba(217, 4, 22, .18);
+  }
+  .notif-summary { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+  .notif-stat {
+    padding:18px; border-radius:22px; background:#fff; border:1px solid #eee7eb;
+  }
+  .notif-stat .label { color:#73727a; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; }
+  .notif-stat .value { margin-top:8px; color:#181818; font-size:28px; font-weight:900; }
+  .notif-type-row {
+    display:flex; gap:10px; flex-wrap:wrap; margin-top:18px;
+  }
+  .notif-type-pill {
+    display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:999px;
+    background:#fff; border:1px solid #eee7eb; color:#4d4c53; font-weight:700; font-size:13px;
+  }
+  .notif-feed { display:grid; gap:14px; }
+  .notif-card {
+    display:grid; grid-template-columns:auto 1fr auto; gap:16px;
+    padding:18px; border-radius:24px; background:#fff; border:1px solid #ebe6ea;
+    box-shadow:0 14px 30px rgba(24, 24, 24, .05);
+  }
+  .notif-icon {
+    width:52px; height:52px; border-radius:18px; display:grid; place-items:center; font-size:18px;
+  }
+  .notif-card h3 { margin:0; color:#181818; font-size:18px; font-weight:850; }
+  .notif-meta { display:flex; gap:10px; flex-wrap:wrap; margin:8px 0 10px; }
+  .notif-chip {
+    display:inline-flex; align-items:center; gap:7px; padding:7px 11px; border-radius:999px; font-size:12px; font-weight:800;
+  }
+  .notif-copy { color:#5e5c64; line-height:1.6; }
+  .notif-side { text-align:right; min-width:118px; }
+  .notif-time { color:#73727a; font-size:12px; font-weight:700; }
+  .notif-status {
+    margin-top:10px; display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px;
+    font-size:12px; font-weight:800;
+  }
+  @media (max-width: 920px) {
+    .notif-hero { grid-template-columns:1fr; }
+    .notif-card { grid-template-columns:1fr; }
+    .notif-side { text-align:left; min-width:0; }
+  }
+</style>
+
+<div class="notif-shell">
+  <section class="notif-hero">
+    <div>
+      <div style="display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:999px;background:#fff;border:1px solid #efe4e8;color:#d90416;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.06em;">
+        <i class="fa fa-bell"></i> Mensajería con estilo app
+      </div>
+      <h2>Notificaciones que se sienten modernas</h2>
+      <p>Desde aquí puedes disparar avisos de cumpleaños, promociones, beneficios e invitaciones con una presentación más cercana a experiencias como Rappi o Instagram: claras, cortas y fáciles de leer para el cliente.</p>
+      <a href="/notificaciones/create" class="notif-cta">
+        <i class="fa fa-paper-plane"></i> Crear nueva notificacion
+      </a>
+      <div class="notif-type-row">
+        {% for tipo, total in resumen.tipos.items %}
+        <div class="notif-type-pill">
+          <i class="fa fa-layer-group"></i> {{ tipo|title }}: {{ total }}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="notif-summary">
+      <div class="notif-stat">
+        <div class="label">Total enviadas</div>
+        <div class="value">{{ resumen.total }}</div>
+      </div>
+      <div class="notif-stat">
+        <div class="label">Pendientes</div>
+        <div class="value">{{ resumen.pendientes }}</div>
+      </div>
+      <div class="notif-stat">
+        <div class="label">Leídas</div>
+        <div class="value">{{ resumen.leidas }}</div>
+      </div>
+      <div class="notif-stat">
+        <div class="label">Enviadas hoy</div>
+        <div class="value">{{ resumen.enviadas_hoy }}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="notif-feed">
+    {% for row in notificaciones %}
+    <article class="notif-card">
+      <div class="notif-icon" style="background:{{ row.meta.surface }}; color:{{ row.meta.accent }};">
+        <i class="fa {{ row.meta.icon }}"></i>
+      </div>
+
+      <div>
+        <h3>{{ row.item.titulo }}</h3>
+        <div class="notif-meta">
+          <span class="notif-chip" style="background:{{ row.meta.surface }}; color:{{ row.meta.accent }};">
+            <i class="fa {{ row.meta.icon }}"></i> {{ row.meta.label }}
+          </span>
+          <span class="notif-chip" style="background:#f5f4f7;color:#5b5a62;">
+            <i class="fa fa-user"></i> {{ row.item.id_usuario.nombre_completo|default:row.item.id_usuario.correo }}
+          </span>
+        </div>
+        <div class="notif-copy">{{ row.item.mensaje }}</div>
+      </div>
+
+      <div class="notif-side">
+        <div class="notif-time">{{ row.item.fecha_envio|date:"d/m/Y H:i" }}</div>
+        {% if row.item.leida %}
+        <div class="notif-status" style="background:#eef9f4;color:#2c7a58;">
+          <i class="fa fa-check-circle"></i> Leída
+        </div>
+        {% else %}
+        <div class="notif-status" style="background:#fff2f2;color:#c44536;">
+          <i class="fa fa-clock"></i> Pendiente
+        </div>
+        {% endif %}
+      </div>
+    </article>
+    {% empty %}
+    <div style="padding:38px;border-radius:24px;background:#fff;border:1px solid #ebe6ea;color:#73727a;text-align:center;">
+      Aún no hay notificaciones creadas.
+    </div>
+    {% endfor %}
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+
+{% block title %}Mesas en vivo{% endblock %}
+{% block page_heading %}Operacion en vivo de mesas y pedidos{% endblock %}
+
+{% block content %}
+<style>
+  .mesa-live-shell { display: grid; gap: 18px; }
+  .mesa-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+  .mesa-kpi { background: #fff; border: 1px solid #ece8ee; border-radius: 18px; padding: 16px; }
+  .mesa-kpi .label { font-size: 12px; color: #72707a; text-transform: uppercase; font-weight: 800; letter-spacing: .05em; }
+  .mesa-kpi .value { margin-top: 6px; font-size: 28px; color: #181818; font-weight: 900; }
+
+  .mesa-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .mesa-card { background: #fff; border: 1px solid #ece8ee; border-radius: 22px; padding: 16px; display: grid; gap: 10px; }
+  .mesa-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .mesa-title { margin: 0; font-size: 20px; font-weight: 900; color: #181818; }
+  .mesa-state { padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; }
+  .mesa-state.disponible { background: #edf9f1; color: #2f7a4f; }
+  .mesa-state.con_pedidos { background: #fff4ec; color: #b55f1f; }
+  .mesa-state.pagada { background: #edf3ff; color: #2a5ca7; }
+  .mesa-state.pago_solicitado { background: #fff0f1; color: #d90416; }
+  .mesa-meta { font-size: 13px; color: #5f5d66; line-height: 1.45; }
+  .payment-info { display: grid; gap: 6px; padding: 10px; border-radius: 14px; background: #fff7f8; border: 1px solid #ffd7dc; color: #2f2d36; font-size: 12px; }
+  .payment-info strong { color: #d90416; }
+  .payment-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .mesa-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .mesa-btn {
+    border: 1px solid #e4dde6; background: #f7f5f9; color: #2f2b33;
+    border-radius: 12px; padding: 8px 10px; font-size: 12px; font-weight: 800; cursor: pointer;
+  }
+  .mesa-btn:hover { border-color: #d90416; color: #d90416; }
+  .mesa-card .totals { display: flex; justify-content: space-between; color: #42404a; font-size: 13px; font-weight: 700; }
+
+  .pedido-panel { background: #fff; border: 1px solid #ece8ee; border-radius: 22px; padding: 16px; }
+  .pedido-panel h3 { margin: 0 0 10px; color: #181818; font-size: 20px; font-weight: 900; }
+  .pedido-table { width: 100%; border-collapse: collapse; }
+  .pedido-table th, .pedido-table td { padding: 10px 8px; border-bottom: 1px solid #f0ecf2; text-align: left; font-size: 13px; }
+  .pedido-table th { color: #6d6b74; font-weight: 800; }
+  .pedido-table td { color: #2f2d36; font-weight: 600; }
+  .mesa-live-status { font-size: 12px; color: #6e6b75; font-weight: 700; }
+
+  @media (max-width: 1080px) {
+    .mesa-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .mesa-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 760px) {
+    .mesa-grid { grid-template-columns: 1fr; }
+    .pedido-table { display: block; overflow-x: auto; }
+  }
+</style>
+
+<div class="mesa-live-shell">
+  <div class="mesa-live-status" id="liveStatus">Conectando canal en vivo...</div>
+
+  <section class="mesa-kpis">
+    <article class="mesa-kpi"><div class="label">Mesas totales</div><div class="value" id="kpiMesasTotales">{{ kpis.mesas_totales }}</div></article>
+    <article class="mesa-kpi"><div class="label">Mesas ocupadas</div><div class="value" id="kpiMesasOcupadas">{{ kpis.mesas_ocupadas }}</div></article>
+    <article class="mesa-kpi"><div class="label">Pedidos activos</div><div class="value" id="kpiPedidosTotales">{{ kpis.pedidos_totales }}</div></article>
+    <article class="mesa-kpi"><div class="label">Llamados pendientes</div><div class="value" id="kpiLlamados">{{ kpis.llamados_pendientes }}</div></article>
+    <article class="mesa-kpi"><div class="label">Pagos pendientes</div><div class="value" id="kpiPagos">{{ kpis.pagos_pendientes|default:0 }}</div></article>
+  </section>
+
+  <section class="mesa-grid" id="mesasGrid">
+    {% for mesa in mesas %}
+    <article class="mesa-card" data-mesa-id="{{ mesa.id }}">
+      <div class="mesa-head">
+        <h3 class="mesa-title">Mesa {{ mesa.id }}</h3>
+        <span class="mesa-state {{ mesa.estado }}">{{ mesa.estado|title }}</span>
+      </div>
+      <div class="mesa-meta">
+        <div><strong>Cliente:</strong> {{ mesa.cliente_nombre|default:"Sin asignar" }}</div>
+        <div><strong>Correo:</strong> {{ mesa.cliente_correo|default:"-" }}</div>
+      </div>
+      <div class="payment-info" style="display: none;"></div>
+      <div class="totals">
+        <span>Pedidos: <strong class="mesa-pedidos">0</strong></span>
+        <span>Total: <strong class="mesa-total">$0</strong></span>
+      </div>
+      <div class="mesa-actions">
+        <button class="mesa-btn" onclick="actualizarMesa({{ mesa.id }}, 'disponible')">Disponible</button>
+        <button class="mesa-btn" onclick="actualizarMesa({{ mesa.id }}, 'con_pedidos')">Con pedidos</button>
+        <button class="mesa-btn" onclick="actualizarMesa({{ mesa.id }}, 'pagada')">Pagada</button>
+      </div>
+    </article>
+    {% endfor %}
+  </section>
+
+  <section class="pedido-panel">
+    <h3>Ultimos pedidos en vivo</h3>
+    <table class="pedido-table">
+      <thead>
+        <tr>
+          <th>Pedido</th>
+          <th>Mesa</th>
+          <th>Cliente</th>
+          <th>Total</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody id="pedidosBody">
+      {% for pedido in ultimos_pedidos %}
+        <tr>
+          <td>#{{ pedido.id_pedido }}</td>
+          <td>{{ pedido.mesa_label|default:"Sin mesa" }}</td>
+          <td>{{ pedido.cliente_nombre|default:"-" }}</td>
+          <td>${{ pedido.total_pedido|default:0 }}</td>
+          <td>{{ pedido.fecha_pedido|default:"-" }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5">Sin pedidos aun.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<script>
+  const estado = {
+    kpis: { mesas_totales: 0, mesas_ocupadas: 0, pedidos_totales: 0, llamados_pendientes: 0, pagos_pendientes: 0 },
+    mesas: [],
+    resumen_por_mesa: {},
+    ultimos_pedidos: [],
+    solicitudes_pago: [],
+  };
+
+  function money(value) {
+    const num = Number(value || 0);
+    return `$${num.toFixed(0)}`;
+  }
+
+  function normalizeMesaState(raw) {
+    const v = (raw || "disponible").toLowerCase().trim();
+    if (v === "con_pedidos" || v === "pagada" || v === "disponible" || v === "pago_solicitado") return v;
+    return "disponible";
+  }
+
+  function renderKpis() {
+    document.getElementById("kpiMesasTotales").textContent = estado.kpis.mesas_totales || 0;
+    document.getElementById("kpiMesasOcupadas").textContent = estado.kpis.mesas_ocupadas || 0;
+    document.getElementById("kpiPedidosTotales").textContent = estado.kpis.pedidos_totales || 0;
+    document.getElementById("kpiLlamados").textContent = estado.kpis.llamados_pendientes || 0;
+    document.getElementById("kpiPagos").textContent = estado.kpis.pagos_pendientes || 0;
+  }
+
+  function labelEstadoPago(valor) {
+    const estadoPago = (valor || "pendiente").toLowerCase();
+    if (estadoPago === "atendida") return "Atendido por mesero";
+    if (estadoPago === "finalizada") return "Pago finalizado";
+    return "Pendiente de atencion";
+  }
+
+  function renderMesas() {
+    const grid = document.getElementById("mesasGrid");
+    for (const mesa of estado.mesas) {
+      const card = grid.querySelector(`[data-mesa-id="${mesa.id}"]`);
+      if (!card) continue;
+      const stateClass = normalizeMesaState(mesa.estado);
+      const stateEl = card.querySelector(".mesa-state");
+      stateEl.className = `mesa-state ${stateClass}`;
+      stateEl.textContent = (mesa.estado || "disponible").replaceAll("_", " ");
+      card.querySelector(".mesa-meta").innerHTML =
+        `<div><strong>Cliente:</strong> ${mesa.cliente_nombre || "Sin asignar"}</div>` +
+        `<div><strong>Correo:</strong> ${mesa.cliente_correo || "-"}</div>`;
+      const paymentEl = card.querySelector(".payment-info");
+      const pago = mesa.pago || null;
+      if (pago && pago.estado !== "finalizada") {
+        paymentEl.style.display = "grid";
+        paymentEl.innerHTML =
+          `<div><strong>Pago solicitado</strong> - ${labelEstadoPago(pago.estado)}</div>` +
+          `<div><strong>Metodo:</strong> ${pago.metodo_pago || "-"}</div>` +
+          `<div>${pago.mensaje_operativo || "Coordinar cobro con el cliente."}</div>` +
+          `<div class="payment-actions">` +
+          `<button class="mesa-btn" onclick="actualizarPago(${pago.id_solicitud_pago}, 'atendida')">Atendida</button>` +
+          `<button class="mesa-btn" onclick="actualizarPago(${pago.id_solicitud_pago}, 'finalizada')">Finalizada</button>` +
+          `</div>`;
+      } else {
+        paymentEl.style.display = "none";
+        paymentEl.innerHTML = "";
+      }
+      const resumen = estado.resumen_por_mesa[String(mesa.id)] || estado.resumen_por_mesa[mesa.id] || { pedidos: 0, total: 0 };
+      card.querySelector(".mesa-pedidos").textContent = resumen.pedidos || 0;
+      card.querySelector(".mesa-total").textContent = money(resumen.total || 0);
+    }
+  }
+
+  function renderPedidos() {
+    const tbody = document.getElementById("pedidosBody");
+    const rows = estado.ultimos_pedidos || [];
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="5">Sin pedidos aun.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rows.slice(0, 15).map((pedido) => `
+      <tr>
+        <td>#${pedido.id_pedido || "-"}</td>
+        <td>${pedido.mesa_label || "Sin mesa"}</td>
+        <td>${pedido.cliente_nombre || "-"}</td>
+        <td>${money(pedido.total_pedido || 0)}</td>
+        <td>${pedido.fecha_pedido || "-"}</td>
+      </tr>
+    `).join("");
+  }
+
+  function recalculateMesasOcupadas() {
+    estado.kpis.mesas_ocupadas = (estado.mesas || []).filter((m) => normalizeMesaState(m.estado) !== "disponible").length;
+  }
+
+  function applySnapshot(snapshot) {
+    estado.kpis = snapshot.kpis || estado.kpis;
+    estado.mesas = snapshot.mesas || [];
+    estado.resumen_por_mesa = snapshot.resumen_por_mesa || {};
+    estado.ultimos_pedidos = snapshot.ultimos_pedidos || [];
+    estado.solicitudes_pago = snapshot.solicitudes_pago || [];
+    recalculateMesasOcupadas();
+    renderKpis();
+    renderMesas();
+    renderPedidos();
+  }
+
+  function applyEvent(eventName, payload) {
+    if (eventName === "mesa_asignada" || eventName === "mesa_actualizada") {
+      const idx = estado.mesas.findIndex((m) => Number(m.id) === Number(payload.id));
+      if (idx >= 0) estado.mesas[idx] = payload;
+      else estado.mesas.push(payload);
+      if (normalizeMesaState(payload.estado) === "disponible") {
+        estado.resumen_por_mesa[String(payload.id)] = { pedidos: 0, total: 0 };
+      }
+    }
+
+    if (eventName === "pedido_creado") {
+      estado.kpis.pedidos_totales = Number(estado.kpis.pedidos_totales || 0) + 1;
+      estado.ultimos_pedidos = [
+        payload,
+        ...(estado.ultimos_pedidos || []).filter((item) => Number(item.id_pedido) !== Number(payload.id_pedido)),
+      ].slice(0, 15);
+      const mesaId = payload.mesa_id;
+      if (mesaId) {
+        const key = String(mesaId);
+        const totalPedido = Number(payload.total_pedido || 0);
+        estado.resumen_por_mesa[key] = {
+          pedidos: totalPedido > 0 ? 1 : 0,
+          total: totalPedido,
+          total_pendiente: totalPedido,
+        };
+      }
+    }
+
+    if (eventName === "llamado_creado") {
+      estado.kpis.llamados_pendientes = Number(estado.kpis.llamados_pendientes || 0) + 1;
+    }
+
+    if (eventName === "llamado_atendido") {
+      estado.kpis.llamados_pendientes = Math.max(0, Number(estado.kpis.llamados_pendientes || 0) - 1);
+    }
+
+    if (eventName === "pago_solicitado" || eventName === "pago_actualizado") {
+      const pago = payload || {};
+      const idx = estado.solicitudes_pago.findIndex((item) => Number(item.id_solicitud_pago) === Number(pago.id_solicitud_pago));
+      if (idx >= 0) estado.solicitudes_pago[idx] = pago;
+      else estado.solicitudes_pago.unshift(pago);
+      const mesa = estado.mesas.find((item) => Number(item.id) === Number(pago.mesa_id));
+      if (mesa) {
+        mesa.pago = pago;
+        mesa.estado = pago.estado === "finalizada" ? "pagada" : "pago_solicitado";
+      }
+      estado.kpis.pagos_pendientes = estado.solicitudes_pago.filter((item) => item.estado === "pendiente").length;
+    }
+
+    recalculateMesasOcupadas();
+    renderKpis();
+    renderMesas();
+    renderPedidos();
+  }
+
+  async function actualizarMesa(mesaId, nuevoEstado) {
+    const live = document.getElementById("liveStatus");
+    try {
+      const response = await fetch(`/api/mesas/${mesaId}/estado`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ estado: nuevoEstado }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        live.textContent = `Error al actualizar mesa ${mesaId}: ${data.error || "sin detalle"}`;
+        return;
+      }
+      applyEvent("mesa_actualizada", data);
+      live.textContent = `Mesa ${mesaId} actualizada a ${nuevoEstado}.`;
+    } catch (error) {
+      live.textContent = "No se pudo actualizar la mesa en este momento.";
+    }
+  }
+
+  async function actualizarPago(pagoId, nuevoEstado) {
+    const live = document.getElementById("liveStatus");
+    try {
+      const response = await fetch(`/api/pagos/solicitudes/${pagoId}/estado`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ estado: nuevoEstado }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        live.textContent = `Error al actualizar pago: ${data.error || "sin detalle"}`;
+        return;
+      }
+      applyEvent("pago_actualizado", data);
+      live.textContent = `Solicitud de pago marcada como ${nuevoEstado}.`;
+    } catch (error) {
+      live.textContent = "No se pudo actualizar la solicitud de pago.";
+    }
+  }
+
+  function connectLive() {
+    const live = document.getElementById("liveStatus");
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+    const socket = new WebSocket(`${protocol}://${window.location.host}/ws/operacion/mesas/`);
+
+    socket.onopen = () => {
+      live.textContent = "Canal en vivo conectado.";
+    };
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data || "{}");
+      if (data.type === "snapshot") {
+        applySnapshot(data.data || {});
+        return;
+      }
+      if (data.type === "event") {
+        applyEvent(data.event, data.payload || {});
+      }
+    };
+
+    socket.onclose = () => {
+      live.textContent = "Canal en vivo desconectado. Reintentando...";
+      setTimeout(connectLive, 2000);
+    };
+
+    socket.onerror = () => {
+      live.textContent = "Error de canal en vivo. Reintentando...";
+      socket.close();
+    };
+  }
+
+  window.actualizarMesa = actualizarMesa;
+  window.actualizarPago = actualizarPago;
+  connectLive();
+</script>
+{% endblock %}

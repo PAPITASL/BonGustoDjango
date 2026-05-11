@@ -1,9 +1,9 @@
-"""Modelos o aliases del modulo `pedidos`. Este archivo agrupa las entidades relacionadas con encabezados y detalles de pedidos."""
+"""Modelos o aliases del modulo `pedidos`, aqui se agrupa todo lo de encabezados y detalles de pedidos."""
 
 
-# ===== Importaciones | Dependencias necesarias para el funcionamiento del modulo `pedidos`. =====
-from bongusto.domain.models import PedidoDetalle, PedidoEncabezado
+# Se importan los modelos desde la capa de dominio
+from bongusto.domain.models import PedidoDetalle, PedidoEncabezado, SolicitudPago
 
 
-# ===== Exportacion de modelos | Modulo `pedidos` | Define que entidades se exponen desde este archivo. =====
-__all__ = ["PedidoEncabezado", "PedidoDetalle"]
+# Aqui se define que modelos se van a usar en este modulo
+__all__ = ["PedidoEncabezado", "PedidoDetalle", "SolicitudPago"]

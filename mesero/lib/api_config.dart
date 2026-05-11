@@ -47,11 +47,13 @@ class ApiConfig {
   static String baseUrlForHost(String host) => '$scheme://$host:$port';
 
   static List<String> get candidateHosts {
+    final preferredHost = host;
     final hosts = <String>[
+      preferredHost,
       if (_hostFromEnv.trim().isNotEmpty) _hostFromEnv.trim(),
-      _defaultRemoteHost,
       _defaultLocalHost,
       _androidEmulatorHost,
+      _defaultRemoteHost,
     ];
     return hosts.toSet().toList();
   }

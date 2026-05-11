@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Nueva Notificación{% endblock %}
+{% block page_heading %}Composer de notificaciones{% endblock %}
+
+{% block content %}
+<style>
+  .composer-shell { max-width:1080px; display:grid; gap:20px; }
+  .composer-layout { display:grid; grid-template-columns:1.2fr .8fr; gap:20px; }
+  .composer-card {
+    background:#fff; border:1px solid #ece7eb; border-radius:28px; padding:28px;
+    box-shadow:0 18px 42px rgba(0,0,0,.06);
+  }
+  .composer-card h2 { margin:0; font-size:28px; color:#181818; font-weight:900; }
+  .composer-card p { margin:10px 0 0; color:#73727a; line-height:1.6; }
+  .template-grid { display:grid; gap:12px; margin-top:20px; }
+  .template-btn {
+    width:100%; text-align:left; border:none; border-radius:20px; padding:16px; background:#fff8f2;
+    border:1px solid #f2e5d8; color:#181818;
+  }
+  .template-btn strong { display:block; margin-bottom:6px; font-size:15px; }
+  .preview-phone {
+    margin-top:18px; border-radius:30px; padding:18px; background:linear-gradient(180deg,#1e1f26 0%,#2a2d36 100%);
+  }
+  .preview-card {
+    border-radius:22px; background:#fff; padding:18px; box-shadow:0 16px 24px rgba(0,0,0,.08);
+  }
+  .preview-badge {
+    display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px;
+    background:#fff3f4; color:#d90416; font-size:12px; font-weight:800;
+  }
+  @media (max-width: 920px) { .composer-layout { grid-template-columns:1fr; } }
+</style>
+
+<div class="composer-shell">
+  <div class="composer-layout">
+    <div class="composer-card">
+      <h2>Diseña una notificación que se lea rápido</h2>
+      <p>Piensa en titulares cortos, contexto mínimo y una promesa clara. La idea es que el cliente entienda en 2 segundos por qué le estás escribiendo.</p>
+
+      {% if error %}
+      <div class="alert alert-danger" style="margin-top:18px;">{{ error }}</div>
+      {% endif %}
+
+      <form method="post" action="/notificaciones/store" style="margin-top:20px;">
+        {% csrf_token %}
+
+        <div class="row g-3">
+          <div class="col-md-8">
+            <label class="form-label">Título</label>
+            <input id="tituloInput" type="text" name="titulo" class="form-control" maxlength="120" value="{{ form_data.titulo }}" placeholder="Ej. Feliz cumpleaños de parte de BonGusto">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Tipo</label>
+            <select id="tipoInput" name="tipo" class="form-select" onchange="actualizarPreview()">
+              <option value="general" {% if form_data.tipo == 'general' %}selected{% endif %}>General</option>
+              <option value="promo" {% if form_data.tipo == 'promo' %}selected{% endif %}>Promoción</option>
+              <option value="evento" {% if form_data.tipo == 'evento' %}selected{% endif %}>Evento</option>
+              <option value="cumpleaños" {% if form_data.tipo == 'cumpleaños' %}selected{% endif %}>Cumpleaños</option>
+              <option value="beneficio" {% if form_data.tipo == 'beneficio' %}selected{% endif %}>Beneficio</option>
+              <option value="reserva" {% if form_data.tipo == 'reserva' %}selected{% endif %}>Reserva</option>
+            </select>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Mensaje</label>
+            <textarea id="mensajeInput" name="mensaje" class="form-control" rows="5" placeholder="Escribe una notificación corta, clara y amable">{{ form_data.mensaje }}</textarea>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Destino</label>
+            <select name="destino" id="destinoSelect" class="form-select" onchange="toggleClienteDestino()">
+              <option value="todos" {% if form_data.destino == 'todos' %}selected{% endif %}>Todos los clientes</option>
+              <option value="uno" {% if form_data.destino == 'uno' %}selected{% endif %}>Un cliente puntual</option>
+            </select>
+          </div>
+
+          <div class="col-md-8" id="clienteDestinoWrap" style="{% if form_data.destino != 'uno' %}display:none;{% endif %}">
+            <label class="form-label">Cliente</label>
+            <select name="id_usuario" class="form-select">
+              <option value="">Selecciona un cliente</option>
+              {% for cliente in clientes %}
+              <option value="{{ cliente.id_usuario }}" {% if form_data.id_usuario == cliente.id_usuario|stringformat:'s' %}selected{% endif %}>
+                {{ cliente.nombre_completo|default:cliente.correo }} - {{ cliente.correo }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:24px;">
+          <a href="/notificaciones" class="btn btn-light">Cancelar</a>
+          <button type="submit" class="btn btn-danger">
+            <i class="fa fa-paper-plane me-1"></i> Publicar notificacion
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div style="display:grid;gap:20px;">
+      <div class="composer-card">
+        <h2 style="font-size:22px;">Plantillas rápidas</h2>
+        <p>Atajos listos para mensajes frecuentes.</p>
+        <div class="template-grid">
+          {% for template in quick_templates %}
+          <button
+            type="button"
+            class="template-btn"
+            onclick="usarTemplate('{{ template.titulo|escapejs }}', '{{ template.mensaje|escapejs }}', '{{ template.tipo|escapejs }}')">
+            <strong>{{ template.titulo }}</strong>
+            <span style="color:#6e6c74;font-size:13px;">{{ template.mensaje }}</span>
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="composer-card">
+        <h2 style="font-size:22px;">Preview del cliente</h2>
+        <p>Así se sentirá la notificación en el teléfono.</p>
+        <div class="preview-phone">
+          <div class="preview-card">
+            <div class="preview-badge" id="previewType">GENERAL</div>
+            <div id="previewTitle" style="margin-top:14px;font-size:19px;font-weight:900;color:#181818;">{{ form_data.titulo|default:"Tu notificación se verá aquí" }}</div>
+            <div id="previewMessage" style="margin-top:10px;color:#57565d;line-height:1.55;">{{ form_data.mensaje|default:"Escribe un mensaje corto y claro para el cliente." }}</div>
+            <div style="margin-top:14px;color:#8d8b93;font-size:12px;font-weight:700;">Justo ahora</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleClienteDestino() {
+    const destino = document.getElementById('destinoSelect');
+    const wrap = document.getElementById('clienteDestinoWrap');
+    wrap.style.display = destino && destino.value === 'uno' ? 'block' : 'none';
+  }
+
+  function actualizarPreview() {
+    const title = document.getElementById('tituloInput');
+    const message = document.getElementById('mensajeInput');
+    const type = document.getElementById('tipoInput');
+    document.getElementById('previewTitle').textContent = title.value || 'Tu notificación se verá aquí';
+    document.getElementById('previewMessage').textContent = message.value || 'Escribe un mensaje corto y claro para el cliente.';
+    document.getElementById('previewType').textContent = (type.value || 'general').toUpperCase();
+  }
+
+  function usarTemplate(titulo, mensaje, tipo) {
+    document.getElementById('tituloInput').value = titulo;
+    document.getElementById('mensajeInput').value = mensaje;
+    document.getElementById('tipoInput').value = tipo;
+    actualizarPreview();
+  }
+
+  document.getElementById('tituloInput').addEventListener('input', actualizarPreview);
+  document.getElementById('mensajeInput').addEventListener('input', actualizarPreview);
+  actualizarPreview();
+</script>
+{% endblock %}

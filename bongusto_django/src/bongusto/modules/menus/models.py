@@ -1,10 +1,12 @@
-"""Modelos del modulo menus, aqui se agrupan las entidades relacionadas con la gestion de menus del sistema."""
+"""Modelos del modulo menus, aqui se usan las entidades principales relacionadas con los menus del sistema."""
 
-# ===== Importaciones principales | Se traen los modelos desde la capa de dominio. =====
+# Importamos los modelos necesarios desde la capa domain
+# Estos son los que realmente se usan en este modulo
 from bongusto.domain.models import Menu, PedidoDetalle, Producto
 
 
-# ===== Exportacion de modelos | Se define que modelos quedan disponibles en este modulo. =====
+# Definimos que se puede usar cuando alguien importa este modulo
+# Es como decir: estos son los modelos importantes aqui
 __all__ = [
     "Menu",
     "Producto",

@@ -1,14 +1,14 @@
 """
 Modelos del módulo chat.
 
-Este archivo solo sirve para traer (importar) el modelo que ya existe
-y usarlo dentro del módulo chat.
+Este archivo básicamente solo reutiliza el modelo que ya existe
+para poder usarlo dentro de este módulo.
 """
 
-# Importamos el modelo de mensajes del chat
+# Se importa el modelo de mensajes del chat desde la capa de dominio
 from bongusto.domain.models import MensajeChat
 
 
-# Esto define qué se puede usar cuando se importa este archivo
-# Es como decir: "solo quiero usar MensajeChat"
+# __all__ define qué se puede importar desde este archivo
+# En este caso solo se expone MensajeChat
 __all__ = ["MensajeChat"]

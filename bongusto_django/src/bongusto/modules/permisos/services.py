@@ -1,23 +1,18 @@
-"""Servicios del modulo `permisos`. Aqui se maneja la logica relacionada con el catalogo de permisos del sistema."""
+"""Servicios del modulo `permisos`, aqui se maneja la logica de los permisos del sistema."""
 
-# ===== Importaciones | Dependencias que este archivo necesita para funcionar dentro del modulo. =====
+# Se importa el modelo Permiso
 from bongusto.domain.models import Permiso
 
-
-
-# ===== Clase `PermisoService` | Modulo `permisos` | Agrupa la logica de negocio asociada a permisos. =====
+# Clase donde va la logica de permisos
 class PermisoService:
 
-    # ===== Funcion `listar_todos` | Modulo `permisos` | Retorna todos los permisos registrados en el sistema. =====
+    # Trae todos los permisos
     def listar_todos(self):
         return Permiso.objects.all()
 
-
-    # ===== Funcion `buscar_por_id` | Modulo `permisos` | Obtiene un permiso especifico por su identificador. =====
+    # Busca un permiso por id
     def buscar_por_id(self, pk):
         return Permiso.objects.filter(pk=pk).first()
 
-
-
-# ===== Exportaciones | Modulo `permisos` | Define los elementos expuestos del servicio. =====
+# Aqui se define lo que se exporta del servicio
 __all__ = ["PermisoService", "Permiso"]

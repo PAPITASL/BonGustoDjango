@@ -7,12 +7,17 @@ import '../services/session_service.dart';
 class PerfilScreen extends StatelessWidget {
   const PerfilScreen({super.key});
 
-  static const _bg = Color(0xFFF2F1F4);
+  static const _bgLight = Color(0xFFF2F1F4);
+  static const _bgDark = Color(0xFF101218);
   static const _card = Color(0xFFFFFFFF);
   static const _ink = Color(0xFF181818);
   static const _muted = Color(0xFF73727A);
   static const _accent = Color(0xFFD90416);
   static const _line = Color(0xFFE8E6EB);
+
+  bool _isDark(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark;
+  Color _bg(BuildContext context) => _isDark(context) ? _bgDark : _bgLight;
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +29,10 @@ class PerfilScreen extends StatelessWidget {
         : SessionService.correo.trim();
 
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: _bg(context),
       appBar: AppBar(
-        backgroundColor: _bg,
-        foregroundColor: _ink,
+        backgroundColor: _bg(context),
+        foregroundColor: _isDark(context) ? Colors.white : _ink,
         title: const Text('Perfil', style: TextStyle(fontWeight: FontWeight.w800)),
       ),
       body: ListView(
