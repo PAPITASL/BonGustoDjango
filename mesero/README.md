@@ -127,12 +127,12 @@ La URL base se arma en:
 Valores típicos:
 - esquema: `http`
 - host local: `127.0.0.1`
-- puerto: `8080`
+- puerto: `8001`
 
 Overrides por `dart-define`:
 
 ```powershell
-flutter run --dart-define=API_HOST=192.168.1.50 --dart-define=API_PORT=8080
+flutter run --dart-define=API_HOST=192.168.1.50 --dart-define=API_PORT=8001
 ```
 
 ## Ejecución local
@@ -142,7 +142,7 @@ Backend Django:
 ```powershell
 cd C:\Users\sebas\Downloads\bongusto_django\bongusto_django
 .\.venv\Scripts\Activate.ps1
-python manage.py runserver 0.0.0.0:8080
+python manage.py runserver 0.0.0.0:8001
 ```
 
 App Flutter:
@@ -156,7 +156,7 @@ flutter run
 Android físico:
 
 ```powershell
-adb reverse tcp:8080 tcp:8080
+adb reverse tcp:8001 tcp:8001
 ```
 
 También puedes usar el script del repo raíz:
