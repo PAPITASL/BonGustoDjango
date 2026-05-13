@@ -20,18 +20,22 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  Future<void> _sendLink() async {
+  Future<void> _sendCode() async {
     final correo = _emailCtrl.text.trim().toLowerCase();
     if (correo.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(LanguageController.t('Ingrese su correo', 'Enter your email'))));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            LanguageController.t('Ingrese su correo', 'Enter your email'),
+          ),
+        ),
+      );
       return;
     }
 
     setState(() => _sending = true);
     try {
-      final response = await BongustoApi.solicitarEnlaceRecuperacion(
+      final response = await BongustoApi.solicitarCodigoRecuperacion(
         correo: correo,
       );
       if (!mounted) return;
@@ -39,18 +43,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         SnackBar(
           content: Text(
             LanguageController.tr(
-              (response['message'] ??
-                      'Si el correo está registrado, recibirás un enlace de recuperación.')
+              (response['mensaje'] ??
+                      response['message'] ??
+                      'Si el correo esta registrado, recibiras un codigo de recuperacion.')
                   .toString(),
             ),
           ),
         ),
       );
-      final token = (response['token'] ?? '').toString();
-      if ((response['demo_mode'] == true || response['demo_mode'] == 'true') &&
-          token.isNotEmpty) {
-        Navigator.pushNamed(context, '/reset', arguments: {'token': token});
-      }
+      Navigator.pushNamed(context, '/confirm', arguments: {'correo': correo});
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -69,7 +70,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     const cardText = Color(0xFF181818);
     const cardMuted = Color(0xFF66636D);
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF101218) : const Color(0xFFF5F5F5),
+      backgroundColor:
+          isDark ? const Color(0xFF101218) : const Color(0xFFF5F5F5),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -93,7 +95,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        LanguageController.t('¿Olvidaste tu contraseña?', 'Forgot your password?'),
+                        LanguageController.t(
+                          'Olvidaste tu contrasena?',
+                          'Forgot your password?',
+                        ),
                         style: const TextStyle(
                           color: cardText,
                           fontSize: 28,
@@ -103,7 +108,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       const SizedBox(height: 12),
                       Text(
                         LanguageController.t(
-                          'Ingresa el correo asociado a tu cuenta para recibir un código de seguridad.',
+                          'Ingresa el correo asociado a tu cuenta para recibir un codigo de seguridad.',
                           'Enter the email linked to your account to receive a security code.',
                         ),
                         style: const TextStyle(color: cardMuted),
@@ -118,8 +123,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
-                        onPressed: _sending ? null : _sendLink,
-                        child: Text(_sending ? LanguageController.tr('Enviando...') : LanguageController.tr('Enviar enlace')),
+                        onPressed: _sending ? null : _sendCode,
+                        child: Text(
+                          _sending
+                              ? LanguageController.tr('Enviando...')
+                              : LanguageController.tr('Enviar codigo'),
+                        ),
                       ),
                       const SizedBox(height: 10),
                       TextButton(
@@ -128,7 +137,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             : () => Navigator.pushNamed(context, '/confirm'),
                         child: Text(
                           LanguageController.t(
-                            'Usar código de seguridad',
+                            'Usar codigo de seguridad',
                             'Use security code',
                           ),
                         ),
@@ -144,4 +153,3 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 }
-

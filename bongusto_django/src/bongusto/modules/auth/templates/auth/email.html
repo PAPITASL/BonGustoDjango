@@ -21,27 +21,22 @@
       <form action="/password/email" method="post" class="auth-card">
         {% csrf_token %}
         <h2 class="auth-title">Recuperar contrasena</h2>
-        <p class="auth-subcopy">Ingresa tu correo y te enviaremos un enlace de recuperacion.</p>
+        <p class="auth-subcopy">Ingresa tu correo y te enviaremos un codigo de recuperacion.</p>
         {% if error %}
         <div style="margin-bottom:16px;padding:12px 14px;border-radius:14px;background:#fff0f1;color:#b42318;font-size:14px;font-weight:600;">
           {{ error }}
         </div>
         {% endif %}
-        {% if success %}
+        {% if success_message %}
         <div style="margin-bottom:16px;padding:12px 14px;border-radius:14px;background:#eef9ef;color:#2f6b3f;font-size:14px;font-weight:600;">
-          Si el correo esta registrado, recibirás un enlace de recuperacion.
+          {{ success_message }}
         </div>
-        {% if reset_url %}
-        <div style="margin-bottom:16px;padding:12px 14px;border-radius:14px;background:#fff8ec;color:#8c5c11;font-size:14px;font-weight:600;word-break:break-all;">
-          Enlace temporal: <a href="{{ reset_url }}" style="color:#d62828;">{{ reset_url }}</a>
-        </div>
-        {% endif %}
         {% endif %}
         <div class="form-group">
           <label>Correo electronico</label>
           <input type="email" name="email" maxlength="100" placeholder="correo@bongusto.com" value="{{ email|default:'' }}" required>
         </div>
-        <button type="submit" class="btn-primary">Enviar enlace</button>
+        <button type="submit" class="btn-primary">Enviar codigo</button>
         <div class="auth-back-link">
           <a href="/login" class="link-small">Volver al inicio de sesion</a>
         </div>

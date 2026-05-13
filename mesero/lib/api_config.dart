@@ -8,7 +8,7 @@ class ApiConfig {
   static const String _defaultLocalHost = '127.0.0.1';
   static const String _defaultRemoteHost = '10.156.238.31';
   static const String _androidEmulatorHost = '10.0.2.2';
-  static const String _defaultPort = '8080';
+  static const String _defaultPort = '8001';
   static const String _schemeFromEnv = String.fromEnvironment(
     'API_SCHEME',
     defaultValue: 'http',

@@ -38,15 +38,22 @@ class AuthPageHelper:
         return {"error": error} if error else {}
 
     # Arma el contexto para la vista donde el usuario escribe su correo.
-    def contexto_email(self, email="", error=""):
-        return {"email": email, "error": error}
+    def contexto_email(self, email="", error="", success=""):
+        return {"email": email, "error": error, "success_message": success}
+
+    def mensaje_error_envio(self, exc):
+        if settings.DEBUG and exc:
+            return f"No fue posible enviar el codigo de recuperacion en este momento. Detalle: {exc}"
+        return "No fue posible enviar el codigo de recuperacion en este momento."
 
     # Arma el contexto para la vista de cambio de contraseña.
     # También manda la ayuda de la política de seguridad.
-    def contexto_reset(self, email="", error=""):
+    def contexto_reset(self, email="", error="", success="", code=""):
         return {
             "email": email,
             "error": error,
+            "success_message": success,
+            "code": code,
             "password_policy_help": PASSWORD_POLICY_HELP,
         }
 
@@ -125,7 +132,18 @@ class AuthPageHelper:
 
     # Verifica si el correo del sistema está listo para enviar mensajes.
     def correo_configurado(self):
-        return bool(settings.EMAIL_HOST_PASSWORD)
+        backend = (getattr(settings, "EMAIL_BACKEND", "") or "").strip()
+        if backend != "django.core.mail.backends.smtp.EmailBackend":
+            return True
+
+        return all(
+            [
+                (getattr(settings, "EMAIL_HOST", "") or "").strip(),
+                str(getattr(settings, "EMAIL_PORT", "") or "").strip(),
+                (getattr(settings, "EMAIL_HOST_USER", "") or "").strip(),
+                (getattr(settings, "EMAIL_HOST_PASSWORD", "") or "").strip(),
+            ]
+        )
 
     # Construye el contexto que se manda al correo en texto y en HTML.
     def construir_contexto_correo(self, usuario, code):
@@ -336,49 +354,49 @@ def password_email(request):
                 _helper.contexto_email(email, "No existe un usuario asociado a ese correo."),
             )
 
-        # Se genera un token temporal para el enlace de recuperación.
-        token = _helper.generar_token_recuperacion(usuario.id_usuario)
-        reset_url = _helper.construir_url_recuperacion(request, token)
-        _helper.guardar_token_api(email, token)
+        # Se genera y guarda un codigo temporal para validar el cambio.
+        code = _helper.codigo_recuperacion()
+        request.session["password_reset"] = _helper.crear_sesion_recuperacion(email, code)
+        _helper.guardar_codigo_api(email, code)
 
         # Si el modo demo está activo o el correo no está configurado,
-        # se muestra el enlace directamente para pruebas locales.
+        # se muestra el codigo directamente para pruebas locales.
         if settings.DEMO_MODE or not _helper.correo_configurado():
             registrar_movimiento(
                 request,
-                f"Solicitud de recuperacion por enlace preparada en modo demo para {email}.",
+                f"Solicitud de recuperacion por codigo preparada en modo demo para {email}.",
             )
             return render(
                 request,
-                "auth/email.html",
-                _helper.contexto_email(
+                "auth/reset_password.html",
+                _helper.contexto_reset(
                     email,
-                    "Se genero un enlace de recuperacion. Revisa el mensaje de prueba o abre el enlace temporal.",
-                ) | {"success": True, "reset_url": reset_url},
+                    success="Se genero un codigo de recuperacion. Revisa el mensaje de prueba e ingresalo para cambiar la contrasena.",
+                    code=code,
+                ),
             )
 
         # Arma el contexto del correo y lo envía.
-        contexto = _helper.construir_contexto_enlace(usuario, reset_url)
-        _helper.enviar_correo_enlace_recuperacion(email, contexto)
+        contexto = _helper.construir_contexto_correo(usuario, code)
+        _helper.enviar_correo_recuperacion(email, contexto)
 
-        # Después vuelve al login con un aviso simple.
+        # Lleva de una vez al formulario para ingresar el codigo y la nueva clave.
         return render(
             request,
-            "auth/email.html",
-            _helper.contexto_email(
+            "auth/reset_password.html",
+            _helper.contexto_reset(
                 email,
-                "Si el correo esta registrado, recibirás un enlace de recuperación.",
-            )
-            | {"success": True},
+                success="Te enviamos un codigo de recuperacion al correo registrado.",
+            ),
         )
-    except Exception:
+    except Exception as exc:
         # Si algo falla, se muestra un mensaje general.
         return render(
             request,
             "auth/email.html",
             _helper.contexto_email(
                 email,
-                "No fue posible enviar el codigo de recuperacion en este momento.",
+                _helper.mensaje_error_envio(exc),
             ),
         )
 
@@ -559,9 +577,9 @@ def api_password_request_code(request):
                 "mensaje": "Se envio un codigo de seguridad al correo registrado.",
             }
         )
-    except Exception:
+    except Exception as exc:
         return JsonResponse(
-            {"error": "No fue posible enviar el codigo de recuperacion en este momento."},
+            {"error": _helper.mensaje_error_envio(exc)},
             status=500,
         )
 
