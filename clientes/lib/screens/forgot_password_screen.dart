@@ -22,7 +22,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  Future<void> _sendLink() async {
+  Future<void> _sendCode() async {
     final correo = _emailCtrl.text.trim().toLowerCase();
     if (correo.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -37,7 +37,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     setState(() => _sending = true);
     try {
-      final response = await BongustoApi.solicitarEnlaceRecuperacion(
+      final response = await BongustoApi.solicitarCodigoRecuperacion(
         correo: correo,
       );
       if (!mounted) return;
@@ -45,18 +45,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         SnackBar(
           content: Text(
             LanguageController.tr(
-              (response['message'] ??
-                      'Si el correo está registrado, recibirás un enlace de recuperación.')
+              (response['mensaje'] ??
+                      response['message'] ??
+                      'Si el correo esta registrado, recibiras un codigo de recuperacion.')
                   .toString(),
             ),
           ),
         ),
       );
-      final token = (response['token'] ?? '').toString();
-      if ((response['demo_mode'] == true || response['demo_mode'] == 'true') &&
-          token.isNotEmpty) {
-        Navigator.pushNamed(context, '/reset', arguments: {'token': token});
-      }
+      Navigator.pushNamed(context, '/confirm', arguments: {'correo': correo});
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
@@ -108,7 +105,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       const SizedBox(height: 18),
                       Text(
                         LanguageController.t(
-                          '¿Olvidaste tu contraseña?',
+                          'Olvidaste tu contrasena?',
                           'Forgot your password?',
                         ),
                         style: TextStyle(
@@ -122,7 +119,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       const SizedBox(height: 8),
                       Text(
                         LanguageController.t(
-                          'Ingresa el correo asociado a tu cuenta y te enviaremos un código de seguridad.',
+                          'Ingresa el correo asociado a tu cuenta y te enviaremos un codigo de seguridad.',
                           'Enter the email linked to your account and we will send you a security code.',
                         ),
                         style: TextStyle(
@@ -132,7 +129,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                       const SizedBox(height: 22),
                       Text(
-                        LanguageController.t('Correo electrónico', 'Email'),
+                        LanguageController.t('Correo electronico', 'Email'),
                         style: TextStyle(
                           fontSize: 14,
                           color: AppThemeColors.text,
@@ -144,18 +141,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                           hintText: LanguageController.t(
-                            'Ingresa tu correo electrónico',
+                            'Ingresa tu correo electronico',
                             'Enter your email',
                           ),
                         ),
                       ),
                       const SizedBox(height: 18),
                       ElevatedButton(
-                        onPressed: _sending ? null : _sendLink,
+                        onPressed: _sending ? null : _sendCode,
                         child: Text(
                           _sending
                               ? LanguageController.tr('Enviando...')
-                              : LanguageController.tr('Enviar enlace'),
+                              : LanguageController.tr('Enviar codigo'),
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -165,7 +162,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             : () => Navigator.pushNamed(context, '/confirm'),
                         child: Text(
                           LanguageController.t(
-                            'Usar código de seguridad',
+                            'Usar codigo de seguridad',
                             'Use security code',
                           ),
                         ),
@@ -180,7 +177,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 children: [
                   Text(
                     LanguageController.t(
-                      '¿Recordaste tu contraseña? ',
+                      'Recordaste tu contrasena? ',
                       'Remembered your password? ',
                     ),
                     style: TextStyle(color: AppThemeColors.muted),
@@ -189,7 +186,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     onTap: () =>
                         Navigator.pushReplacementNamed(context, '/login'),
                     child: Text(
-                      LanguageController.t('Inicia sesión', 'Sign in'),
+                      LanguageController.t('Inicia sesion', 'Sign in'),
                       style: const TextStyle(color: Colors.red),
                     ),
                   ),
