@@ -57,7 +57,15 @@ class BitacoraPageHelper:
 
         # Se recorren los logs y se agrupan usando la fecha local.
         for log in logs:
-            fecha_local = timezone.localtime(log.fecha_accion) if log.fecha_accion else None
+            fecha_local = None
+            if log.fecha_accion:
+                fecha_valor = log.fecha_accion
+                if timezone.is_naive(fecha_valor):
+                    fecha_valor = timezone.make_aware(
+                        fecha_valor,
+                        timezone.get_current_timezone(),
+                    )
+                fecha_local = timezone.localtime(fecha_valor)
             fecha_clave = fecha_local.date() if fecha_local else None
             agrupados[fecha_clave].append({"registro": log, "fecha_local": fecha_local})
 

@@ -3,7 +3,7 @@ Servicios del módulo bitácora.
 Aquí es donde se maneja toda la lógica relacionada con el historial de acciones.
 """
 # Se importa datetime para trabajar con fechas
-from datetime import datetime
+from django.utils import timezone
 # Q permite hacer filtros más completos (por ejemplo combinar condiciones)
 from django.db.models import Q
 # Se importa el modelo Bitacora desde la capa de dominio
@@ -41,7 +41,7 @@ class BitacoraService:
     def guardar(self, bitacora):
         # Si no tiene fecha, se le asigna automáticamente
         if not bitacora.fecha_accion:
-            bitacora.fecha_accion = datetime.now()
+            bitacora.fecha_accion = timezone.now()
         # Se guarda en la base de datos
         bitacora.save()
         return bitacora
@@ -55,7 +55,7 @@ class BitacoraService:
         entrada = Bitacora(
             id_usuario=usuario,
             accion=accion,
-            fecha_accion=datetime.now()
+            fecha_accion=timezone.now()
         )
         # Se guarda en la base de datos
         entrada.save()

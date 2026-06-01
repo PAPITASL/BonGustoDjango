@@ -1,7 +1,9 @@
 import json
+from datetime import timedelta
 from unittest.mock import patch
 
 from django.test import RequestFactory, TestCase, override_settings
+from django.utils import timezone
 
 from bongusto.domain.models import Usuario
 from bongusto.modules.auth.views import _helper, api_password_request_code, api_password_reset
@@ -73,3 +75,19 @@ class PasswordRecoveryApiTests(TestCase):
         self.usuario.refresh_from_db()
         self.assertTrue(verificar_contrasena_usuario(self.usuario, "NuevaClave1!"))
         self.assertIsNone(_helper.leer_codigo_api(self.usuario.correo))
+
+    def test_validar_sesion_recuperacion_falla_si_codigo_vence(self):
+        reset_data = {
+            "email": self.usuario.correo,
+            "code": "123456",
+            "expires_at": (timezone.now() - timedelta(minutes=1)).isoformat(),
+        }
+
+        valido, mensaje = _helper.validar_sesion_recuperacion(
+            reset_data,
+            self.usuario.correo,
+            "123456",
+        )
+
+        self.assertFalse(valido)
+        self.assertIn("vencio", mensaje.lower())

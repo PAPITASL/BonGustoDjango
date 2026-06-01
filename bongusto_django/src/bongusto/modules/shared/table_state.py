@@ -40,6 +40,11 @@ class MesaStateService:
         """Crea columnas faltantes y normaliza valores legados."""
         if self._schema_ready:
             return
+        if connection.vendor != "mysql":
+            # En PostgreSQL se asume un esquema administrado por migraciones.
+            # El bloque SQL legado de abajo usa sintaxis exclusiva de MySQL.
+            self._schema_ready = True
+            return
 
         with connection.cursor() as cursor:
             cursor.execute("SHOW TABLES LIKE 'mesas'")

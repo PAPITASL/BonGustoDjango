@@ -24,6 +24,10 @@ class PedidoService:
 
     def asegurar_esquema(self):
         """Agrega columnas operativas faltantes en instalaciones existentes."""
+        if connection.vendor != "mysql":
+            # En PostgreSQL el esquema debe venir administrado por modelos/migraciones.
+            # Este bloque legado usa sintaxis SHOW COLUMNS exclusiva de MySQL.
+            return
         with connection.cursor() as cursor:
             cursor.execute("SHOW COLUMNS FROM pedido_encabezado LIKE 'tipo_pedido'")
             if not cursor.fetchone():

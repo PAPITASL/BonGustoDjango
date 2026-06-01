@@ -24,6 +24,11 @@ def home(request):
     return render(request, "landing.html")
 
 
+def ping(request):
+    """Endpoint minimo para pruebas de conectividad y carga basica."""
+    return JsonResponse({"status": "ok"})
+
+
 class SharedStatusHelper:
     """Organiza la logica del health check para que quede mas clara y separada."""
 

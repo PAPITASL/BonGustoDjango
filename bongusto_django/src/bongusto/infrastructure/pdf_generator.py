@@ -11,6 +11,7 @@ from pathlib import Path
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from collections import Counter
+from django.utils import timezone
 from PIL import Image as PILImage
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib import colors
@@ -454,7 +455,7 @@ def _build_report_header(total_width: float, styles) -> Table:
         logo_cell = logo
 
     # Fecha y hora en la que se genera el PDF
-    fecha_impresion = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    fecha_impresion = timezone.localtime(timezone.now()).strftime("%d/%m/%Y %H:%M:%S")
 
     # Texto que va al lado del logo
     copy = [
@@ -494,7 +495,7 @@ def _build_report_footer(total_width: float, styles) -> Paragraph:
     )
 
     # Toma el año actual
-    year = datetime.now().year
+    year = timezone.localtime(timezone.now()).year
 
     # Devuelve el texto del footer
     return Paragraph(f"Copyright © {year} BonGusto. Todos los derechos reservados.", footer_style)

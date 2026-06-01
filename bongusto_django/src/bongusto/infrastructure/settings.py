@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "channels",  # Soporte para WebSocket (chat en tiempo real)
+    "django_extensions",
 
     # Apps propias de BonGusto
     "bongusto.domain",

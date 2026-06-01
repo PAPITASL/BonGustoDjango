@@ -14,6 +14,10 @@ class CalificacionService:
 
     # Se asegura de que la tabla exista en la base de datos
     def asegurar_tabla(self):
+        if connection.vendor != "mysql":
+            # En PostgreSQL la tabla se administra por modelos/migraciones.
+            # Este bloque CREATE TABLE usa sintaxis legado de MySQL.
+            return
 
         # cursor permite ejecutar SQL manualmente
         with connection.cursor() as cursor:

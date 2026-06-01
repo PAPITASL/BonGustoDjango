@@ -28,6 +28,12 @@ class MusicaService:
     def asegurar_esquema(self):
         if self._schema_ready or self._ensuring_schema:
             return
+        if connection.vendor != "mysql":
+            # En PostgreSQL el esquema debe venir de migraciones/modelos.
+            # Las sentencias SHOW COLUMNS / ALTER TABLE ... MODIFY usadas
+            # abajo son compatibilidad legada para instalaciones MySQL.
+            self._schema_ready = True
+            return
         self._ensuring_schema = True
         try:
             with connection.cursor() as cursor:

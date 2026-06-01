@@ -26,6 +26,10 @@ class SolicitudPagoService:
 
     def asegurar_tabla(self):
         """Crea la tabla si la base aun no la tiene."""
+        if connection.vendor != "mysql":
+            # En PostgreSQL la tabla debe existir por modelos/migraciones.
+            # Este bloque de CREATE TABLE usa sintaxis exclusiva de MySQL.
+            return
         with connection.cursor() as cursor:
             cursor.execute(
                 """

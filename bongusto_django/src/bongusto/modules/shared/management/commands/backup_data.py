@@ -3,13 +3,13 @@
 # Librerias para comprimir, manejar JSON y fechas
 import gzip
 import json
-from datetime import datetime
 from pathlib import Path
 
 # Herramientas de Django
 from django.apps import apps
 from django.core import serializers
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 # Comando personalizado de Django
 class Command(BaseCommand):
@@ -37,7 +37,7 @@ class Command(BaseCommand):
         output_dir.mkdir(parents=True, exist_ok=True)
 
         # Nombre del archivo con fecha y hora
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = timezone.localtime(timezone.now()).strftime("%Y%m%d_%H%M%S")
         output_file = output_dir / f"bongusto_backup_{timestamp}.json.gz"
 
         payload = []

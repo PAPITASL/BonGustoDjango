@@ -42,6 +42,7 @@ urlpatterns = [
     # =========================
 
     # Ruta para saber si el sistema está funcionando (healthcheck)
+    path("ping/", shared_views.ping, name="ping"),
     path("healthz", shared_views.healthcheck, name="healthcheck"),
     path("api/language", shared_views.api_language, name="api_language"),
     path("api/language/", shared_views.api_language),
